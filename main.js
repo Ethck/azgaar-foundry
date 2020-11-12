@@ -1,11 +1,8 @@
-async function parseAzgaarMap(){
-
-}
-
 class LoadAzgaarMap extends FormApplication {
     constructor(...args) {
     super(...args);
     game.users.apps.push(this);
+    this.burgs = {};
   }
 
   static get defaultOptions() {
@@ -31,46 +28,65 @@ class LoadAzgaarMap extends FormApplication {
 
   activateListeners(html) {
     super.activateListeners(html);
-    html.find("input:file").change((event) => this.loadMap(event));
+    html.find("input:file").change((event) => this.parseMap(event));
+    html.find("button:submit").click((event) => this.importData(event));
   }
 
   loadMap(event){
-    let input = $(event.currentTarget)[0]
-    let fr = new FileReader();
-    let file = input.files[0];
-    let text = fr.readAsText(file)
+    return new Promise((resolve, reject) => {
+      let input = $(event.currentTarget)[0]
+      let fr = new FileReader();
+      let file = input.files[0];
 
-    fr.onload = function () {
-        const lines = fr.result.split(/[\r\n]+/g);
-        lines.forEach((line) => {
-            try {
-                const obj = JSON.parse(line);
-                console.log(obj)
+      fr.onload = () => {
+        resolve(fr.result);
+      }
+      fr.readAsText(file)
 
-                // Provinces
-                if ("state" in obj[1] && !("cell" in obj[1])) {
-                    console.log("Provinces:", obj)
-                }
-                // These are our countries
-                else if ("diplomacy" in obj[0]) {
-                    console.log("Countries:", obj)
-                // Religions
-                } else if (obj[0].name === "No religion"){
-                    console.log("Religions:", obj)
-                // Cultures
-                } else if (obj[0].name === "Wildlands") {
-                    console.log("Cultures:", obj)
-                // Burgs
-                } else if ("population" in obj[1] && "citadel" in obj[1]) {
-                    console.log("Burgs:", obj)
-                // Rivers
-                } else if ("mouth" in obj[0]) {
-                    console.log("Rivers:", obj)
-                }
-            } catch (error) {
+    });
+  }
+
+  async parseMap(event) {
+    let text = await this.loadMap(event);
+
+    const lines = text.split(/[\r\n]+/g);
+    lines.forEach((line) => {
+        try {
+            const obj = JSON.parse(line);
+
+            // Provinces
+            if ("state" in obj[1] && !("cell" in obj[1])) {
+                console.log("Provinces:", obj)
+                this.provinces = obj;
             }
-        })
-    }
+            // These are our countries
+            else if ("diplomacy" in obj[0]) {
+                console.log("Countries:", obj)
+                this.countries = obj;
+            // Religions
+            } else if (obj[0].name === "No religion"){
+                console.log("Religions:", obj)
+                this.religions = obj;
+            // Cultures
+            } else if (obj[0].name === "Wildlands") {
+                console.log("Cultures:", obj)
+                this.cultures = obj;
+            // Burgs
+            } else if ("population" in obj[1] && "citadel" in obj[1]) {
+                console.log("Burgs:", obj)
+                this.burgs = obj;
+            // Rivers
+            } else if ("mouth" in obj[0]) {
+                console.log("Rivers:", obj)
+                this.rivers = obj;
+            }
+        } catch (error) {
+        }
+      })
+  }
+
+  importData(event){
+    console.log(this.burgs);
   }
 
   async _updateObject(event, formData) {
