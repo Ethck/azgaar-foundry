@@ -1,0 +1,16 @@
+{
+    "name": "azgaar-foundry",
+    "title": "Unofficial Azgaar's Fantasy Map Generator Import",
+    "description": "Import a map from Azgaar's Fantasy Map Generator into Foundry.",
+    "version": "0.0.1",
+    "minimumCoreVersion": "0.7.0",
+    "compatibleCoreVersion": "0.7.5",
+    "author": "Ethck",
+    "systems": ["dnd5e"],
+    "esmodules": ["/main.js"],
+    "styles": ["/css/map.css"],
+    "url": "https://github.com/ethck/azgaar-foundry",
+    "manifest": "https://raw.githubusercontent.com/ethck/azgaar-foundry/master/module.json",
+    "download": "https://github.com/ethck/azgaar-foundry/releases/download/0.1.0/azgaar-foundry.zip",
+    "readme": "https://github.com/Ethck/azgaar-foundry/blob/master/README.md"
+}
