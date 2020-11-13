@@ -85,8 +85,22 @@ class LoadAzgaarMap extends FormApplication {
       })
   }
 
-  importData(event){
+  async importData(event){
     console.log(this.burgs);
+
+    let folder = await Folder.create({name: "Burgs", type: "JournalEntry", parent: null})
+
+    this.burgs.forEach((burg) => {
+      console.log(burg.name);
+      if (burg.name){
+         JournalEntry.create({
+          name: burg.name,
+          content: JSON.stringify(burg),
+          folder: folder._id,
+          permission: {default: 4}
+        })
+     }
+    })
   }
 
   async _updateObject(event, formData) {
