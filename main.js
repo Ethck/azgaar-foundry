@@ -86,20 +86,37 @@ class LoadAzgaarMap extends FormApplication {
   }
 
   async importData(event){
-    console.log(this.burgs);
 
+    ui.notifications.notify("UAFMGI: Creating Journals for Burgs.")
     let folder = await Folder.create({name: "Burgs", type: "JournalEntry", parent: null})
-
     this.burgs.forEach((burg) => {
-      console.log(burg.name);
-      if (burg.name){
-         JournalEntry.create({
-          name: burg.name,
-          content: JSON.stringify(burg),
-          folder: folder._id,
-          permission: {default: 4}
-        })
-     }
+      if (!(jQuery.isEmptyObject(burg))){
+
+          let content = `<div>
+            <h3>${burg.name}</h3>
+            <h4>State: ${this.countries[burg.state].name}</h4>
+            <h4>Culture: ${this.cultures[burg.culture].name}</h4>
+            <h4>Population: ${burg.population}</h4>
+            <h4>Citadel: ${burg.citadel}</h4>
+            <h4>Capital: ${burg.capital}</h4>
+            <h4>Port: ${burg.port}</h4>
+            <h4>Plaza: ${burg.plaza}</h4>
+            <h4>Walls: ${burg.walls}</h4>
+            <h4>Shanty: ${burg.shanty}</h4>
+            <h4>Temple: ${burg.temple}</h4>
+            <h4>Feature: ${burg.feature}</h4>
+          </div>
+          `
+
+          if (burg.name){
+             JournalEntry.create({
+              name: burg.name,
+              content: content,
+              folder: folder._id,
+              permission: {default: 4}
+            })
+         }
+      }
     })
   }
 
