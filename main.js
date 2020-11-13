@@ -112,6 +112,38 @@ class LoadAzgaarMap extends FormApplication {
       }
     })
 
+    ui.notifications.notify("UAFMGI: Creating Journals for Countries.")
+    let countryFolder = await Folder.create({name: "Countries", type: "JournalEntry", parent: null})
+    this.countries.forEach((country) => {
+      if (!(jQuery.isEmptyObject(country) || (country.name === "Neutrals"))){
+        // TODO: Extrapolate Provinces, add Burgs?, Neighbors, Diplomacy, Campaigns?, Military?
+          let content = `<div>
+            <h3>${country.fullName}</h3>
+            <h4>Type: ${country.type}</h4>
+            <h4>Expansionism: ${country.expansionism}</h4>
+            <h4>Color: ${country.color}</h4>
+            <h4>Culture: ${this.cultures[country.culture].name}</h4>
+            <h4>Urban: ${country.urban}</h4>
+            <h4>Rural: ${country.rural}</h4>
+            <h4># of Burgs: ${country.burgs}</h4>
+            <h4>Area: ${country.area}</h4>
+            <h4>Form: ${country.form}</h4>
+            <h4>Government: ${country.formName}</h4>
+            <h4>Provinces: ${country.provinces}</h4> 
+          </div>
+          `
+
+          if (country.name){
+             JournalEntry.create({
+              name: country.name,
+              content: content,
+              folder: countryFolder._id,
+              permission: {default: 4}
+            })
+         }
+      }
+    })
+
     ui.notifications.notify("UAFMGI: Creating Journals for Burgs.")
     let burgFolder = await Folder.create({name: "Burgs", type: "JournalEntry", parent: null})
     this.burgs.forEach((burg) => {
