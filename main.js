@@ -87,8 +87,33 @@ class LoadAzgaarMap extends FormApplication {
 
   async importData(event){
 
+    ui.notifications.notify("UAFMGI: Creating Journals for Cultures.")
+    let cultureFolder = await Folder.create({name: "Cultures", type: "JournalEntry", parent: null})
+    this.cultures.forEach((culture) => {
+      if (!(jQuery.isEmptyObject(culture))){
+
+          let content = `<div>
+            <h3>${culture.name}</h3>
+            <h4>Type: ${culture.type}</h4>
+            <h4>Expansionism: ${culture.expansionism}</h4>
+            <h4>Color: ${culture.color}</h4>
+            <h4>Code: ${culture.code}</h4>
+          </div>
+          `
+
+          if (culture.name){
+             JournalEntry.create({
+              name: culture.name,
+              content: content,
+              folder: cultureFolder._id,
+              permission: {default: 4}
+            })
+         }
+      }
+    })
+
     ui.notifications.notify("UAFMGI: Creating Journals for Burgs.")
-    let folder = await Folder.create({name: "Burgs", type: "JournalEntry", parent: null})
+    let burgFolder = await Folder.create({name: "Burgs", type: "JournalEntry", parent: null})
     this.burgs.forEach((burg) => {
       if (!(jQuery.isEmptyObject(burg))){
 
@@ -112,7 +137,7 @@ class LoadAzgaarMap extends FormApplication {
              JournalEntry.create({
               name: burg.name,
               content: content,
-              folder: folder._id,
+              folder: burgFolder._id,
               permission: {default: 4}
             })
          }
