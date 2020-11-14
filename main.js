@@ -48,6 +48,26 @@ class LoadAzgaarMap extends FormApplication {
 
   async parseMap(event) {
     let text = await this.loadMap(event);
+    /* Data format as presented in v1.4 of Azgaar's Fantasy Map Generator
+    const data = [params, settings, coords, biomes, notesData, svg_xml,
+      gridGeneral, grid.cells.h, grid.cells.prec, grid.cells.f, grid.cells.t, grid.cells.temp,
+      features, cultures, states, burgs,
+      pack.cells.biome, pack.cells.burg, pack.cells.conf, pack.cells.culture, pack.cells.fl,
+      pop, pack.cells.r, pack.cells.road, pack.cells.s, pack.cells.state,
+      pack.cells.religion, pack.cells.province, pack.cells.crossroad, religions, provinces,
+      namesData, rivers].join("\r\n");
+    */
+
+    /* We are interested in the following fields, so extract them smartly (since order may change)
+    Biomes: Biomes of the world (?)
+    Cultures: Cultures
+    States: Countries
+    Burgs: Cities
+    Religions: Relgions of the world
+    Provinces: Group of Burgs in States
+    namesData: Real world basis (culture) for countries/cultures.
+    Rivers: Rivers
+    */
 
     const lines = text.split(/[\r\n]+/g);
     lines.forEach((line) => {
