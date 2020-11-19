@@ -108,10 +108,9 @@ class LoadAzgaarMap extends FormApplication {
   async importData(event){
 
     ui.notifications.notify("UAFMGI: Creating Journals for Cultures.")
-    let cultureFolder = await Folder.create({name: "Cultures", type: "JournalEntry", parent: null})
-    this.cultures.forEach((culture) => {
+    let cultureComp = await Compendium.create({name: "Cultures", label: "Cultures", entity: "JournalEntry"});
+    let cultureData = this.cultures.map((culture) => {
       if (!(jQuery.isEmptyObject(culture))){
-
           let content = `<div>
             <h3>${culture.name}</h3>
             <h4>Type: ${culture.type}</h4>
@@ -122,19 +121,22 @@ class LoadAzgaarMap extends FormApplication {
           `
 
           if (culture.name){
-             JournalEntry.create({
+            let journal = {
               name: culture.name,
               content: content,
-              folder: cultureFolder._id,
               permission: {default: 4}
-            })
-         }
+            };
+            return journal;
+          }
       }
-    })
+    });
+
+    await cultureComp.createEntity(cultureData);
+    this.cultureComp = cultureComp;
 
     ui.notifications.notify("UAFMGI: Creating Journals for Countries.")
-    let countryFolder = await Folder.create({name: "Countries", type: "JournalEntry", parent: null})
-    this.countries.forEach((country) => {
+    let countryComp = await Compendium.create({name: "Countries", label: "Countries", entity: "JournalEntry"})
+    let countryData = this.countries.map((country) => {
       if (!(jQuery.isEmptyObject(country) || (country.name === "Neutrals"))){
         // TODO: Extrapolate Provinces, add Burgs?, Neighbors, Diplomacy, Campaigns?, Military?
           let content = `<div>
@@ -154,19 +156,25 @@ class LoadAzgaarMap extends FormApplication {
           `
 
           if (country.name){
-             JournalEntry.create({
+             let journal = {
               name: country.name,
               content: content,
-              folder: countryFolder._id,
               permission: {default: 4}
-            })
+            };
+
+            return journal;
          }
       }
-    })
+    });
+
+    countryData.shift(); // Remove first element. This is the "Neutrals" country.
+
+    await countryComp.createEntity(countryData);
+    this.countryComp = countryComp
 
     ui.notifications.notify("UAFMGI: Creating Journals for Burgs.")
-    let burgFolder = await Folder.create({name: "Burgs", type: "JournalEntry", parent: null})
-    this.burgs.forEach((burg) => {
+    let burgComp = await Compendium.create({name: "Burgs", label: "Burgs", entity: "JournalEntry"});
+    let burgData = this.burgs.map((burg) => {
       if (!(jQuery.isEmptyObject(burg))){
 
           let content = `<div>
@@ -186,15 +194,33 @@ class LoadAzgaarMap extends FormApplication {
           `
 
           if (burg.name){
-             JournalEntry.create({
+             return {
               name: burg.name,
               content: content,
-              folder: burgFolder._id,
               permission: {default: 4}
-            })
+            };
          }
       }
     })
+
+    burgData.shift(); // Remove first element. This is the empty burg.
+    await burgComp.createEntity(burgData);
+    this.burgComp = burgComp;
+  }
+
+  findObject({type = "burg", name = ""}) {
+    let searchable;
+    if (type === "burg") {
+      searchable = this.burgs;
+    } else if (type === "country") {
+      searchable = this.countries;
+    } else if (type === "culture") {
+      searchable = this.cultures;
+    } else if (type === "any") {
+      searchable = [...this.burgs, ...this.countries, ...this.cultures];
+    }
+
+    return searchable.find((elem) => elem.name === name);
   }
 
   async _updateObject(event, formData) {
