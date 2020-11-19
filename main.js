@@ -207,7 +207,7 @@ class LoadAzgaarMap extends FormApplication {
     await burgComp.createEntity(burgData);
     this.burgComp = burgComp;
 
-    console.log(this.retriveJournalByName({name: "Ahadi"}));
+    //console.log(this.retriveJournalByName({name: "Ahadi"}));
   }
 
   findObject({type = "burg", name = ""}) {
