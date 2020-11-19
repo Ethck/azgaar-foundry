@@ -206,6 +206,8 @@ class LoadAzgaarMap extends FormApplication {
     burgData.shift(); // Remove first element. This is the empty burg.
     await burgComp.createEntity(burgData);
     this.burgComp = burgComp;
+
+    console.log(this.retriveJournalByName({name: "Ahadi"}));
   }
 
   findObject({type = "burg", name = ""}) {
@@ -221,6 +223,25 @@ class LoadAzgaarMap extends FormApplication {
     }
 
     return searchable.find((elem) => elem.name === name);
+  }
+
+  async retriveJournalByName({type = "burg", name=""}) {
+    let searchable;
+    if (type === "burg") {
+      searchable = this.burgComp;
+    } else if (type === "country") {
+      searchable = this.countryComp;
+    } else if (type === "culture") {
+      searchable = this.cultureComp;
+    }
+
+    let searchList = await searchable.getIndex();
+
+    let id = searchList.find((elem) => elem.name === name)._id;
+
+    return await searchable.getEntry(id);
+
+
   }
 
   async _updateObject(event, formData) {
