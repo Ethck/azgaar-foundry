@@ -251,6 +251,43 @@ class LoadAzgaarMap extends FormApplication {
   }
 }
 
+class ExportAzgaarMap extends FormApplication {
+    constructor(...args) {
+    super(...args);
+    game.users.apps.push(this);
+    this.burgs = {};
+  }
+
+  static get defaultOptions() {
+    const options = super.defaultOptions;
+    options.title = "Export Into UAFMGI";
+    options.id = "azgaar-foundry";
+    options.template = "modules/azgaar-foundry/templates/export.html";
+    options.closeOnSubmit = true;
+    options.popOut = true;
+    options.width = 600;
+    options.height = "auto";
+    return options;
+  }
+
+  async getData() {
+    return {
+    };
+  }
+
+  render(force, context = {}) {
+    return super.render(force, context);
+  }
+
+  activateListeners(html) {
+    super.activateListeners(html);
+  }
+
+  async _updateObject(event, formData) {
+    return;
+  }
+}
+
 Hooks.once("init", () => {
   game.settings.registerMenu("azgaar-foundry", "config", {
     name: "Load Map",
@@ -265,14 +302,18 @@ Hooks.once("init", () => {
 // This code will never run if the inlineViewer module is not enabled, so
 // should be *fine*
 Hooks.on("renderInlineViewer", (inlineViewer) => {
-  console.log(inlineViewer);
   // Make sure we're using FMG, otherwise no touchy
   if (inlineViewer.options.url.startsWith("https://azgaar.github.io/Fantasy-Map-Generator/")){
     // Add our custom export button to the webviewer
     $(inlineViewer.element).find("header > a:nth-child(2)").before(`
-        <a hrefclass="header-button"><i class="fas fa-podcast"></i>Export to UAFMGI</a>
+        <a class="uafmgi-export"><i class="fas fa-podcast"></i>Export to UAFMGI</a>
       `)
 
-    console.log(inlineViewer.element);
+    $(inlineViewer.element).find(".uafmgi-export").click(() => handleInlineExport());
   }
 });
+
+async function handleInlineExport() {
+  console.log("Clicked!");
+  new ExportAzgaarMap().render(true);
+}
