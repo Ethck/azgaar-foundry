@@ -210,6 +210,7 @@ class LoadAzgaarMap extends FormApplication {
     //console.log(this.retriveJournalByName({name: "Ahadi"}));
   }
 
+  // In application memory...
   findObject({type = "burg", name = ""}) {
     let searchable;
     if (type === "burg") {
@@ -225,6 +226,7 @@ class LoadAzgaarMap extends FormApplication {
     return searchable.find((elem) => elem.name === name);
   }
 
+  // Use compendiums to find journals
   async retriveJournalByName({type = "burg", name=""}) {
     let searchable;
     if (type === "burg") {
@@ -258,4 +260,19 @@ Hooks.once("init", () => {
     type: LoadAzgaarMap,
     restricted: true,
   });
+});
+
+// This code will never run if the inlineViewer module is not enabled, so
+// should be *fine*
+Hooks.on("renderInlineViewer", (inlineViewer) => {
+  console.log(inlineViewer);
+  // Make sure we're using FMG, otherwise no touchy
+  if (inlineViewer.options.url.startsWith("https://azgaar.github.io/Fantasy-Map-Generator/")){
+    // Add our custom export button to the webviewer
+    $(inlineViewer.element).find("header > a:nth-child(2)").before(`
+        <a hrefclass="header-button"><i class="fas fa-podcast"></i>Export to UAFMGI</a>
+      `)
+
+    console.log(inlineViewer.element);
+  }
 });
