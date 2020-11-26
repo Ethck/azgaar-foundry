@@ -1,4 +1,8 @@
 <form>
-    <input type="file"/>
+    <input id="map" type="file">Link to MAP file</input>
+    <input type="text" name="svgMap" title="SVG Path" class="icon-path" placeholder="/icons/example.svg" data-dtype="String">
+    <button type="button" id="svg" name="file-picker" class="file-picker" data-target="svgMap" data-type="image" title="Browse Files" tabindex="-1">
+        <i class="fas fa-file-import fa-fw"></i>Link to SVG
+    </button>
     <button type="submit">Import</button>
 </form>
