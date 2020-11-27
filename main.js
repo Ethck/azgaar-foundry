@@ -1,8 +1,14 @@
+/**
+ * A Configuration menu that allows the user to specify a *.map file
+ * and a *.svg to build a world off of. This FormApplication will parse
+ * the map file for all relevant information, and build a new scene to 
+ * represent all of the data gathered. Additionally will store data in 
+ * Journal Entries in order to make future referencing easier.
+ */
 class LoadAzgaarMap extends FormApplication {
   constructor(...args) {
     super(...args);
     game.users.apps.push(this);
-    this.burgs = {};
   }
 
   static get defaultOptions() {
@@ -16,7 +22,9 @@ class LoadAzgaarMap extends FormApplication {
     options.height = "auto";
     return options;
   }
-
+  /**
+   * @return {object}    Object that contains all information necessary to render template.
+   */
   async getData() {
     return {};
   }
@@ -25,12 +33,21 @@ class LoadAzgaarMap extends FormApplication {
     return super.render(force, context);
   }
 
+  /**
+   * Activate all of the listener's for the form, both Foundry
+   * and custom ones.
+   * 
+   * @param  {DOM} html    DOM of the Form Application (template)
+   */
   activateListeners(html) {
     super.activateListeners(html);
     html.find("#map").change((event) => this.parseMap(event));
-    //html.find("button:submit").click((event) => this.importData(event));
   }
 
+  /**
+   * @param  {event} event    triggered by change of the "map" input
+   * @return {Promise}        resolve once file is loaded.
+   */
   loadMap(event) {
     return new Promise((resolve, reject) => {
       let input = $(event.currentTarget)[0];
@@ -44,7 +61,15 @@ class LoadAzgaarMap extends FormApplication {
     });
   }
 
+  /**
+   * Adhering to the data format of FMG, extract all valuable information
+   * and save it to Memory.
+   * 
+   * @param  {event} event    triggered by change of the "map" input
+   * @return {Promise}        resolve() once all parsing is done
+   */
   async parseMap(event) {
+    // Load the file
     let text = await this.loadMap(event);
     /* Data format as presented in v1.4 of Azgaar's Fantasy Map Generator
     const data = [params, settings, coords, biomes, notesData, svg_xml,
@@ -66,7 +91,7 @@ class LoadAzgaarMap extends FormApplication {
     namesData: Real world basis (culture) for countries/cultures.
     Rivers: Rivers
     */
-
+    // Turn file into array of lines
     const lines = text.split(/[\r\n]+/g);
 
     // FMG Settings
@@ -77,7 +102,14 @@ class LoadAzgaarMap extends FormApplication {
 
     lines.forEach((line) => {
       try {
+        // Only interested in JSON objects
         const obj = JSON.parse(line);
+
+        /**
+         * Each JSON object is one of the following categories
+         * so here we determine which one it is, then assign
+         * the proper variables to it.
+         */
 
         // Provinces
         if ("state" in obj[1] && !("cell" in obj[1])) {
@@ -105,12 +137,23 @@ class LoadAzgaarMap extends FormApplication {
           console.log("Rivers:", obj);
           this.rivers = obj;
         }
+        // Many things in the file are not JSON, we don't care about them.
       } catch (error) {}
     });
   }
 
+  /**
+   * This method takes the data from memory and creates readable Journal
+   * Entries out of it. 
+   * 
+   * @return {Promise}    resolve once all Foundry creations are done.
+   */
   async importData() {
     return new Promise(async (resolve, reject) => {
+
+      /**
+       * Cultures
+       */
       ui.notifications.notify("UAFMGI: Creating Journals for Cultures.");
       let cultureComp = await Compendium.create({
         name: "Cultures",
@@ -142,6 +185,9 @@ class LoadAzgaarMap extends FormApplication {
       await cultureComp.createEntity(cultureData);
       this.cultureComp = cultureComp;
 
+      /**
+       * Countries
+       */
       ui.notifications.notify("UAFMGI: Creating Journals for Countries.");
       let countryComp = await Compendium.create({
         name: "Countries",
@@ -184,6 +230,9 @@ class LoadAzgaarMap extends FormApplication {
       await countryComp.createEntity(countryData);
       this.countryComp = countryComp;
 
+      /**
+       * Burgs
+       */
       ui.notifications.notify("UAFMGI: Creating Journals for Burgs.");
       let burgComp = await Compendium.create({
         name: "Burgs",
@@ -228,6 +277,12 @@ class LoadAzgaarMap extends FormApplication {
     });
   }
 
+  /**
+   * Make a new scene with the SVG as the background
+   * 
+   * @param  {string} svg    File path to the SVG asset
+   * @return {Scene}         New Scene to work on
+   */
   async makeScene(svg) {
     return new Promise(async (resolve, reject) => {
       //Create The Map Scene
@@ -245,6 +300,13 @@ class LoadAzgaarMap extends FormApplication {
     });
   }
 
+  /**
+   * Find an object in memory based on params
+   * 
+   * @param  {String} type    Type of object to find
+   * @param  {String} name    Name of object to find
+   * @return {object}         Found Object
+   */
   findObject({ type = "burg", name = "" }) {
     let searchable;
     if (type === "burg") {
@@ -260,6 +322,13 @@ class LoadAzgaarMap extends FormApplication {
     return searchable.find((elem) => elem.name === name);
   }
 
+  /**
+   * Find an object by searching through compendiums (Foundry db)
+   * 
+   * @param  {String} type    Type of object to find
+   * @param  {String} name    Name of object to find
+   * @return {object}         Found Object
+   */
   async retrieveJournalByName({ type = "burg", name = "" }) {
     let searchable;
     if (type === "burg") {
@@ -276,6 +345,14 @@ class LoadAzgaarMap extends FormApplication {
     return await searchable.getEntry(id);
   }
 
+  /**
+   * Automatically called by Foundry upon submission of FormApplication
+   * Controls the process of creating everything. Scene, data, notes, etc.
+   * 
+   * @param  {event} event        event that triggered this call, usually a click
+   * @param  {String} formData    HTML of the form that was submitted
+   * @return {None}               Foundry expects it to return something.
+   */
   async _updateObject(event, formData) {
     // Make the scene
     let svg = this.element.find('[name="svgMap"]').val();
@@ -287,7 +364,7 @@ class LoadAzgaarMap extends FormApplication {
     // Start applying notes (1:1 ratio for now)
     this.burgs.forEach((burg) => {
       let journalEntry = this.retrieveJournalByName({ name: burg.name });
-      console.log(journalEntry);
+
       //Create a MapNote for this journalEntry, adding it to the active, new, scene.
       Note.create({
         entryId: journalEntry._id,
