@@ -286,9 +286,10 @@ class LoadAzgaarMap extends FormApplication {
    */
   async makeScene(svg) {
     return new Promise(async (resolve, reject) => {
+      let sceneName = svg.split("%20")[0]
       //Create The Map Scene
       let sceneData = await Scene.create({
-        name: "Azgaar Map",
+        name: sceneName,
         width: this.mapWidth,
         height: this.mapHeight,
         padding: 0.0,
