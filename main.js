@@ -132,6 +132,7 @@ class LoadAzgaarMap extends FormApplication {
         } else if ("population" in obj[1] && "citadel" in obj[1]) {
           console.log("Burgs:", obj);
           this.burgs = obj;
+          this.burgs.shift(); // Remove blank one at the begininng
           // Rivers
         } else if ("mouth" in obj[0]) {
           console.log("Rivers:", obj);
@@ -368,12 +369,12 @@ class LoadAzgaarMap extends FormApplication {
     // import our data
     await this.importData();
 
-    // Start applying notes (1:1 ratio for now)
-    this.burgs.forEach((burg) => {
+    // Start prepping notes
+    let notesData = this.burgs.map((burg) => {
       let journalEntry = this.retrieveJournalByName({ name: burg.name });
 
-      //Create a MapNote for this journalEntry, adding it to the active, new, scene.
-      Note.create({
+      // Assemble data required for notes
+      return {
         entryId: journalEntry._id,
         x: burg.x,
         y: burg.y,
@@ -386,8 +387,10 @@ class LoadAzgaarMap extends FormApplication {
         textColor: "#00FFFF",
         "flags.pinfix.minZoomLevel": 2,
         "flags.pinfix.maxZoomLevel": 3
-      });
+      };
     });
+    // Make all of our notes, in one call to the db.
+    await scene.createEmbeddedEntity("Note", notesData);
     return;
   }
 }
