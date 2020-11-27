@@ -1,5 +1,5 @@
 class LoadAzgaarMap extends FormApplication {
-    constructor(...args) {
+  constructor(...args) {
     super(...args);
     game.users.apps.push(this);
     this.burgs = {};
@@ -18,8 +18,7 @@ class LoadAzgaarMap extends FormApplication {
   }
 
   async getData() {
-    return {
-    };
+    return {};
   }
 
   render(force, context = {}) {
@@ -32,17 +31,16 @@ class LoadAzgaarMap extends FormApplication {
     //html.find("button:submit").click((event) => this.importData(event));
   }
 
-  loadMap(event){
+  loadMap(event) {
     return new Promise((resolve, reject) => {
-      let input = $(event.currentTarget)[0]
+      let input = $(event.currentTarget)[0];
       let fr = new FileReader();
       let file = input.files[0];
 
       fr.onload = () => {
         resolve(fr.result);
-      }
-      fr.readAsText(file)
-
+      };
+      fr.readAsText(file);
     });
   }
 
@@ -70,77 +68,90 @@ class LoadAzgaarMap extends FormApplication {
     */
 
     const lines = text.split(/[\r\n]+/g);
-    lines.forEach((line) => {
-        try {
-            const obj = JSON.parse(line);
 
-            // Provinces
-            if ("state" in obj[1] && !("cell" in obj[1])) {
-                console.log("Provinces:", obj)
-                this.provinces = obj;
-            }
-            // These are our countries
-            else if ("diplomacy" in obj[0]) {
-                console.log("Countries:", obj)
-                this.countries = obj;
-            // Religions
-            } else if (obj[0].name === "No religion"){
-                console.log("Religions:", obj)
-                this.religions = obj;
-            // Cultures
-            } else if (obj[0].name === "Wildlands") {
-                console.log("Cultures:", obj)
-                this.cultures = obj;
-            // Burgs
-            } else if ("population" in obj[1] && "citadel" in obj[1]) {
-                console.log("Burgs:", obj)
-                this.burgs = obj;
-            // Rivers
-            } else if ("mouth" in obj[0]) {
-                console.log("Rivers:", obj)
-                this.rivers = obj;
-            }
-        } catch (error) {
+    // FMG Settings
+    let firstLine = lines[0].split("|");
+    // Extract image size
+    this.mapWidth = firstLine[4];
+    this.mapHeight = firstLine[5];
+
+    lines.forEach((line) => {
+      try {
+        const obj = JSON.parse(line);
+
+        // Provinces
+        if ("state" in obj[1] && !("cell" in obj[1])) {
+          console.log("Provinces:", obj);
+          this.provinces = obj;
         }
-      })
+        // These are our countries
+        else if ("diplomacy" in obj[0]) {
+          console.log("Countries:", obj);
+          this.countries = obj;
+          // Religions
+        } else if (obj[0].name === "No religion") {
+          console.log("Religions:", obj);
+          this.religions = obj;
+          // Cultures
+        } else if (obj[0].name === "Wildlands") {
+          console.log("Cultures:", obj);
+          this.cultures = obj;
+          // Burgs
+        } else if ("population" in obj[1] && "citadel" in obj[1]) {
+          console.log("Burgs:", obj);
+          this.burgs = obj;
+          // Rivers
+        } else if ("mouth" in obj[0]) {
+          console.log("Rivers:", obj);
+          this.rivers = obj;
+        }
+      } catch (error) {}
+    });
   }
 
-  async importData(){
+  async importData() {
     return new Promise(async (resolve, reject) => {
-
-      ui.notifications.notify("UAFMGI: Creating Journals for Cultures.")
-      let cultureComp = await Compendium.create({name: "Cultures", label: "Cultures", entity: "JournalEntry"});
+      ui.notifications.notify("UAFMGI: Creating Journals for Cultures.");
+      let cultureComp = await Compendium.create({
+        name: "Cultures",
+        label: "Cultures",
+        entity: "JournalEntry",
+      });
       let cultureData = this.cultures.map((culture) => {
-        if (!(jQuery.isEmptyObject(culture))){
-            let content = `<div>
+        if (!jQuery.isEmptyObject(culture)) {
+          let content = `<div>
               <h3>${culture.name}</h3>
               <h4>Type: ${culture.type}</h4>
               <h4>Expansionism: ${culture.expansionism}</h4>
               <h4>Color: ${culture.color}</h4>
               <h4>Code: ${culture.code}</h4>
             </div>
-            `
+            `;
 
-            if (culture.name){
-              let journal = {
-                name: culture.name,
-                content: content,
-                permission: {default: 4}
-              };
-              return journal;
-            }
+          if (culture.name) {
+            let journal = {
+              name: culture.name,
+              content: content,
+              permission: { default: 4 },
+            };
+            return journal;
+          }
         }
       });
 
       await cultureComp.createEntity(cultureData);
       this.cultureComp = cultureComp;
 
-      ui.notifications.notify("UAFMGI: Creating Journals for Countries.")
-      let countryComp = await Compendium.create({name: "Countries", label: "Countries", entity: "JournalEntry"})
+      ui.notifications.notify("UAFMGI: Creating Journals for Countries.");
+      let countryComp = await Compendium.create({
+        name: "Countries",
+        label: "Countries",
+        entity: "JournalEntry",
+      });
       let countryData = this.countries.map((country) => {
-        if (!(jQuery.isEmptyObject(country) || (country.name === "Neutrals"))){
+        if (!(jQuery.isEmptyObject(country) || country.name === "Neutrals")) {
           // TODO: Extrapolate Provinces, add Burgs?, Neighbors, Diplomacy, Campaigns?, Military?
-            let content = `<div>
+          let content = `<div>
               <h3>${country.fullName}</h3>
               <h4>Type: ${country.type}</h4>
               <h4>Expansionism: ${country.expansionism}</h4>
@@ -154,31 +165,34 @@ class LoadAzgaarMap extends FormApplication {
               <h4>Government: ${country.formName}</h4>
               <h4>Provinces: ${country.provinces}</h4> 
             </div>
-            `
+            `;
 
-            if (country.name){
-               let journal = {
-                name: country.name,
-                content: content,
-                permission: {default: 4}
-              };
+          if (country.name) {
+            let journal = {
+              name: country.name,
+              content: content,
+              permission: { default: 4 },
+            };
 
-              return journal;
-           }
+            return journal;
+          }
         }
       });
 
       countryData.shift(); // Remove first element. This is the "Neutrals" country.
 
       await countryComp.createEntity(countryData);
-      this.countryComp = countryComp
+      this.countryComp = countryComp;
 
-      ui.notifications.notify("UAFMGI: Creating Journals for Burgs.")
-      let burgComp = await Compendium.create({name: "Burgs", label: "Burgs", entity: "JournalEntry"});
+      ui.notifications.notify("UAFMGI: Creating Journals for Burgs.");
+      let burgComp = await Compendium.create({
+        name: "Burgs",
+        label: "Burgs",
+        entity: "JournalEntry",
+      });
       let burgData = this.burgs.map((burg) => {
-        if (!(jQuery.isEmptyObject(burg))){
-
-            let content = `<div>
+        if (!jQuery.isEmptyObject(burg)) {
+          let content = `<div>
               <h3>${burg.name}</h3>
               <h4>State: ${this.countries[burg.state].name}</h4>
               <h4>Culture: ${this.cultures[burg.culture].name}</h4>
@@ -192,17 +206,17 @@ class LoadAzgaarMap extends FormApplication {
               <h4>Temple: ${burg.temple}</h4>
               <h4>Feature: ${burg.feature}</h4>
             </div>
-            `
+            `;
 
-            if (burg.name){
-               return {
-                name: burg.name,
-                content: content,
-                permission: {default: 4}
-              };
-           }
+          if (burg.name) {
+            return {
+              name: burg.name,
+              content: content,
+              permission: { default: 4 },
+            };
+          }
         }
-      })
+      });
 
       burgData.shift(); // Remove first element. This is the empty burg.
       await burgComp.createEntity(burgData);
@@ -214,26 +228,24 @@ class LoadAzgaarMap extends FormApplication {
     });
   }
 
-  async makeScene(svg){
-    return new Promise(async (resolve,reject) => {
-    //Create The Map Scene
-    let sceneData = await Scene.create(
-      {
+  async makeScene(svg) {
+    return new Promise(async (resolve, reject) => {
+      //Create The Map Scene
+      let sceneData = await Scene.create({
         name: "Azgaar Map",
-        width: 1827,
-        height: 978,
+        width: this.mapWidth,
+        height: this.mapHeight,
         padding: 0.0,
-        img: svg
+        img: svg,
       });
 
-    await sceneData.activate();
+      await sceneData.activate();
 
-    resolve(sceneData);
-
-    })
+      resolve(sceneData);
+    });
   }
 
-  findObject({type = "burg", name = ""}) {
+  findObject({ type = "burg", name = "" }) {
     let searchable;
     if (type === "burg") {
       searchable = this.burgs;
@@ -248,7 +260,7 @@ class LoadAzgaarMap extends FormApplication {
     return searchable.find((elem) => elem.name === name);
   }
 
-  async retrieveJournalByName({type = "burg", name=""}) {
+  async retrieveJournalByName({ type = "burg", name = "" }) {
     let searchable;
     if (type === "burg") {
       searchable = this.burgComp;
@@ -262,13 +274,11 @@ class LoadAzgaarMap extends FormApplication {
     let id = searchList.find((elem) => elem.name === name)._id;
 
     return await searchable.getEntry(id);
-
-
   }
 
   async _updateObject(event, formData) {
     // Make the scene
-    let svg = this.element.find('[name="svgMap"]').val()
+    let svg = this.element.find('[name="svgMap"]').val();
     let scene = await this.makeScene(svg);
 
     // import our data
@@ -276,7 +286,7 @@ class LoadAzgaarMap extends FormApplication {
 
     // Start applying notes (1:1 ratio for now)
     this.burgs.forEach((burg) => {
-      let journalEntry = this.retrieveJournalByName({name: burg.name});
+      let journalEntry = this.retrieveJournalByName({ name: burg.name });
       console.log(journalEntry);
       //Create a MapNote for this journalEntry, adding it to the active, new, scene.
       Note.create({
@@ -289,9 +299,9 @@ class LoadAzgaarMap extends FormApplication {
         text: burg.name,
         fontSize: 24,
         textAnchor: CONST.TEXT_ANCHOR_POINTS.CENTER,
-        textColor: "#00FFFF"
+        textColor: "#00FFFF",
       });
-    })
+    });
     return;
   }
 }
