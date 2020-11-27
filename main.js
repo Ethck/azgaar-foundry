@@ -1,8 +1,8 @@
 /**
  * A Configuration menu that allows the user to specify a *.map file
  * and a *.svg to build a world off of. This FormApplication will parse
- * the map file for all relevant information, and build a new scene to 
- * represent all of the data gathered. Additionally will store data in 
+ * the map file for all relevant information, and build a new scene to
+ * represent all of the data gathered. Additionally will store data in
  * Journal Entries in order to make future referencing easier.
  */
 class LoadAzgaarMap extends FormApplication {
@@ -36,7 +36,7 @@ class LoadAzgaarMap extends FormApplication {
   /**
    * Activate all of the listener's for the form, both Foundry
    * and custom ones.
-   * 
+   *
    * @param  {DOM} html    DOM of the Form Application (template)
    */
   activateListeners(html) {
@@ -45,6 +45,8 @@ class LoadAzgaarMap extends FormApplication {
   }
 
   /**
+   * Load map file as text
+   * 
    * @param  {event} event    triggered by change of the "map" input
    * @return {Promise}        resolve once file is loaded.
    */
@@ -64,7 +66,7 @@ class LoadAzgaarMap extends FormApplication {
   /**
    * Adhering to the data format of FMG, extract all valuable information
    * and save it to Memory.
-   * 
+   *
    * @param  {event} event    triggered by change of the "map" input
    * @return {Promise}        resolve() once all parsing is done
    */
@@ -145,13 +147,12 @@ class LoadAzgaarMap extends FormApplication {
 
   /**
    * This method takes the data from memory and creates readable Journal
-   * Entries out of it. 
-   * 
+   * Entries out of it.
+   *
    * @return {Promise}    resolve once all Foundry creations are done.
    */
   async importData() {
     return new Promise(async (resolve, reject) => {
-
       /**
        * Cultures
        */
@@ -280,13 +281,13 @@ class LoadAzgaarMap extends FormApplication {
 
   /**
    * Make a new scene with the SVG as the background
-   * 
+   *
    * @param  {string} svg    File path to the SVG asset
    * @return {Scene}         New Scene to work on
    */
   async makeScene(svg) {
     return new Promise(async (resolve, reject) => {
-      let sceneName = svg.split("%20")[0]
+      let sceneName = svg.split("%20")[0];
       //Create The Map Scene
       let sceneData = await Scene.create({
         name: sceneName,
@@ -311,7 +312,7 @@ class LoadAzgaarMap extends FormApplication {
 
   /**
    * Find an object in memory based on params
-   * 
+   *
    * @param  {String} type    Type of object to find
    * @param  {String} name    Name of object to find
    * @return {object}         Found Object
@@ -333,7 +334,7 @@ class LoadAzgaarMap extends FormApplication {
 
   /**
    * Find an object by searching through compendiums (Foundry db)
-   * 
+   *
    * @param  {String} type    Type of object to find
    * @param  {String} name    Name of object to find
    * @return {object}         Found Object
@@ -357,7 +358,7 @@ class LoadAzgaarMap extends FormApplication {
   /**
    * Automatically called by Foundry upon submission of FormApplication
    * Controls the process of creating everything. Scene, data, notes, etc.
-   * 
+   *
    * @param  {event} event        event that triggered this call, usually a click
    * @param  {String} formData    HTML of the form that was submitted
    * @return {None}               Foundry expects it to return something.
@@ -387,7 +388,7 @@ class LoadAzgaarMap extends FormApplication {
         textAnchor: CONST.TEXT_ANCHOR_POINTS.CENTER,
         textColor: "#00FFFF",
         "flags.pinfix.minZoomLevel": 2,
-        "flags.pinfix.maxZoomLevel": 3
+        "flags.pinfix.maxZoomLevel": 3,
       };
     });
     // Make all of our notes, in one call to the db.
