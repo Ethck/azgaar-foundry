@@ -46,7 +46,7 @@ class LoadAzgaarMap extends FormApplication {
 
   /**
    * Load map file as text
-   * 
+   *
    * @param  {event} event    triggered by change of the "map" input
    * @return {Promise}        resolve once file is loaded.
    */
@@ -134,7 +134,6 @@ class LoadAzgaarMap extends FormApplication {
         } else if ("population" in obj[1] && "citadel" in obj[1]) {
           console.log("Burgs:", obj);
           this.burgs = obj;
-          this.burgs.shift(); // Remove blank one at the begininng
           // Rivers
         } else if ("mouth" in obj[0]) {
           console.log("Rivers:", obj);
@@ -273,6 +272,39 @@ class LoadAzgaarMap extends FormApplication {
       await burgComp.createEntity(burgData);
       this.burgComp = burgComp;
 
+      /**
+       * Provinces
+       */
+      ui.notifications.notify("UAFMGI: Creating Journals for Provinces.");
+      let provinceComp = await Compendium.create({
+        name: "Provinces",
+        label: "Provinces",
+        entity: "JournalEntry",
+      });
+      let provinceData = this.provinces.map((province) => {
+        if (province !== 0) {
+          let content = `<div>
+              <h3>${province.name}</h3>
+              <h4>Type: ${province.formName}</h4>
+              <h4>Full Name: ${province.fullName}</h4>
+              <h4>Color: ${province.color}</h4>
+            </div>
+            `;
+
+          if (province.name) {
+            let journal = {
+              name: province.name,
+              content: content,
+              permission: { default: 4 },
+            };
+            return journal;
+          }
+        }
+      });
+      provinceData.shift();
+      await provinceComp.createEntity(provinceData);
+      this.provinceComp = provinceComp;
+
       resolve();
 
       //console.log(this.retriveJournalByName({name: "Ahadi"}));
@@ -347,6 +379,8 @@ class LoadAzgaarMap extends FormApplication {
       searchable = this.countryComp;
     } else if (type === "culture") {
       searchable = this.cultureComp;
+    } else if (type === "province") {
+      searchable = this.provinceComp;
     }
     let searchList = await searchable.getIndex();
 
@@ -372,7 +406,60 @@ class LoadAzgaarMap extends FormApplication {
     await this.importData();
 
     // Start prepping notes
-    let notesData = this.burgs.map((burg) => {
+    let countryData = this.countries.map((country) => {
+      if (country.name === "Neutrals") return;
+      let journalEntry = this.retrieveJournalByName({
+        type: "country",
+        name: country.name,
+      });
+
+      // Assemble data required for notes
+      return {
+        entryId: journalEntry._id,
+        x: country.pole[0],
+        y: country.pole[1],
+        icon: "icons/svg/castle.svg",
+        iconSize: 32,
+        iconTint: country.color,
+        text: country.name,
+        fontSize: 24,
+        textAnchor: CONST.TEXT_ANCHOR_POINTS.CENTER,
+        textColor: "#00FFFF",
+        "flags.pinfix.minZoomLevel": 0.1,
+        "flags.pinfix.maxZoomLevel": 2,
+      };
+    });
+
+    let provinceData = this.provinces.map((province) => {
+      if (province === 0) return; // For some reason there's a 0 at the beginning.
+      let journalEntry = this.retrieveJournalByName({
+        type: "province",
+        name: province.name,
+      });
+
+      // Some provinces do not have a burg... For now we skip those.
+      if (province.burg === 0) return;
+      let centerBurg = this.burgs.find((burg) => burg.i === province.burg);
+
+      // Assemble data required for notes
+      return {
+        entryId: journalEntry._id,
+        x: centerBurg.x,
+        y: centerBurg.y,
+        icon: "icons/svg/tower.svg",
+        iconSize: 32,
+        iconTint: province.color,
+        text: province.name,
+        fontSize: 24,
+        textAnchor: CONST.TEXT_ANCHOR_POINTS.CENTER,
+        textColor: "#00FFFF",
+        "flags.pinfix.minZoomLevel": 1,
+        "flags.pinfix.maxZoomLevel": 2,
+      };
+    });
+
+    let burgData = this.burgs.map((burg) => {
+      if (jQuery.isEmptyObject(burg)) return; // For some reason there's a {} at the beginning.
       let journalEntry = this.retrieveJournalByName({ name: burg.name });
 
       // Assemble data required for notes
@@ -391,8 +478,18 @@ class LoadAzgaarMap extends FormApplication {
         "flags.pinfix.maxZoomLevel": 3,
       };
     });
+
+    // Remove all falsy values.
+    countryData = countryData.filter(Boolean);
+    provinceData = provinceData.filter(Boolean);
+    burgData = burgData.filter(Boolean);
+
     // Make all of our notes, in one call to the db.
-    await scene.createEmbeddedEntity("Note", notesData);
+    await scene.createEmbeddedEntity("Note", [
+      ...countryData,
+      ...provinceData,
+      ...burgData,
+    ]);
     return;
   }
 }
