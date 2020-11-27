@@ -292,6 +292,13 @@ class LoadAzgaarMap extends FormApplication {
         height: this.mapHeight,
         padding: 0.0,
         img: svg,
+        // Flags for making pinfix work immediately.
+        "flags.pinfix.enable": true,
+        "flags.pinfix.minScale": 1,
+        "flags.pinfix.maxScale": 1,
+        "flags.pinfix.zoomFloor": 0.1,
+        "flags.pinfix.zoomCeil": 3,
+        "flags.pinfix.hudScale": 1,
       });
 
       await sceneData.activate();
@@ -377,6 +384,8 @@ class LoadAzgaarMap extends FormApplication {
         fontSize: 24,
         textAnchor: CONST.TEXT_ANCHOR_POINTS.CENTER,
         textColor: "#00FFFF",
+        "flags.pinfix.minZoomLevel": 2,
+        "flags.pinfix.maxZoomLevel": 3
       });
     });
     return;
