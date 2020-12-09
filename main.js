@@ -183,6 +183,14 @@ class LoadAzgaarMap extends FormApplication {
       await JournalEntry.create(cultureData);
       this.cultureFolder = cultureFolder;
 
+      let cultureLookup = this.cultures.map((culture) => {
+        return {
+          id: culture.i,
+          name: culture.name,
+          journal: this.retrieveJournalByName({type: "culture", name: culture.name})
+        }
+      })
+
       /**
        * Countries
        */
@@ -193,13 +201,15 @@ class LoadAzgaarMap extends FormApplication {
         if (!(jQuery.isEmptyObject(country) || country.name === "Neutrals")) {
           // TODO: Extrapolate Provinces, add Burgs?, Neighbors, Diplomacy, Campaigns?, Military?
           // Apparently this is the template for entity linking
-          // @(entity ID)[text]
+          // @JournalEntry[entity ID]{text}
+          // 
+          let culture = cultureLookup[country.culture];
           let content = `<div>
               <h3>${country.fullName}</h3>
               <h4>Type: ${country.type}</h4>
               <h4>Expansionism: ${country.expansionism}</h4>
               <h4>Color: ${country.color}</h4>
-              <h4>Culture: ${this.cultures[country.culture].name}</h4>
+              <h4>Culture: @JournalEntry[${culture.journal.id}]{${culture.name}}</h4>
               <h4>Urban: ${country.urban}</h4>
               <h4>Rural: ${country.rural}</h4>
               <h4># of Burgs: ${country.burgs}</h4>
@@ -227,6 +237,13 @@ class LoadAzgaarMap extends FormApplication {
 
       await JournalEntry.create(countryData);
       this.countryFolder = countryFolder;
+      let countryLookup = this.countries.map((country) => {
+        return {
+          id: country.i,
+          name: country.name,
+          journal: this.retrieveJournalByName({type: "country", name: country.name})
+        }
+      })
 
       /**
        * Burgs
@@ -235,10 +252,14 @@ class LoadAzgaarMap extends FormApplication {
       let burgFolder = await Folder.create({name: "Burgs", type: "JournalEntry", parent: null})
       let burgData = this.burgs.map((burg) => {
         if (!jQuery.isEmptyObject(burg)) {
+
+          let culture = cultureLookup[burg.culture];
+          let country = countryLookup[burg.state];
+          
           let content = `<div>
               <h3>${burg.name}</h3>
-              <h4>State: ${this.countries[burg.state].name}</h4>
-              <h4>Culture: ${this.cultures[burg.culture].name}</h4>
+              <h4>State: @JournalEntry[${country.journal.id}]{${country.name}}</h4>
+              <h4>Culture: @JournalEntry[${culture.journal.id}]{${culture.name}}</h4>
               <h4>Population: ${burg.population}</h4>
               <h4>Citadel: ${burg.citadel}</h4>
               <h4>Capital: ${burg.capital}</h4>
