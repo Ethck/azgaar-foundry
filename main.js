@@ -156,11 +156,7 @@ class LoadAzgaarMap extends FormApplication {
        * Cultures
        */
       ui.notifications.notify("UAFMGI: Creating Journals for Cultures.");
-      let cultureComp = await Compendium.create({
-        name: "Cultures",
-        label: "Cultures",
-        entity: "JournalEntry",
-      });
+      let cultureFolder = await Folder.create({name: "Cultures", type: "JournalEntry", parent: null})
       let cultureData = this.cultures.map((culture) => {
         if (!jQuery.isEmptyObject(culture)) {
           let content = `<div>
@@ -177,27 +173,27 @@ class LoadAzgaarMap extends FormApplication {
               name: culture.name,
               content: content,
               permission: { default: 4 },
+              folder: cultureFolder._id
             };
             return journal;
           }
         }
       });
 
-      await cultureComp.createEntity(cultureData);
-      this.cultureComp = cultureComp;
+      await JournalEntry.create(cultureData);
+      this.cultureFolder = cultureFolder;
 
       /**
        * Countries
        */
       ui.notifications.notify("UAFMGI: Creating Journals for Countries.");
-      let countryComp = await Compendium.create({
-        name: "Countries",
-        label: "Countries",
-        entity: "JournalEntry",
-      });
+
+      let countryFolder = await Folder.create({name: "Countries", type:"JournalEntry", parent: "null"});
       let countryData = this.countries.map((country) => {
         if (!(jQuery.isEmptyObject(country) || country.name === "Neutrals")) {
           // TODO: Extrapolate Provinces, add Burgs?, Neighbors, Diplomacy, Campaigns?, Military?
+          // Apparently this is the template for entity linking
+          // @(entity ID)[text]
           let content = `<div>
               <h3>${country.fullName}</h3>
               <h4>Type: ${country.type}</h4>
@@ -219,6 +215,7 @@ class LoadAzgaarMap extends FormApplication {
               name: country.name,
               content: content,
               permission: { default: 4 },
+              folder: countryFolder._id
             };
 
             return journal;
@@ -228,18 +225,14 @@ class LoadAzgaarMap extends FormApplication {
 
       countryData.shift(); // Remove first element. This is the "Neutrals" country.
 
-      await countryComp.createEntity(countryData);
-      this.countryComp = countryComp;
+      await JournalEntry.create(countryData);
+      this.countryFolder = countryFolder;
 
       /**
        * Burgs
        */
       ui.notifications.notify("UAFMGI: Creating Journals for Burgs.");
-      let burgComp = await Compendium.create({
-        name: "Burgs",
-        label: "Burgs",
-        entity: "JournalEntry",
-      });
+      let burgFolder = await Folder.create({name: "Burgs", type: "JournalEntry", parent: null})
       let burgData = this.burgs.map((burg) => {
         if (!jQuery.isEmptyObject(burg)) {
           let content = `<div>
@@ -263,24 +256,21 @@ class LoadAzgaarMap extends FormApplication {
               name: burg.name,
               content: content,
               permission: { default: 4 },
+              folder: burgFolder.id
             };
           }
         }
       });
 
       burgData.shift(); // Remove first element. This is the empty burg.
-      await burgComp.createEntity(burgData);
-      this.burgComp = burgComp;
+      await JournalEntry.create(burgData);
+      this.burgFolder = burgFolder;
 
       /**
        * Provinces
        */
       ui.notifications.notify("UAFMGI: Creating Journals for Provinces.");
-      let provinceComp = await Compendium.create({
-        name: "Provinces",
-        label: "Provinces",
-        entity: "JournalEntry",
-      });
+      let provinceFolder = await Folder.create({name: "Provinces", type:"JournalEntry", parent: null});
       let provinceData = this.provinces.map((province) => {
         if (province !== 0) {
           let content = `<div>
@@ -296,14 +286,15 @@ class LoadAzgaarMap extends FormApplication {
               name: province.name,
               content: content,
               permission: { default: 4 },
+              folder: provinceFolder.id
             };
             return journal;
           }
         }
       });
       provinceData.shift();
-      await provinceComp.createEntity(provinceData);
-      this.provinceComp = provinceComp;
+      await JournalEntry.create(provinceData);
+      this.provinceFolder = provinceFolder;
 
       resolve();
 
@@ -371,22 +362,23 @@ class LoadAzgaarMap extends FormApplication {
    * @param  {String} name    Name of object to find
    * @return {object}         Found Object
    */
-  async retrieveJournalByName({ type = "burg", name = "" }) {
+  retrieveJournalByName({ type = "burg", name = "" }) {
+
     let searchable;
     if (type === "burg") {
-      searchable = this.burgComp;
+      searchable = this.burgFolder;
     } else if (type === "country") {
-      searchable = this.countryComp;
+      searchable = this.countryFolder;
     } else if (type === "culture") {
-      searchable = this.cultureComp;
+      searchable = this.cultureFolder;
     } else if (type === "province") {
-      searchable = this.provinceComp;
+      searchable = this.provinceFolder;
     }
-    let searchList = await searchable.getIndex();
+    let searchList = searchable.entities;
 
-    let id = searchList.find((elem) => elem.name === name)._id;
+    let journal = searchList.find((elem) => elem.name === name);
 
-    return await searchable.getEntry(id);
+    return journal;
   }
 
   /**
