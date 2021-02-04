@@ -10,7 +10,7 @@ Link your .map file from FMG and link an SVG of your map (also downloaded from F
 Please ensure that they are the same size!!!
 
 ## Planned upgrades
-Map Scaling
-Better Journals
-???
-Release
+* Map Scaling
+* Better Journals
+* ???
+* Release
