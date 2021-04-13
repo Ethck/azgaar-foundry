@@ -156,7 +156,7 @@ class LoadAzgaarMap extends FormApplication {
        * Cultures
        */
       ui.notifications.notify("UAFMGI: Creating Journals for Cultures.");
-      let cultureFolder = await Folder.create({name: "Cultures", type: "JournalEntry", parent: null})
+      let cultureComp = await CompendiumCollection.createCompendium({name: "Cultures", label: "Cultures", entity: "JournalEntry"})
       let cultureData = this.cultures.map((culture) => {
         if (!jQuery.isEmptyObject(culture)) {
           let content = `<div>
@@ -172,16 +172,15 @@ class LoadAzgaarMap extends FormApplication {
             let journal = {
               name: culture.name,
               content: content,
-              permission: { default: 4 },
-              folder: cultureFolder._id
+              permission: { default: 4 }
             };
             return journal;
           }
         }
       });
 
-      await JournalEntry.create(cultureData);
-      this.cultureFolder = cultureFolder;
+      await cultureComp.createEntity(cultureData);
+      this.cultureComp = cultureComp;
 
       let cultureLookup = this.cultures.map((culture) => {
         return {
@@ -196,7 +195,7 @@ class LoadAzgaarMap extends FormApplication {
        */
       ui.notifications.notify("UAFMGI: Creating Journals for Countries.");
 
-      let countryFolder = await Folder.create({name: "Countries", type:"JournalEntry", parent: "null"});
+      let countryComp = await CompendiumCollection.createCompendium({name: "Countries", label: "Countries", entity:"JournalEntry"});
       let countryData = this.countries.map((country) => {
         if (!(jQuery.isEmptyObject(country) || country.name === "Neutrals")) {
           // TODO: Extrapolate Provinces, add Burgs?, Neighbors, Diplomacy, Campaigns?, Military?
@@ -209,7 +208,7 @@ class LoadAzgaarMap extends FormApplication {
               <h4>Type: ${country.type}</h4>
               <h4>Expansionism: ${country.expansionism}</h4>
               <h4>Color: ${country.color}</h4>
-              <h4>Culture: @JournalEntry[${culture.journal.id}]{${culture.name}}</h4>
+              <h4>Culture: @Compendium[world.Cultures.${culture.journal.id}]{${culture.name}}</h4>
               <h4>Urban: ${country.urban}</h4>
               <h4>Rural: ${country.rural}</h4>
               <h4># of Burgs: ${country.burgs}</h4>
@@ -225,7 +224,6 @@ class LoadAzgaarMap extends FormApplication {
               name: country.name,
               content: content,
               permission: { default: 4 },
-              folder: countryFolder._id
             };
 
             return journal;
@@ -235,8 +233,8 @@ class LoadAzgaarMap extends FormApplication {
 
       countryData.shift(); // Remove first element. This is the "Neutrals" country.
 
-      await JournalEntry.create(countryData);
-      this.countryFolder = countryFolder;
+      await countryComp.createEntity(countryData);
+      this.countryComp = countryComp;
       let countryLookup = this.countries.map((country) => {
         return {
           id: country.i,
@@ -249,7 +247,7 @@ class LoadAzgaarMap extends FormApplication {
        * Burgs
        */
       ui.notifications.notify("UAFMGI: Creating Journals for Burgs.");
-      let burgFolder = await Folder.create({name: "Burgs", type: "JournalEntry", parent: null})
+      let burgComp = await CompendiumCollection.createCompendium({name: "Burgs", label: "Burgs", entity: "JournalEntry"})
       let burgData = this.burgs.map((burg) => {
         if (!jQuery.isEmptyObject(burg)) {
 
@@ -258,8 +256,8 @@ class LoadAzgaarMap extends FormApplication {
           
           let content = `<div>
               <h3>${burg.name}</h3>
-              <h4>State: @JournalEntry[${country.journal?.id}]{${country.name}}</h4>
-              <h4>Culture: @JournalEntry[${culture.journal?.id}]{${culture.name}}</h4>
+              <h4>State: @Compendium[world.Countries.${country.journal?.id}]{${country.name}}</h4>
+              <h4>Culture: @Compendium[world.Cultures.${culture.journal?.id}]{${culture.name}}</h4>
               <h4>Population: ${burg.population}</h4>
               <h4>Citadel: ${burg.citadel}</h4>
               <h4>Capital: ${burg.capital}</h4>
@@ -277,21 +275,20 @@ class LoadAzgaarMap extends FormApplication {
               name: burg.name,
               content: content,
               permission: { default: 4 },
-              folder: burgFolder.id
             };
           }
         }
       });
 
       burgData.shift(); // Remove first element. This is the empty burg.
-      await JournalEntry.create(burgData);
-      this.burgFolder = burgFolder;
+      await burgComp.createEntity(burgData);
+      this.burgComp = burgComp;
 
       /**
        * Provinces
        */
       ui.notifications.notify("UAFMGI: Creating Journals for Provinces.");
-      let provinceFolder = await Folder.create({name: "Provinces", type:"JournalEntry", parent: null});
+      let provinceComp = await CompendiumCollection.createCompendium({name: "Provinces", label: "Provinces", entity:"JournalEntry"});
       let provinceData = this.provinces.map((province) => {
         if (province !== 0) {
           let content = `<div>
@@ -307,15 +304,14 @@ class LoadAzgaarMap extends FormApplication {
               name: province.name,
               content: content,
               permission: { default: 4 },
-              folder: provinceFolder.id
             };
             return journal;
           }
         }
       });
       provinceData.shift();
-      await JournalEntry.create(provinceData);
-      this.provinceFolder = provinceFolder;
+      await provinceComp.createEntity(provinceData);
+      this.provinceComp = provinceComp;
 
       resolve();
 
@@ -387,17 +383,17 @@ class LoadAzgaarMap extends FormApplication {
 
     let searchable;
     if (type === "burg") {
-      searchable = this.burgFolder;
+      searchable = this.burgComp;
     } else if (type === "country") {
-      searchable = this.countryFolder;
+      searchable = this.countryComp;
     } else if (type === "culture") {
-      searchable = this.cultureFolder;
+      searchable = this.cultureComp;
     } else if (type === "province") {
-      searchable = this.provinceFolder;
+      searchable = this.provinceComp;
     }
-    let searchList = searchable.entities;
+    //let searchList = searchable.entities;
 
-    let journal = searchList.find((elem) => elem.name === name);
+    let journal = searchable.find((elem) => elem.name === name);
 
     return journal;
   }
@@ -428,7 +424,7 @@ class LoadAzgaarMap extends FormApplication {
 
       // Assemble data required for notes
       return {
-        entryId: journalEntry._id,
+        entryId: "6lZqJDtthRMmj3bi",
         x: country.pole[0],
         y: country.pole[1],
         icon: "icons/svg/castle.svg",
@@ -440,7 +436,7 @@ class LoadAzgaarMap extends FormApplication {
         textColor: "#00FFFF",
         "flags.pinfix.minZoomLevel": 0.1,
         "flags.pinfix.maxZoomLevel": 2,
-//        "flags.azgaar-foundry.journal": {"compendium": "dnd5e.rules", "journal": "K4gCElq0T90cEqyM"}
+        "flags.azgaar-foundry.journal": {"compendium": "world.Countries", "journal": journalEntry.id}
       };
     });
 
@@ -457,7 +453,7 @@ class LoadAzgaarMap extends FormApplication {
 
       // Assemble data required for notes
       return {
-        entryId: journalEntry._id,
+        entryId: "6lZqJDtthRMmj3bi",
         x: centerBurg.x,
         y: centerBurg.y,
         icon: "icons/svg/tower.svg",
@@ -469,6 +465,7 @@ class LoadAzgaarMap extends FormApplication {
         textColor: "#00FFFF",
         "flags.pinfix.minZoomLevel": 1,
         "flags.pinfix.maxZoomLevel": 2,
+        "flags.azgaar-foundry.journal": {"compendium": "world.Provinces", "journal": journalEntry.id}
       };
     });
 
@@ -478,7 +475,7 @@ class LoadAzgaarMap extends FormApplication {
 
       // Assemble data required for notes
       return {
-        entryId: journalEntry._id,
+        entryId: "6lZqJDtthRMmj3bi",
         x: burg.x,
         y: burg.y,
         icon: "icons/svg/village.svg",
@@ -490,6 +487,7 @@ class LoadAzgaarMap extends FormApplication {
         textColor: "#00FFFF",
         "flags.pinfix.minZoomLevel": 2,
         "flags.pinfix.maxZoomLevel": 3,
+        "flags.azgaar-foundry.journal": {"compendium": "world.Burgs", "journal": journalEntry.id}
       };
     });
 
@@ -521,7 +519,7 @@ Hooks.once("init", () => {
 
 Hooks.once("libWrapper.Ready", () => {
   libWrapper.register("azgaar-foundry", "Note.prototype._onClickLeft2", async function(wrapped, ...args) {
-    const cJournal = this.getFlag("azgaar-foundry", "journal");
+    const cJournal = this.document.getFlag("azgaar-foundry", "journal");
     if (cJournal) {
       const comp = game.packs.get(cJournal.compendium);
       let doc = await comp.getDocument(cJournal.journal);
