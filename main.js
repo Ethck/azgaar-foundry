@@ -258,8 +258,8 @@ class LoadAzgaarMap extends FormApplication {
           
           let content = `<div>
               <h3>${burg.name}</h3>
-              <h4>State: @JournalEntry[${country.journal.id}]{${country.name}}</h4>
-              <h4>Culture: @JournalEntry[${culture.journal.id}]{${culture.name}}</h4>
+              <h4>State: @JournalEntry[${country.journal?.id}]{${country.name}}</h4>
+              <h4>Culture: @JournalEntry[${culture.journal?.id}]{${culture.name}}</h4>
               <h4>Population: ${burg.population}</h4>
               <h4>Citadel: ${burg.citadel}</h4>
               <h4>Capital: ${burg.capital}</h4>
@@ -440,6 +440,7 @@ class LoadAzgaarMap extends FormApplication {
         textColor: "#00FFFF",
         "flags.pinfix.minZoomLevel": 0.1,
         "flags.pinfix.maxZoomLevel": 2,
+//        "flags.azgaar-foundry.journal": {"compendium": "dnd5e.rules", "journal": "K4gCElq0T90cEqyM"}
       };
     });
 
@@ -517,3 +518,16 @@ Hooks.once("init", () => {
     restricted: true,
   });
 });
+
+Hooks.once("libWrapper.Ready", () => {
+  libWrapper.register("azgaar-foundry", "Note.prototype._onClickLeft2", async function(wrapped, ...args) {
+    const cJournal = this.getFlag("azgaar-foundry", "journal");
+    if (cJournal) {
+      const comp = game.packs.get(cJournal.compendium);
+      let doc = await comp.getDocument(cJournal.journal);
+      doc.sheet.render(true);
+    } else {
+      return wrapped(...args);
+    }
+  }, "MIXED");
+})
