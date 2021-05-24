@@ -156,31 +156,7 @@ class LoadAzgaarMap extends FormApplication {
        * Cultures
        */
       ui.notifications.notify("UAFMGI: Creating Journals for Cultures.");
-      let cultureComp = await CompendiumCollection.createCompendium({name: "Cultures", label: "Cultures", entity: "JournalEntry"})
-      let cultureData = this.cultures.map((culture) => {
-        if (!jQuery.isEmptyObject(culture)) {
-          let content = `<div>
-              <h3>${culture.name}</h3>
-              <h4>Type: ${culture.type}</h4>
-              <h4>Expansionism: ${culture.expansionism}</h4>
-              <h4>Color: ${culture.color}</h4>
-              <h4>Code: ${culture.code}</h4>
-            </div>
-            `;
-
-          if (culture.name) {
-            let journal = {
-              name: culture.name,
-              content: content,
-              permission: { default: 4 }
-            };
-            return journal;
-          }
-        }
-      });
-
-      await cultureComp.createEntity(cultureData);
-      this.cultureComp = cultureComp;
+      this.cultureComp = await compendiumUpdater("Cultures", "culture.hbs", this.cultures);
 
       let cultureLookup = this.cultures.map((culture) => {
         return {
@@ -195,46 +171,16 @@ class LoadAzgaarMap extends FormApplication {
        */
       ui.notifications.notify("UAFMGI: Creating Journals for Countries.");
 
-      let countryComp = await CompendiumCollection.createCompendium({name: "Countries", label: "Countries", entity:"JournalEntry"});
       let countryData = this.countries.map((country) => {
         if (!(jQuery.isEmptyObject(country) || country.name === "Neutrals")) {
           // TODO: Extrapolate Provinces, add Burgs?, Neighbors, Diplomacy, Campaigns?, Military?
-          // Apparently this is the template for entity linking
-          // @JournalEntry[entity ID]{text}
-          // 
           let culture = cultureLookup[country.culture];
-          let content = `<div>
-              <h3>${country.fullName}</h3>
-              <h4>Type: ${country.type}</h4>
-              <h4>Expansionism: ${country.expansionism}</h4>
-              <h4>Color: ${country.color}</h4>
-              <h4>Culture: @Compendium[world.Cultures.${culture.journal.id}]{${culture.name}}</h4>
-              <h4>Urban: ${country.urban}</h4>
-              <h4>Rural: ${country.rural}</h4>
-              <h4># of Burgs: ${country.burgs}</h4>
-              <h4>Area: ${country.area}</h4>
-              <h4>Form: ${country.form}</h4>
-              <h4>Government: ${country.formName}</h4>
-              <h4>Provinces: ${country.provinces}</h4> 
-            </div>
-            `;
-
-          if (country.name) {
-            let journal = {
-              name: country.name,
-              content: content,
-              permission: { default: 4 },
-            };
-
-            return journal;
-          }
+          country.culture = culture;
         }
+        return country;
       });
 
-      countryData.shift(); // Remove first element. This is the "Neutrals" country.
-
-      await countryComp.createEntity(countryData);
-      this.countryComp = countryComp;
+      this.countryComp = await compendiumUpdater("Countries", "country.hbs", countryData);
       let countryLookup = this.countries.map((country) => {
         return {
           id: country.i,
@@ -247,75 +193,23 @@ class LoadAzgaarMap extends FormApplication {
        * Burgs
        */
       ui.notifications.notify("UAFMGI: Creating Journals for Burgs.");
-      let burgComp = await CompendiumCollection.createCompendium({name: "Burgs", label: "Burgs", entity: "JournalEntry"})
       let burgData = this.burgs.map((burg) => {
         if (!jQuery.isEmptyObject(burg)) {
-
-          let culture = cultureLookup[burg.culture];
-          let country = countryLookup[burg.state];
-          
-          let content = `<div>
-              <h3>${burg.name}</h3>
-              <h4>State: @Compendium[world.Countries.${country.journal?.id}]{${country.name}}</h4>
-              <h4>Culture: @Compendium[world.Cultures.${culture.journal?.id}]{${culture.name}}</h4>
-              <h4>Population: ${burg.population}</h4>
-              <h4>Citadel: ${burg.citadel}</h4>
-              <h4>Capital: ${burg.capital}</h4>
-              <h4>Port: ${burg.port}</h4>
-              <h4>Plaza: ${burg.plaza}</h4>
-              <h4>Walls: ${burg.walls}</h4>
-              <h4>Shanty: ${burg.shanty}</h4>
-              <h4>Temple: ${burg.temple}</h4>
-              <h4>Feature: ${burg.feature}</h4>
-            </div>
-            `;
-
-          if (burg.name) {
-            return {
-              name: burg.name,
-              content: content,
-              permission: { default: 4 },
-            };
-          }
+          burg.culture = cultureLookup[burg.culture];
+          burg.country = countryLookup[burg.state];
         }
+        return burg;
       });
 
-      burgData.shift(); // Remove first element. This is the empty burg.
-      await burgComp.createEntity(burgData);
-      this.burgComp = burgComp;
+      this.burgComp = await compendiumUpdater("Burgs", "burg.hbs", burgData);
 
       /**
        * Provinces
        */
       ui.notifications.notify("UAFMGI: Creating Journals for Provinces.");
-      let provinceComp = await CompendiumCollection.createCompendium({name: "Provinces", label: "Provinces", entity:"JournalEntry"});
-      let provinceData = this.provinces.map((province) => {
-        if (province !== 0) {
-          let content = `<div>
-              <h3>${province.name}</h3>
-              <h4>Type: ${province.formName}</h4>
-              <h4>Full Name: ${province.fullName}</h4>
-              <h4>Color: ${province.color}</h4>
-            </div>
-            `;
-
-          if (province.name) {
-            let journal = {
-              name: province.name,
-              content: content,
-              permission: { default: 4 },
-            };
-            return journal;
-          }
-        }
-      });
-      provinceData.shift();
-      await provinceComp.createEntity(provinceData);
-      this.provinceComp = provinceComp;
+      this.provinceComp = await compendiumUpdater("Provinces", "province.hbs", this.provinces);
 
       resolve();
-
-      //console.log(this.retriveJournalByName({name: "Ahadi"}));
     });
   }
 
@@ -331,8 +225,8 @@ class LoadAzgaarMap extends FormApplication {
       //Create The Map Scene
       let sceneData = await Scene.create({
         name: sceneName,
-        width: this.mapWidth,
-        height: this.mapHeight,
+        width: parseInt(this.mapWidth),
+        height: parseInt(this.mapHeight),
         padding: 0.0,
         img: svg,
         // Flags for making pinfix work immediately.
@@ -357,20 +251,20 @@ class LoadAzgaarMap extends FormApplication {
    * @param  {String} name    Name of object to find
    * @return {object}         Found Object
    */
-  findObject({ type = "burg", name = "" }) {
-    let searchable;
-    if (type === "burg") {
-      searchable = this.burgs;
-    } else if (type === "country") {
-      searchable = this.countries;
-    } else if (type === "culture") {
-      searchable = this.cultures;
-    } else if (type === "any") {
-      searchable = [...this.burgs, ...this.countries, ...this.cultures];
-    }
+  // findObject({ type = "burg", name = "" }) {
+  //   let searchable;
+  //   if (type === "burg") {
+  //     searchable = this.burgs;
+  //   } else if (type === "country") {
+  //     searchable = this.countries;
+  //   } else if (type === "culture") {
+  //     searchable = this.cultures;
+  //   } else if (type === "any") {
+  //     searchable = [...this.burgs, ...this.countries, ...this.cultures];
+  //   }
 
-    return searchable.find((elem) => elem.name === name);
-  }
+  //   return searchable.find((elem) => elem.name === name);
+  // }
 
   /**
    * Find an object by searching through compendiums (Foundry db)
@@ -424,7 +318,7 @@ class LoadAzgaarMap extends FormApplication {
 
       // Assemble data required for notes
       return {
-        entryId: "6lZqJDtthRMmj3bi",
+        entryId: "kRHUxGgm84rOeryS",
         x: country.pole[0],
         y: country.pole[1],
         icon: "icons/svg/castle.svg",
@@ -453,7 +347,7 @@ class LoadAzgaarMap extends FormApplication {
 
       // Assemble data required for notes
       return {
-        entryId: "6lZqJDtthRMmj3bi",
+        entryId: "kRHUxGgm84rOeryS",
         x: centerBurg.x,
         y: centerBurg.y,
         icon: "icons/svg/tower.svg",
@@ -475,7 +369,8 @@ class LoadAzgaarMap extends FormApplication {
 
       // Assemble data required for notes
       return {
-        entryId: "6lZqJDtthRMmj3bi",
+        // entryId must be a valid journal entry (NOT from compendium, otherwise things really break.)
+        entryId: "kRHUxGgm84rOeryS",
         x: burg.x,
         y: burg.y,
         icon: "icons/svg/village.svg",
@@ -497,13 +392,60 @@ class LoadAzgaarMap extends FormApplication {
     burgData = burgData.filter(Boolean);
 
     // Make all of our notes, in one call to the db.
-    await scene.createEmbeddedEntity("Note", [
+    await canvas.scene.createEmbeddedDocuments("Note", [
       ...countryData,
       ...provinceData,
       ...burgData,
     ]);
     return;
   }
+}
+
+async function compendiumUpdater(compType, contentSchema, baseData) {
+  // Assumptions for updating
+    // 1. Same number of entities (be it is, countries, burgs, whatever)
+    // 2. all entities already exist (no new ones!)
+    let comp;
+    let oldIds = [];
+    if (game.packs.get("world." + compType)) {
+      // empty the content
+      const oldCComp = game.packs.get("world." + compType);
+      const oldCCompContent = await oldCComp.getDocuments();
+      let jIds = oldCCompContent.map((journal) => journal.id);
+      oldIds = jIds;
+      comp = oldCComp;
+    } else {
+      comp = await CompendiumCollection.createCompendium({name: compType, label: compType, entity: "JournalEntry"})
+    }
+    let compData = await Promise.all(baseData.map(async (i) => {
+      if (!jQuery.isEmptyObject(i)) {
+        let content = await renderTemplate("modules/azgaar-foundry/templates/" + contentSchema, {iter: i})
+        if (i.name) {
+          let journal = {
+            content: content,
+            name: i.name
+          }
+          if (!oldIds.length) {
+            journal.permission = {"default": 4};
+          }
+          return journal;
+        }
+      }
+    }));
+
+    compData.shift(); // remove first element, usually blank or a "remainder".
+
+    if (oldIds.length) {
+      let updates = compData.map((cJournal, index) => {
+        cJournal._id = oldIds[index];
+        return cJournal;
+      })
+      await JournalEntry.updateDocuments(updates, {pack: "world." + compType});
+    } else {
+      await JournalEntry.createDocuments(compData, {pack: "world." + compType});
+    }
+
+    return comp;
 }
 
 Hooks.once("init", () => {
