@@ -10,5 +10,22 @@
     <h4>Area: {{iter.area}}</h4>
     <h4>Form: {{iter.form}}</h4>
     <h4>Government: {{iter.formName}}</h4>
-    <h4>Provinces: {{iter.provinces}}</h4> 
+    <details>
+        <summary>Provinces</summary>
+        {{#each iter.selProvinces}}
+            <span>@Compendium[world.Provinces.{{this.journal.id}}]</br></span>
+        {{/each}}
+    </details>
+    <table>
+        <tr>
+            {{#each extras.countries}}
+                <th>{{this.name}}</th>
+            {{/each}}
+        </tr>
+        <tr>
+            {{#each iter.diplomacy}}
+                <th>{{this}}</th>
+            {{/each}}
+        </tr>
+    </table>
 </div>
