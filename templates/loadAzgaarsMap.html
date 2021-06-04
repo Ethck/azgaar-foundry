@@ -1,8 +1,26 @@
 <form>
     <input id="map" type="file">Link to MAP file</input>
     <input type="text" name="svgMap" title="SVG Path" class="icon-path" placeholder="/icons/example.svg" data-dtype="String">
-    <button type="button" id="svg" name="file-picker" class="file-picker" data-target="svgMap" data-type="image" title="Browse Files" tabindex="-1">
+    <button type="button" id="svg" name="file-picker" class="file-picker" data-target="svgMap" data-type="image">
         <i class="fas fa-file-import fa-fw"></i>Link to SVG
     </button>
+
+    <div id="azgaar-icon-select">
+        <span>This section is used to select which icons you want to see on the map notes that are created.</span>
+        <div class="flexrow">
+            <div class="flexcol">
+                <span>Burgs</span>
+                <img id="burgSVG" name="burgIcon" src="/icons/svg/village.svg">
+            </div>
+            <div class="flexcol">
+                <span>Countries</span>
+                <img id="countrySVG" name="countryIcon" src="/icons/svg/castle.svg"/>
+            </div>
+            <div class="flexcol">
+                <span>Provinces</span>
+                <img id="provinceSVG" name="provinceIcon" src="/icons/svg/tower.svg"/>
+            </div>
+        </div>
+    </div>
     <button type="submit">Import</button>
 </form>

@@ -19,7 +19,7 @@ class LoadAzgaarMap extends FormApplication {
     options.closeOnSubmit = true;
     options.popOut = true;
     options.width = 600;
-    options.height = "auto";
+    options.height = 400;
     return options;
   }
   /**
@@ -42,6 +42,7 @@ class LoadAzgaarMap extends FormApplication {
   activateListeners(html) {
     super.activateListeners(html);
     html.find("#map").change((event) => this.parseMap(event));
+    html.find("#azgaar-icon-select img").click((event) => this._onEditImage(event));
   }
 
   /**
@@ -279,6 +280,25 @@ class LoadAzgaarMap extends FormApplication {
   //   return searchable.find((elem) => elem.name === name);
   // }
 
+  /**
+   * Handle changing the actor profile image by opening a FilePicker
+   * @private
+   */
+   _onEditImage(event) {
+    const fp = new FilePicker({
+      type: "image",
+      callback: path => {
+        console.log(event.currentTarget, path);
+        event.currentTarget.src = path;
+        console.log(event.currentTarget.src);
+        console.log(event.currentTarget)
+      },
+      top: this.position.top + 40,
+      left: this.position.left + 10
+    });
+    return fp.browse();
+  }
+  
   /**
    * Find an object by searching through compendiums (Foundry db)
    *
