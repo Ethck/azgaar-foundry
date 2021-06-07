@@ -1,9 +1,21 @@
 <form>
-    <input id="map" type="file">Link to MAP file</input>
-    <input type="text" name="svgMap" title="SVG Path" class="icon-path" placeholder="/icons/example.svg" data-dtype="String">
-    <button type="button" id="svg" name="file-picker" class="file-picker" data-target="svgMap" data-type="image">
-        <i class="fas fa-file-import fa-fw"></i>Link to SVG
-    </button>
+    <div id="azgaar-map-select">
+        <input id="map" type="file">Link to MAP file</input>
+        <input type="text" name="svgMap" title="SVG Path" class="icon-path" placeholder="/icons/example.svg" data-dtype="String">
+        <button type="button" id="svg" name="file-picker" class="file-picker" data-target="svgMap" data-type="image">
+            <i class="fas fa-file-import fa-fw"></i>Link to SVG
+        </button>
+        <div class="flexrow">
+            <div class="flexcol">
+                <span>X-Size</span>
+                <input type="text" id="mapX" placeholder="1920"/>
+            </div>
+            <div class="flexcol">
+                <span>Y-Size</span>
+                <input type="text" id="mapY" placeholder="1080"/>
+            </div>
+        </div>
+    </div>
 
     <div id="azgaar-icon-select">
         <span>This section is used to select which icons you want to see on the map notes that are created.</span>

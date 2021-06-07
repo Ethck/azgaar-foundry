@@ -234,11 +234,23 @@ class LoadAzgaarMap extends FormApplication {
   async makeScene(svg) {
     return new Promise(async (resolve, reject) => {
       let sceneName = svg.split("%20")[0];
+
+      const ogWidth = parseInt(this.mapWidth);
+      const ogHeight = parseInt(this.mapHeight);
+
+      const newWidth = parseInt(this.element.find("#mapX").val()) || 1920;
+      const newHeight = parseInt(this.element.find("#mapY").val()) || 1080;
+
+      const widthMultiplier = newWidth / ogWidth;
+      const heightMultiplier = newHeight / ogHeight;
+
+      console.log(ogWidth, newWidth, widthMultiplier);
+
       //Create The Map Scene
       let sceneData = await Scene.create({
         name: sceneName,
-        width: parseInt(this.mapWidth),
-        height: parseInt(this.mapHeight),
+        width: newWidth,
+        height: newHeight,
         padding: 0.0,
         img: svg,
         // Flags for making pinfix work immediately.
@@ -252,7 +264,7 @@ class LoadAzgaarMap extends FormApplication {
 
       await sceneData.activate();
 
-      resolve(sceneData);
+      resolve([sceneData, widthMultiplier, heightMultiplier]);
     });
   }
 
@@ -350,7 +362,7 @@ class LoadAzgaarMap extends FormApplication {
 
     // Make the scene
     let svg = this.element.find('[name="svgMap"]').val();
-    let scene = await this.makeScene(svg);
+    let [scene, widthMultiplier, heightMultiplier] = await this.makeScene(svg);
 
     // get icons to use for notes
     const burgSVG = this.element.find("#burgSVG").attr("src");
@@ -371,8 +383,8 @@ class LoadAzgaarMap extends FormApplication {
       // Assemble data required for notes
       return {
         entryId: azgaarJournal.id,
-        x: country.pole[0],
-        y: country.pole[1],
+        x: country.pole[0] * widthMultiplier,
+        y: country.pole[1] * heightMultiplier,
         icon: countrySVG,
         iconSize: 32,
         iconTint: country.color,
@@ -400,8 +412,8 @@ class LoadAzgaarMap extends FormApplication {
       // Assemble data required for notes
       return {
         entryId: azgaarJournal.id,
-        x: centerBurg.x,
-        y: centerBurg.y,
+        x: centerBurg.x * widthMultiplier,
+        y: centerBurg.y * heightMultiplier,
         icon: provinceSVG,
         iconSize: 32,
         iconTint: province.color,
@@ -423,8 +435,8 @@ class LoadAzgaarMap extends FormApplication {
       return {
         // entryId must be a valid journal entry (NOT from compendium, otherwise things really break.)
         entryId: azgaarJournal.id,
-        x: burg.x,
-        y: burg.y,
+        x: burg.x * widthMultiplier,
+        y: burg.y * heightMultiplier,
         icon: burgSVG,
         iconSize: 32,
         iconTint: "#00FF000",
