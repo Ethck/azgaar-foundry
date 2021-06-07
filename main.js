@@ -198,8 +198,6 @@ class LoadAzgaarMap extends FormApplication {
         return country;
       });
 
-      console.log(this.provinces);
-
       this.countryComp = await compendiumUpdater("Countries", "country.hbs", countryData, {countries: countryData});
       let countryLookup = this.countries.map((country) => {
         return {
@@ -334,9 +332,30 @@ class LoadAzgaarMap extends FormApplication {
    * @return {None}               Foundry expects it to return something.
    */
   async _updateObject(event, formData) {
+
+    // Make a journal entry to tie fake notes to or find the old one
+    // If no "real" journal entry is provided than the map notes fail
+    // to show up, hence why this block of code exists.
+
+    // TODO: Investigate better way than adding a random journal entry.
+    let azgaarJournal = game.journal.getName("Azgaar FMG");
+    if (!azgaarJournal) {
+      let fakeJournal = {
+        content: "This journal entry is necessary for the azgaar-foundry importer to work properly",
+        name: "Azgaar FMG",
+        permission: {default: 0}
+      }
+      azgaarJournal = await JournalEntry.create(fakeJournal);
+    }
+
     // Make the scene
     let svg = this.element.find('[name="svgMap"]').val();
     let scene = await this.makeScene(svg);
+
+    // get icons to use for notes
+    const burgSVG = this.element.find("#burgSVG").attr("src");
+    const countrySVG = this.element.find("#countrySVG").attr("src");
+    const provinceSVG = this.element.find("#provinceSVG").attr("src");
 
     // import our data
     await this.importData();
@@ -351,10 +370,10 @@ class LoadAzgaarMap extends FormApplication {
 
       // Assemble data required for notes
       return {
-        entryId: "kRHUxGgm84rOeryS",
+        entryId: azgaarJournal.id,
         x: country.pole[0],
         y: country.pole[1],
-        icon: "icons/svg/castle.svg",
+        icon: countrySVG,
         iconSize: 32,
         iconTint: country.color,
         text: country.name,
@@ -380,10 +399,10 @@ class LoadAzgaarMap extends FormApplication {
 
       // Assemble data required for notes
       return {
-        entryId: "kRHUxGgm84rOeryS",
+        entryId: azgaarJournal.id,
         x: centerBurg.x,
         y: centerBurg.y,
-        icon: "icons/svg/tower.svg",
+        icon: provinceSVG,
         iconSize: 32,
         iconTint: province.color,
         text: province.name,
@@ -403,10 +422,10 @@ class LoadAzgaarMap extends FormApplication {
       // Assemble data required for notes
       return {
         // entryId must be a valid journal entry (NOT from compendium, otherwise things really break.)
-        entryId: "kRHUxGgm84rOeryS",
+        entryId: azgaarJournal.id,
         x: burg.x,
         y: burg.y,
-        icon: "icons/svg/village.svg",
+        icon: burgSVG,
         iconSize: 32,
         iconTint: "#00FF000",
         text: burg.name,
