@@ -493,8 +493,8 @@ async function compendiumUpdater(compType, contentSchema, baseData, extraData) {
             content: content,
             name: i.name
           }
-          if (!oldIds.length) {
-            journal.permission = {"default": 4};
+          if (oldIds.length === 0) {
+            journal.permission = {"default": CONST.ENTITY_PERMISSIONS.OBSERVER};
           }
           return journal;
         }
