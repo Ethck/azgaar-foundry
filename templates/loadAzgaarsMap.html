@@ -5,6 +5,10 @@
         <button type="button" id="svg" name="file-picker" class="file-picker" data-target="svgMap" data-type="image">
             <i class="fas fa-file-import fa-fw"></i>Link to SVG
         </button>
+        <div class="flexcol">
+            <span id="scaleFactorValue">Scale Factor: 1</span>
+            <input type="range" min="1" max="10" value="1" id="scaleFactor"/>
+        </div>
         <div class="flexrow">
             <div class="flexcol">
                 <span>X-Size</span>
@@ -31,6 +35,54 @@
             <div class="flexcol">
                 <span>Provinces</span>
                 <img id="provinceSVG" name="provinceIcon" src="/icons/svg/tower.svg"/>
+            </div>
+        </div>
+    </div>
+    <div id="azgaar-pin-fixer-select">
+        <div class="flexrow">
+            <span style="flex-basis: 70%;">
+                    Minimum zoom level means that pins will be hidden BELOW this value.</br>
+                    Maximum zoom level means that pins will be hidden ABOVE this value.
+            </span>
+            <button type="button" id="zoomDefaults">Reset Zoom</button>
+        </div>
+        <div id="provinces">
+            <span>Pin-Fixer Settings for Provinces</span>
+            <div class="flexrow">
+                <div class="flexcol">
+                    <span id="minZoomValue">Min Zoom Level: 1</span>
+                    <input type="range" min="0" max="3" value="1" id="minZoom" step="0.1"/>
+                </div>
+                <div class="flexcol">
+                    <span id="maxZoomValue">Max Zoom Level: 2</span>
+                    <input type="range" min="0" max="3" value="2" id="maxZoom" step="0.1"/>
+                </div>
+            </div>
+        </div>
+        <div id="countries">
+            <span>Pin-Fixer Settings for Countries</span>
+            <div class="flexrow">
+                <div class="flexcol">
+                    <span id="minZoomValue">Min Zoom Level: 0.1</span>
+                    <input type="range" min="0" max="3" value="0.1" id="minZoom" step="0.1"/>
+                </div>
+                <div class="flexcol">
+                    <span id="maxZoomValue">Max Zoom Level: 2</span>
+                    <input type="range" min="0" max="3" value="2" id="maxZoom" step="0.1"/>
+                </div>
+            </div>
+        </div>
+        <div id="burgs">
+            <span>Pin-Fixer Settings for Burgs</span>
+            <div class="flexrow">
+                <div class="flexcol">
+                    <span id="minZoomValue">Min Zoom Level: 2</span>
+                    <input type="range" min="0" max="3" value="2" id="minZoom" step="0.1"/>
+                </div>
+                <div class="flexcol">
+                    <span id="maxZoomValue">Max Zoom Level: 3</span>
+                    <input type="range" min="0" max="3" value="3" id="maxZoom" step="0.1"/>
+                </div>
             </div>
         </div>
     </div>

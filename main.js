@@ -19,7 +19,7 @@ class LoadAzgaarMap extends FormApplication {
     options.closeOnSubmit = true;
     options.popOut = true;
     options.width = 600;
-    options.height = 400;
+    options.height = 600;
     return options;
   }
   /**
@@ -43,6 +43,35 @@ class LoadAzgaarMap extends FormApplication {
     super.activateListeners(html);
     html.find("#map").change((event) => this.parseMap(event));
     html.find("#azgaar-icon-select img").click((event) => this._onEditImage(event));
+
+    html.find("#azgaar-map-select input[type=range]").change((event) => {
+      const sVal = $(event.currentTarget).val();
+      html.find("#azgaar-map-select #scaleFactorValue").text("Scale Factor: " + sVal);
+      html.find("#azgaar-map-select #mapX").val(1827 * sVal);
+      html.find("#azgaar-map-select #mapY").val(978 * sVal);
+    });
+
+    html.find("#azgaar-pin-fixer-select input[type=range]").change((event) => {
+      const sVal = $(event.currentTarget).val();
+      const zoomSpan = $(event.currentTarget).siblings("span");
+      if (zoomSpan[0].id === "minZoomValue") {
+        zoomSpan.text("Min Zoom Level: " + sVal);
+      } else {
+        zoomSpan.text("Max Zoom Level: " + sVal);
+      }
+    });
+
+    html.find("#azgaar-pin-fixer-select button").click((e) => {
+      const defaults = [1, 2, 0.1, 2, 2, 3]
+      html.find("#azgaar-pin-fixer-select .flexcol").each((i, event) => {
+        if (i % 2 == 0){
+          $(event).find("span").text("Min Zoom Level: " + defaults[i]);
+        } else {
+          $(event).find("span").text("Max Zoom Level: " + defaults[i]);
+        }
+        $(event).find("input").val(defaults[i]);
+      })
+    })
   }
 
   /**
@@ -233,7 +262,7 @@ class LoadAzgaarMap extends FormApplication {
    */
   async makeScene(svg) {
     return new Promise(async (resolve, reject) => {
-      let sceneName = svg.split("%20")[0];
+      let sceneName = svg.split("%20")[0].split(".svg")[0];
 
       const ogWidth = parseInt(this.mapWidth);
       const ogHeight = parseInt(this.mapHeight);
@@ -243,8 +272,6 @@ class LoadAzgaarMap extends FormApplication {
 
       const widthMultiplier = newWidth / ogWidth;
       const heightMultiplier = newHeight / ogHeight;
-
-      console.log(ogWidth, newWidth, widthMultiplier);
 
       //Create The Map Scene
       let sceneData = await Scene.create({
@@ -269,28 +296,6 @@ class LoadAzgaarMap extends FormApplication {
   }
 
   /**
-   * Find an object in memory based on params
-   *
-   * @param  {String} type    Type of object to find
-   * @param  {String} name    Name of object to find
-   * @return {object}         Found Object
-   */
-  // findObject({ type = "burg", name = "" }) {
-  //   let searchable;
-  //   if (type === "burg") {
-  //     searchable = this.burgs;
-  //   } else if (type === "country") {
-  //     searchable = this.countries;
-  //   } else if (type === "culture") {
-  //     searchable = this.cultures;
-  //   } else if (type === "any") {
-  //     searchable = [...this.burgs, ...this.countries, ...this.cultures];
-  //   }
-
-  //   return searchable.find((elem) => elem.name === name);
-  // }
-
-  /**
    * Handle changing the actor profile image by opening a FilePicker
    * @private
    */
@@ -298,10 +303,7 @@ class LoadAzgaarMap extends FormApplication {
     const fp = new FilePicker({
       type: "image",
       callback: path => {
-        console.log(event.currentTarget, path);
         event.currentTarget.src = path;
-        console.log(event.currentTarget.src);
-        console.log(event.currentTarget)
       },
       top: this.position.top + 40,
       left: this.position.left + 10
@@ -372,6 +374,8 @@ class LoadAzgaarMap extends FormApplication {
     // import our data
     await this.importData();
 
+
+    const [countryMinZoom, countryMaxZoom] = this.element.find("#azgaar-pin-fixer-select #countries input").map((i, input) => input.value);
     // Start prepping notes
     let countryData = this.countries.map((country) => {
       if (country.name === "Neutrals") return;
