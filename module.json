@@ -17,6 +17,10 @@
             "name": "pin-fixer",
             "type": "module",
             "manifest": "https://raw.githubusercontent.com/zeel01/pin-fixer/master/module.json"
+        },
+        {
+            "name": "libWrapper",
+            "type": "module"
         }
     ]
 }
