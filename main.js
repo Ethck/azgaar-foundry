@@ -396,11 +396,13 @@ class LoadAzgaarMap extends FormApplication {
         fontSize: 24,
         textAnchor: CONST.TEXT_ANCHOR_POINTS.CENTER,
         textColor: "#00FFFF",
-        "flags.pinfix.minZoomLevel": 0.1,
-        "flags.pinfix.maxZoomLevel": 2,
+        "flags.pinfix.minZoomLevel": countryMinZoom,
+        "flags.pinfix.maxZoomLevel": countryMaxZoom,
         "flags.azgaar-foundry.journal": {"compendium": "world.Countries", "journal": journalEntry.id}
       };
     });
+
+    const [provinceMinZoom, provinceMaxZoom] = this.element.find("#azgaar-pin-fixer-select #provinces input").map((i, input) => input.value);
 
     let provinceData = this.provinces.map((province) => {
       if (province === 0) return; // For some reason there's a 0 at the beginning.
@@ -425,12 +427,13 @@ class LoadAzgaarMap extends FormApplication {
         fontSize: 24,
         textAnchor: CONST.TEXT_ANCHOR_POINTS.CENTER,
         textColor: "#00FFFF",
-        "flags.pinfix.minZoomLevel": 1,
-        "flags.pinfix.maxZoomLevel": 2,
+        "flags.pinfix.minZoomLevel": provinceMinZoom,
+        "flags.pinfix.maxZoomLevel": provinceMaxZoom,
         "flags.azgaar-foundry.journal": {"compendium": "world.Provinces", "journal": journalEntry.id}
       };
     });
 
+    const [burgMinZoom, burgMaxZoom] = this.element.find("#azgaar-pin-fixer-select #burgs input").map((i, input) => input.value);
     let burgData = this.burgs.map((burg) => {
       if (jQuery.isEmptyObject(burg)) return; // For some reason there's a {} at the beginning.
       let journalEntry = this.retrieveJournalByName({ name: burg.name });
@@ -448,8 +451,8 @@ class LoadAzgaarMap extends FormApplication {
         fontSize: 24,
         textAnchor: CONST.TEXT_ANCHOR_POINTS.CENTER,
         textColor: "#00FFFF",
-        "flags.pinfix.minZoomLevel": 2,
-        "flags.pinfix.maxZoomLevel": 3,
+        "flags.pinfix.minZoomLevel": burgMinZoom,
+        "flags.pinfix.maxZoomLevel": burgMaxZoom,
         "flags.azgaar-foundry.journal": {"compendium": "world.Burgs", "journal": journalEntry.id}
       };
     });
@@ -487,6 +490,9 @@ async function compendiumUpdater(compType, contentSchema, baseData, extraData) {
     }
     let compData = await Promise.all(baseData.map(async (i) => {
       if (!jQuery.isEmptyObject(i)) {
+        if (compType === "Countries") {
+          console.log(i, extraData);
+        }
         let content = await renderTemplate("modules/azgaar-foundry/templates/" + contentSchema, {iter: i, extras: extraData})
         if (i.name) {
           let journal = {

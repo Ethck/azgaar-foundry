@@ -16,6 +16,19 @@
             <span>@Compendium[world.Provinces.{{this.journal.id}}]</br></span>
         {{/each}}
     </details>
+    
+    <details>
+        <summary>Military Overview</summary>
+        {{#each iter.military}}
+        {{#if this.u.infantry}}
+            <span>{{this.name}} comprised of {{this.u.infantry}} infantry, {{this.u.cavalry}} cavalry, {{this.u.artillery}} artillery, and {{this.u.archers}} archers.</span>
+        {{else if this.u.fleet}}
+            <span>{{this.name}} comprised of {{this.u.fleet}} ships.</span>
+        {{/if}}
+        </br>
+        {{/each}}
+    </details>
+    
     <table>
         <tr>
             {{#each extras.countries}}
