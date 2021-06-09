@@ -147,6 +147,10 @@ class LoadAzgaarMap extends FormApplication {
         if ("state" in obj[1] && !("cell" in obj[1])) {
           console.log("Provinces:", obj);
           this.provinces = obj;
+        } // Burgs
+        else if ("population" in obj[1] && "citadel" in obj[1]) {
+          console.log("Burgs:", obj);
+          this.burgs = obj;
         }
         // These are our countries
         else if ("diplomacy" in obj[0]) {
@@ -160,10 +164,6 @@ class LoadAzgaarMap extends FormApplication {
         } else if (obj[0].name === "Wildlands") {
           console.log("Cultures:", obj);
           this.cultures = obj;
-          // Burgs
-        } else if ("population" in obj[1] && "citadel" in obj[1]) {
-          console.log("Burgs:", obj);
-          this.burgs = obj;
           // Rivers
         } else if ("mouth" in obj[0]) {
           console.log("Rivers:", obj);
@@ -241,7 +241,7 @@ class LoadAzgaarMap extends FormApplication {
        */
       ui.notifications.notify("UAFMGI: Creating Journals for Burgs.");
       let burgData = this.burgs.map((burg) => {
-        if (!jQuery.isEmptyObject(burg)) {
+        if (burg !== 0 && !jQuery.isEmptyObject(burg)) {
           burg.culture = cultureLookup[burg.culture];
           burg.country = countryLookup[burg.state];
         }
@@ -453,7 +453,7 @@ class LoadAzgaarMap extends FormApplication {
         textColor: "#00FFFF",
         "flags.pinfix.minZoomLevel": burgMinZoom,
         "flags.pinfix.maxZoomLevel": burgMaxZoom,
-        "flags.azgaar-foundry.journal": {"compendium": "world.Burgs", "journal": journalEntry.id}
+        "flags.azgaar-foundry.journal": {"compendium": "world.Burgs", "journal": journalEntry?.id}
       };
     });
 
