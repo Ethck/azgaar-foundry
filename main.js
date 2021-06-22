@@ -267,8 +267,8 @@ class LoadAzgaarMap extends FormApplication {
       const ogWidth = parseInt(this.mapWidth);
       const ogHeight = parseInt(this.mapHeight);
 
-      const newWidth = parseInt(this.element.find("#mapX").val()) || 1920;
-      const newHeight = parseInt(this.element.find("#mapY").val()) || 1080;
+      const newWidth = parseInt(this.element.find("#mapX").val()) || ogWidth;
+      const newHeight = parseInt(this.element.find("#mapY").val()) || ogHeight;
 
       const widthMultiplier = newWidth / ogWidth;
       const heightMultiplier = newHeight / ogHeight;
