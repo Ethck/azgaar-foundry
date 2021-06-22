@@ -128,6 +128,8 @@ class LoadAzgaarMap extends FormApplication {
 
     // FMG Settings
     let firstLine = lines[0].split("|");
+    // Extract FMG seed
+    this.seed = firstLine[3];
     // Extract image size
     this.mapWidth = firstLine[4];
     this.mapHeight = firstLine[5];
@@ -240,10 +242,11 @@ class LoadAzgaarMap extends FormApplication {
        * Burgs
        */
       ui.notifications.notify("UAFMGI: Creating Journals for Burgs.");
-      let burgData = this.burgs.map((burg) => {
+      let burgData = this.burgs.map((burg, i) => {
         if (burg !== 0 && !jQuery.isEmptyObject(burg)) {
           burg.culture = cultureLookup[burg.culture];
           burg.country = countryLookup[burg.state];
+          burg.burgURL = this.generateBurgURL(burg, i);
         }
         return burg;
       });
@@ -335,6 +338,14 @@ class LoadAzgaarMap extends FormApplication {
     let journal = searchable.find((elem) => elem.name === name);
 
     return journal;
+  }
+
+  generateBurgURL(burg, id) {
+    id = id.toString()
+    const seed = this.seed + id.padStart(4, 0);
+    const site = "http://fantasycities.watabou.ru/?random=0&continuous=0";
+    const url = `${site}&name=${burg.name}&population=${+burg.population}&size=${+burg.size}&seed=${seed}&coast=${+burg.coast}&citadel=${+burg.citadel}&plaza=${+burg.plaza}&temple=${+burg.temple}&walls=${+burg.walls}&shantytown=${+burg.shanty}`;
+    return url;
   }
 
   /**
