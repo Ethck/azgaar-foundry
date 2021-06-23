@@ -1,11 +1,12 @@
 <form>
     <div id="azgaar-map-select">
         <input id="map" type="file">Link to MAP file</input>
-        <input type="text" name="svgMap" title="SVG Path" class="icon-path" placeholder="/icons/example.svg" data-dtype="String">
-        <button type="button" id="svg" name="file-picker" class="file-picker" data-target="svgMap" data-type="image">
-            <i class="fas fa-file-import fa-fw"></i>Link to SVG
+        <input type="text" name="pictureMap" title="Picture Path" class="icon-path" placeholder="/icons/example.png" data-dtype="String">
+        <button type="button" id="picture" name="file-picker" class="file-picker" data-target="pictureMap" data-type="image">
+            <i class="fas fa-file-import fa-fw"></i>Link to Picture
         </button>
         <div class="flexcol">
+            <p>Note: Picture scaling is based off of the map file from FMG, if you upscaled the picture you'll want to scale here as well.</p>
             <span id="scaleFactorValue">Scale Factor: 1</span>
             <input type="range" min="1" max="10" value="1" id="scaleFactor"/>
         </div>

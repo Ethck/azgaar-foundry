@@ -258,14 +258,14 @@ class LoadAzgaarMap extends FormApplication {
   }
 
   /**
-   * Make a new scene with the SVG as the background
+   * Make a new scene with the picture as the background
    *
-   * @param  {string} svg    File path to the SVG asset
+   * @param  {string} picture    File path to the picture asset
    * @return {Scene}         New Scene to work on
    */
-  async makeScene(svg) {
+  async makeScene(picture) {
     return new Promise(async (resolve, reject) => {
-      let sceneName = svg.split("%20")[0].split(".svg")[0];
+      let sceneName = picture.split("%20")[0].split(".(svg|png|jpg|jpeg|webm)")[0];
 
       const ogWidth = parseInt(this.mapWidth);
       const ogHeight = parseInt(this.mapHeight);
@@ -282,7 +282,7 @@ class LoadAzgaarMap extends FormApplication {
         width: newWidth,
         height: newHeight,
         padding: 0.0,
-        img: svg,
+        img: picture,
         // Flags for making pinfix work immediately.
         "flags.pinfix.enable": true,
         "flags.pinfix.minScale": 1,
@@ -374,8 +374,8 @@ class LoadAzgaarMap extends FormApplication {
     }
 
     // Make the scene
-    let svg = this.element.find('[name="svgMap"]').val();
-    let [scene, widthMultiplier, heightMultiplier] = await this.makeScene(svg);
+    let picture = this.element.find('[name="pictureMap"]').val();
+    let [scene, widthMultiplier, heightMultiplier] = await this.makeScene(picture);
 
     // get icons to use for notes
     const burgSVG = this.element.find("#burgSVG").attr("src");
