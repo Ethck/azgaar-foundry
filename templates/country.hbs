@@ -1,44 +1,128 @@
 <div>
     <h3>{{iter.fullName}}</h3>
-    <h4>Type: {{iter.type}}</h4>
-    <h4>Expansionism: {{iter.expansionism}}</h4>
-    <h4>Color: {{iter.color}}</h4>
-    <h4>Culture: @Compendium[world.Cultures.{{iter.culture.journal.id}}]</h4>
-    <h4>Urban: {{iter.urban}}</h4>
-    <h4>Rural: {{iter.rural}}</h4>
-    <h4># of Burgs: {{iter.burgs}}</h4>
-    <h4>Area: {{iter.area}}</h4>
-    <h4>Form: {{iter.form}}</h4>
-    <h4>Government: {{iter.formName}}</h4>
+    <h4><b>Type: </b>{{iter.type}}</h4>
+    <h4><b>Expansionism: </b>{{iter.expansionism}}</h4>
+    <h4><b>Color: </b>
+        <p background-color="{{iter.color}}"> {{iter.color}}</p>
+    </h4>
+    <h4><b>Culture:</b> @Compendium[world.Cultures.{{iter.culture.journal.id}}]</h4>
+    <h4><b>Urban: </b>{{iter.urban}}</h4>
+    <h4><b>Rural: </b>{{iter.rural}}</h4>
+    <h4><b>Number of Burgs: </b>{{iter.burgs}}</h4>
+    <h4><b>Area: </b>{{iter.area}}</h4>
+    <h4><b>Form: </b>{{iter.form}}</h4>
+    <h4><b>Government: </b>{{iter.formName}}</h4>
     <details>
         <summary>Provinces</summary>
-        {{#each iter.selProvinces}}
-            <span>@Compendium[world.Provinces.{{this.journal.id}}]</br></span>
-        {{/each}}
+        <ul>
+            {{#each iter.selProvinces}}
+            <li><span>@Compendium[world.Provinces.{{this.journal.id}}]</span></li>
+            {{/each}}
+        </ul>
     </details>
-    
+
     <details>
         <summary>Military Overview</summary>
-        {{#each iter.military}}
-        {{#if this.u.infantry}}
-            <span>{{this.name}} comprised of {{this.u.infantry}} infantry, {{this.u.cavalry}} cavalry, {{this.u.artillery}} artillery, and {{this.u.archers}} archers.</span>
-        {{else if this.u.fleet}}
-            <span>{{this.name}} comprised of {{this.u.fleet}} ships.</span>
-        {{/if}}
-        </br>
-        {{/each}}
+
+        <table>
+            <tr>
+                <th>Military</th>
+                <div class="tooltip">
+                    <th>⚔️</th>
+                    <span class="tooltiptext">Infantry</span>
+                </div>
+                <div class="tooltip">
+                    <th>🏹</th>
+                    <span class="tooltiptext">Archers</span>
+                </div>
+                <div class="tooltip">
+                    <th>🐴</th>
+                    <span class="tooltiptext">Cavalry</span>
+                </div>
+                <div class="tooltip">
+                    <th>💣</th>
+                    <span class="tooltiptext">Artillery</span>
+                </div>
+                <div class="tooltip">
+                    <th>🌊</th>
+                    <span class="tooltiptext">Fleet</span>
+                </div>
+
+                {{!--
+                💪
+                <th>🦄</th>
+                <th>🦅</th>
+                <th>🧙</th> --}}
+
+                {{!--
+                <th>Infantry</th>
+                <th>Archers</th>
+                <th>Cavalry</th>
+                <th>Artillery</th>
+                <th>Fleet</th>
+
+                <th>Knights</th>
+                <th>Flying</th>
+                <th>Magic</th> --}}
+
+            </tr>
+            {{#each iter.military}}
+
+            <tr>
+                <th>{{this.name}}</th>
+
+                <td>{{this.u.infantry}}</td>
+                <td> {{this.u.archers}}</td>
+                <td> {{this.u.cavalry}}</td>
+                <td> {{this.u.artillery}} </td>
+                <td> {{this.u.fleet}}</td>
+                {{!-- <td> </td>
+                <td> </td>
+                <td> </td> --}}
+
+
+                {{/each}}
+            </tr>
+        </table>
     </details>
-    
+
+
+    {{!-- --}}
+
+
     <table>
         <tr>
+            <th></th>
+
             {{#each extras.countries}}
-                <th>{{this.name}}</th>
+            <th class="rotate">
+                <div><span>{{this.name}}</span></div>
+            </th>
             {{/each}}
         </tr>
         <tr>
+            <th class="rotate-90">{{iter.fullName}}</th>
             {{#each iter.diplomacy}}
-                <th>{{this}}</th>
-            {{/each}}
-        </tr>
-    </table>
+            <td>
+                "{{this.}}"
+
+                {{!-- <div class="tooltip">
+                    {{#if this === "Ally"}}
+                        <th> 🛡️</th>
+                        <span class="tooltiptext">Ally</span>
+                    {{/if}}
+            {{#if this === "Friendly"}} <th>🤝 </th> <span class="tooltiptext">Friendly</span>{{/if}}
+            {{#if this === "Neutral"}} <th>😐 </th> <span class="tooltiptext">Neutral</span>{{/if }}
+            {{#if this === "Suspicion"}} <th> 👀</th> <span class="tooltiptext">Suspicion</span>{{/if }}
+            {{#if this === "Enemy"}} <th>😡 </th> <span class="tooltiptext">Enemy</span>{{/if }}
+            {{#if this === "Unknown"}} <th> ❓</th> <span class="tooltiptext">Unknown</span>{{/if }}
+            {{#if this === "Rival"}} <th>✊ </th> <span class="tooltiptext">Rival</span>{{/if}}
+            {{#if this === "Vassal"}} <th>🎩 </th> <span class="tooltiptext">Vassal</span>{{/if}}
+            {{#if this === "Suzerain"}} <th>👞 </th> <span class="tooltiptext">Suzerain</span>{{/if}} --}}
+
 </div>
+</td>
+{{/each}}
+< /tr>
+    </table>
+    </div>
