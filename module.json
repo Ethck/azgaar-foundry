@@ -15,8 +15,7 @@
     "dependencies": [
         {
             "name": "pin-fixer",
-            "type": "module",
-            "manifest": "https://raw.githubusercontent.com/zeel01/pin-fixer/master/module.json"
+            "type": "module"
         },
         {
             "name": "lib-wrapper",

@@ -3,7 +3,7 @@
     <h4><b>Type: </b>{{iter.type}}</h4>
     <h4><b>Expansionism: </b>{{iter.expansionism}}</h4>
     <h4><b>Color: </b>
-        <p background-color="{{iter.color}}"> {{iter.color}}</p>
+        <span style='background-color: {{iter.color}};'> {{iter.color}}</span>
     </h4>
     <h4><b>Culture:</b> @Compendium[world.Cultures.{{iter.culture.journal.id}}]</h4>
     <h4><b>Urban: </b>{{iter.urban}}</h4>
@@ -16,7 +16,7 @@
         <summary>Provinces</summary>
         <ul>
             {{#each iter.selProvinces}}
-            <li><span>@Compendium[world.Provinces.{{this.journal.id}}]</span></li>
+                <li><span>@Compendium[world.Provinces.{{this.journal.id}}]</span></li>
             {{/each}}
         </ul>
     </details>
@@ -27,39 +27,43 @@
         <table>
             <tr>
                 <th>Military</th>
-                <div class="tooltip">
-                    <th>⚔️</th>
-                    <span class="tooltiptext">Infantry</span>
-                </div>
-                <div class="tooltip">
-                    <th>🏹</th>
-                    <span class="tooltiptext">Archers</span>
-                </div>
-                <div class="tooltip">
-                    <th>🐴</th>
-                    <span class="tooltiptext">Cavalry</span>
-                </div>
-                <div class="tooltip">
-                    <th>💣</th>
-                    <span class="tooltiptext">Artillery</span>
-                </div>
-                <div class="tooltip">
-                    <th>🌊</th>
-                    <span class="tooltiptext">Fleet</span>
-                </div>
+                <th>
+	                <div class="tooltip">
+                        <span>⚔️</span>
+                        <span class="tooltiptext">Infantry</span>
+                    </div>
+                </th>
+                <th>
+	                <div class="tooltip">
+                        <span>🏹</span>
+                        <span class="tooltiptext">Archers</span>
+                    </div>
+                </th>
+                <th>
+	                <div class="tooltip">
+                        <span>🐴</span>
+                        <span class="tooltiptext">Cavalry</span>
+                    </div>
+                </th>
+                <th>
+	                <div class="tooltip">
+                        <span>💣</span>
+                        <span class="tooltiptext">Artillery</span>
+                    </div>
+                </th>
+                <th>
+	                <div class="tooltip">
+                        <span>🌊</span>
+                        <span class="tooltiptext">Fleet</span>
+                    </div>
+                </th>
 
                 {{!--
+                TODO: Figure out if these are EVER actually used, if so we need to support it!
                 💪
                 <th>🦄</th>
                 <th>🦅</th>
-                <th>🧙</th> --}}
-
-                {{!--
-                <th>Infantry</th>
-                <th>Archers</th>
-                <th>Cavalry</th>
-                <th>Artillery</th>
-                <th>Fleet</th>
+                <th>🧙</th>
 
                 <th>Knights</th>
                 <th>Flying</th>
@@ -67,33 +71,21 @@
 
             </tr>
             {{#each iter.military}}
-
-            <tr>
-                <th>{{this.name}}</th>
-
-                <td>{{this.u.infantry}}</td>
-                <td> {{this.u.archers}}</td>
-                <td> {{this.u.cavalry}}</td>
-                <td> {{this.u.artillery}} </td>
-                <td> {{this.u.fleet}}</td>
-                {{!-- <td> </td>
-                <td> </td>
-                <td> </td> --}}
-
-
-                {{/each}}
-            </tr>
+                <tr>
+                    <th>{{this.name}}</th>
+                    <td>{{this.u.infantry}}</td>
+                    <td>{{this.u.archers}}</td>
+                    <td>{{this.u.cavalry}}</td>
+                    <td>{{this.u.artillery}}</td>
+                    <td>{{this.u.fleet}}</td>
+                </tr>
+            {{/each}}
         </table>
     </details>
-
-
-    {{!-- --}}
-
 
     <table>
         <tr>
             <th></th>
-
             {{#each extras.countries}}
             <th class="rotate">
                 <div><span>{{this.name}}</span></div>
@@ -103,26 +95,29 @@
         <tr>
             <th class="rotate-90">{{iter.fullName}}</th>
             {{#each iter.diplomacy}}
-            <td>
-                "{{this.}}"
+                <td>
+                    "{{this}}"
 
-                {{!-- <div class="tooltip">
-                    {{#if this === "Ally"}}
-                        <th> 🛡️</th>
-                        <span class="tooltiptext">Ally</span>
-                    {{/if}}
-            {{#if this === "Friendly"}} <th>🤝 </th> <span class="tooltiptext">Friendly</span>{{/if}}
-            {{#if this === "Neutral"}} <th>😐 </th> <span class="tooltiptext">Neutral</span>{{/if }}
-            {{#if this === "Suspicion"}} <th> 👀</th> <span class="tooltiptext">Suspicion</span>{{/if }}
-            {{#if this === "Enemy"}} <th>😡 </th> <span class="tooltiptext">Enemy</span>{{/if }}
-            {{#if this === "Unknown"}} <th> ❓</th> <span class="tooltiptext">Unknown</span>{{/if }}
-            {{#if this === "Rival"}} <th>✊ </th> <span class="tooltiptext">Rival</span>{{/if}}
-            {{#if this === "Vassal"}} <th>🎩 </th> <span class="tooltiptext">Vassal</span>{{/if}}
-            {{#if this === "Suzerain"}} <th>👞 </th> <span class="tooltiptext">Suzerain</span>{{/if}} --}}
+                    {{!--
+                        <div class="tooltip">
 
-</div>
-</td>
-{{/each}}
-< /tr>
+                            {{#if this === "Ally"}}
+                                <th> 🛡️</th>
+                                <span class="tooltiptext">Ally</span>
+                            {{/if}}
+                            {{#if this === "Friendly"}} <th>🤝 </th> <span class="tooltiptext">Friendly</span>{{/if}}
+                            {{#if this === "Neutral"}} <th>😐 </th> <span class="tooltiptext">Neutral</span>{{/if }}
+                            {{#if this === "Suspicion"}} <th> 👀</th> <span class="tooltiptext">Suspicion</span>{{/if }}
+                            {{#if this === "Enemy"}} <th>😡 </th> <span class="tooltiptext">Enemy</span>{{/if }}
+                            {{#if this === "Unknown"}} <th> ❓</th> <span class="tooltiptext">Unknown</span>{{/if }}
+                            {{#if this === "Rival"}} <th>✊ </th> <span class="tooltiptext">Rival</span>{{/if}}
+                            {{#if this === "Vassal"}} <th>🎩 </th> <span class="tooltiptext">Vassal</span>{{/if}}
+                            {{#if this === "Suzerain"}} <th>👞 </th> <span class="tooltiptext">Suzerain</span>{{/if}}
+
+                        </div>
+                    --}}
+                </td>
+            {{/each}}
+        </tr>
     </table>
-    </div>
+</div>
