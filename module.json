@@ -5,7 +5,7 @@
     "version": "0.1.0",
     "minimumCoreVersion": "0.7.0",
     "compatibleCoreVersion": "0.7.9",
-    "author": "Ethck & Snark",
+    "author": "Ethck & Snark (TheSnarky)",
     "esmodules": ["/main.js"],
     "styles": ["/css/map.css"],
     "url": "https://github.com/ethck/azgaar-foundry",
@@ -15,8 +15,7 @@
     "dependencies": [
         {
             "name": "pin-fixer",
-            "type": "module",
-            "manifest": "https://raw.githubusercontent.com/zeel01/pin-fixer/master/module.json"
+            "type": "module"
         },
         {
             "name": "lib-wrapper",
