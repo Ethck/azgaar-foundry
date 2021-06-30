@@ -3,3 +3,42 @@
 #azgaar-pin-fixer-select span {
     text-align: center;
 }
+
+#azgaar-pin-fixer-select input {
+    padding: 0px 10px 0px 10px;
+}
+
+#azgaar-foundry .tooltip {
+    position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted black;
+  }
+  
+#azgaar-foundry .tooltip .tooltiptext {
+    visibility: hidden;
+    width: 200px;
+    background-color: #f1f0ec;
+    color: black;
+    border-radius: 1px;
+    padding: 5px;
+    line-height: 1;
+    padding-top: 3px;
+    border-style: double;
+    font-style: normal;
+    font-weight: normal;
+    font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif;
+    font-size: 14px;
+
+    /* Position the tooltip */
+    position: absolute;
+    z-index: 1;
+}
+
+#azgaar-foundry .tooltip .tooltiptext.left {
+    top: 0px;
+    right: 105%; 
+}
+
+#azgaar-foundry .tooltip:hover .tooltiptext {
+    visibility: visible;
+}

@@ -1,91 +1,111 @@
 <form>
-    <div id="azgaar-map-select">
-        <input id="map" type="file">Link to MAP file</input>
-        <input type="text" name="pictureMap" title="Picture Path" class="icon-path" placeholder="/icons/example.png" data-dtype="String">
-        <button type="button" id="picture" name="file-picker" class="file-picker" data-target="pictureMap" data-type="image">
-            <i class="fas fa-file-import fa-fw"></i>Link to Picture
-        </button>
-        <div class="flexcol">
-            <p>Note: Picture scaling is based off of the map file from FMG, if you upscaled the picture you'll want to scale here as well.</p>
-            <span id="scaleFactorValue">Scale Factor: 1</span>
-            <input type="range" min="1" max="10" value="1" id="scaleFactor"/>
-        </div>
-        <div class="flexrow">
-            <div class="flexcol">
-                <span>X-Size</span>
-                <input type="text" id="mapX" placeholder="1920"/>
+    <section>
+        <h2>Map Selection</h2>
+        <div id="azgaar-map-select">
+            <input id="map" type="file">Link to MAP file</input>
+            <div class="tooltip"><i class="fas fa-info-circle"></i>
+                <span class="tooltiptext left">
+                Press the "Browse..." button to select a .map file that has been exported from Azgaar's Fantasy Map Generator.
+                </span>
             </div>
+            <input type="text" name="pictureMap" title="Picture Path" class="icon-path" placeholder="/icons/example.png" data-dtype="String">
+            <button type="button" id="picture" name="file-picker" class="file-picker" data-target="pictureMap" data-type="image">
+                <i class="fas fa-file-import fa-fw"></i>Link to Picture
+                <div class="tooltip"><i class="fas fa-info-circle"></i>
+                    <span class="tooltiptext left">
+                    The picture you select can be of any format and will be set as the background image of the scene.</br>
+                    It is extremely important that if you scale the picture in FMG that you also set the Scale Factor below.
+                    </span>
+                </div>
+            </button>
             <div class="flexcol">
-                <span>Y-Size</span>
-                <input type="text" id="mapY" placeholder="1080"/>
+                <p>Note: Picture scaling is based off of the map file from FMG, if you upscaled the picture you'll want to change the Scale Factor here as well.</p>
+                <span id="scaleFactorValue">Scale Factor: 1</span>
+                <input type="range" min="1" max="10" value="1" id="scaleFactor"/>
             </div>
-        </div>
-    </div>
-
-    <div id="azgaar-icon-select">
-        <span>This section is used to select which icons you want to see on the map notes that are created.</span>
-        <div class="flexrow">
-            <div class="flexcol">
-                <span>Burgs</span>
-                <img id="burgSVG" name="burgIcon" src="/icons/svg/village.svg">
-            </div>
-            <div class="flexcol">
-                <span>Countries</span>
-                <img id="countrySVG" name="countryIcon" src="/icons/svg/castle.svg"/>
-            </div>
-            <div class="flexcol">
-                <span>Provinces</span>
-                <img id="provinceSVG" name="provinceIcon" src="/icons/svg/tower.svg"/>
-            </div>
-        </div>
-    </div>
-    <div id="azgaar-pin-fixer-select">
-        <div class="flexrow">
-            <span style="flex-basis: 70%;">
-                    Minimum zoom level means that pins will be hidden BELOW this value.</br>
-                    Maximum zoom level means that pins will be hidden ABOVE this value.
-            </span>
-            <button type="button" id="zoomDefaults">Reset Zoom</button>
-        </div>
-        <div id="provinces">
-            <span>Pin-Fixer Settings for Provinces</span>
             <div class="flexrow">
                 <div class="flexcol">
-                    <span id="minZoomValue">Min Zoom Level: 1</span>
-                    <input type="range" min="0" max="3" value="1" id="minZoom" step="0.1"/>
+                    <span>X-Size of Map</span>
+                    <input type="text" id="mapX" placeholder="1920"/>
                 </div>
                 <div class="flexcol">
-                    <span id="maxZoomValue">Max Zoom Level: 2</span>
-                    <input type="range" min="0" max="3" value="2" id="maxZoom" step="0.1"/>
+                    <span>Y-Size of Map</span>
+                    <input type="text" id="mapY" placeholder="1080"/>
                 </div>
             </div>
         </div>
-        <div id="countries">
-            <span>Pin-Fixer Settings for Countries</span>
+    </section></br>
+    <section>
+        <h2>MapNote Icon Selection</h2>
+        <div id="azgaar-icon-select">
+            <span>Here you can select which icons you want to see on the map notes that are created for each type of note.</span>
             <div class="flexrow">
                 <div class="flexcol">
-                    <span id="minZoomValue">Min Zoom Level: 0.1</span>
-                    <input type="range" min="0" max="3" value="0.1" id="minZoom" step="0.1"/>
+                    <span>Burgs</span>
+                    <img id="burgSVG" name="burgIcon" src="/icons/svg/village.svg">
                 </div>
                 <div class="flexcol">
-                    <span id="maxZoomValue">Max Zoom Level: 2</span>
-                    <input type="range" min="0" max="3" value="2" id="maxZoom" step="0.1"/>
+                    <span>Countries</span>
+                    <img id="countrySVG" name="countryIcon" src="/icons/svg/castle.svg"/>
+                </div>
+                <div class="flexcol">
+                    <span>Provinces</span>
+                    <img id="provinceSVG" name="provinceIcon" src="/icons/svg/tower.svg"/>
                 </div>
             </div>
         </div>
-        <div id="burgs">
-            <span>Pin-Fixer Settings for Burgs</span>
+    </section></br>
+    <section>
+        <h2>MapNote Scaling</h2>
+        <div id="azgaar-pin-fixer-select">
             <div class="flexrow">
-                <div class="flexcol">
-                    <span id="minZoomValue">Min Zoom Level: 2</span>
-                    <input type="range" min="0" max="3" value="2" id="minZoom" step="0.1"/>
+                <span style="flex-basis: 70%;">
+                        Minimum zoom level means that pins will be hidden BELOW this value.</br>
+                        Maximum zoom level means that pins will be hidden ABOVE this value.
+                </span>
+                <button type="button" id="zoomDefaults">Reset Zoom</button>
+            </div>
+            </br>
+            <div id="provinces">
+                <span>Pin-Fixer Settings for <b>Provinces</b></span>
+                <div class="flexrow">
+                    <div class="flexcol">
+                        <span id="minZoomValue">Min Zoom Level: 1</span>
+                        <input type="range" min="0" max="3" value="1" id="minZoom" step="0.1"/>
+                    </div>
+                    <div class="flexcol">
+                        <span id="maxZoomValue">Max Zoom Level: 2</span>
+                        <input type="range" min="0" max="3" value="2" id="maxZoom" step="0.1"/>
+                    </div>
                 </div>
-                <div class="flexcol">
-                    <span id="maxZoomValue">Max Zoom Level: 3</span>
-                    <input type="range" min="0" max="3" value="3" id="maxZoom" step="0.1"/>
+            </div>
+            <div id="countries">
+                <span>Pin-Fixer Settings for <b>Countries</b></span>
+                <div class="flexrow">
+                    <div class="flexcol">
+                        <span id="minZoomValue">Min Zoom Level: 0.1</span>
+                        <input type="range" min="0" max="3" value="0.1" id="minZoom" step="0.1"/>
+                    </div>
+                    <div class="flexcol">
+                        <span id="maxZoomValue">Max Zoom Level: 2</span>
+                        <input type="range" min="0" max="3" value="2" id="maxZoom" step="0.1"/>
+                    </div>
+                </div>
+            </div>
+            <div id="burgs">
+                <span>Pin-Fixer Settings for <b>Burgs</b></span>
+                <div class="flexrow">
+                    <div class="flexcol">
+                        <span id="minZoomValue">Min Zoom Level: 2</span>
+                        <input type="range" min="0" max="3" value="2" id="minZoom" step="0.1"/>
+                    </div>
+                    <div class="flexcol">
+                        <span id="maxZoomValue">Max Zoom Level: 3</span>
+                        <input type="range" min="0" max="3" value="3" id="maxZoom" step="0.1"/>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    </section></br>
     <button type="submit">Import</button>
 </form>
