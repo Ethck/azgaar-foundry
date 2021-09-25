@@ -40,17 +40,26 @@
         <div id="azgaar-icon-select">
             <span>Here you can select which icons you want to see on the map notes that are created for each type of note.</span>
             <div class="flexrow">
-                <div class="flexcol">
+                <div class="flexcol" id="burgs">
                     <span>Burgs</span>
                     <img id="burgSVG" name="burgIcon" src="/icons/svg/village.svg">
+                    <div class="flexrow">
+                        <input type="checkbox" id="iconColors" name="options.use_colors_burg">Use FMG Colors?</input>
+                    </div>
                 </div>
-                <div class="flexcol">
+                <div class="flexcol" id="countries">
                     <span>Countries</span>
                     <img id="countrySVG" name="countryIcon" src="/icons/svg/castle.svg"/>
+                    <div class="flexrow">
+                        <input type="checkbox" id="iconColors" name="options.use_colors_country">Use FMG Colors?</input>
+                    </div>
                 </div>
-                <div class="flexcol">
+                <div class="flexcol" id="provinces">
                     <span>Provinces</span>
                     <img id="provinceSVG" name="provinceIcon" src="/icons/svg/tower.svg"/>
+                    <div class="flexrow">
+                        <input type="checkbox" id="iconColors" name="options.use_colors_province">Use FMG Colors?</input>
+                    </div>
                 </div>
             </div>
         </div>

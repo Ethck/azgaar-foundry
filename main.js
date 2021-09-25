@@ -398,6 +398,8 @@ class LoadAzgaarMap extends FormApplication {
         const [countryMinZoom, countryMaxZoom] = this.element
             .find("#azgaar-pin-fixer-select #countries input")
             .map((i, input) => input.value);
+
+        let useColor = this.element.find("#azgaar-icon-select #countries input#iconColors").is(":checked");
         // Start prepping notes
         let countryData = this.countries.map((country) => {
             if (country.name === "Neutrals") return;
@@ -420,7 +422,7 @@ class LoadAzgaarMap extends FormApplication {
                 y: ypole * heightMultiplier,
                 icon: countrySVG,
                 iconSize: 32,
-                iconTint: country.color,
+                iconTint: useColor ? country.color : "#00FF000",
                 text: country.name,
                 fontSize: 24,
                 textAnchor: CONST.TEXT_ANCHOR_POINTS.CENTER,
@@ -435,6 +437,7 @@ class LoadAzgaarMap extends FormApplication {
             .find("#azgaar-pin-fixer-select #provinces input")
             .map((i, input) => input.value);
 
+        useColor = this.element.find("#azgaar-icon-select #provinces input#iconColors").is(":checked");
         let provinceData = this.provinces.map((province) => {
             if (province === 0) return; // For some reason there's a 0 at the beginning.
             let journalEntry = this.retrieveJournalByName({
@@ -453,7 +456,7 @@ class LoadAzgaarMap extends FormApplication {
                 y: centerBurg.y * heightMultiplier,
                 icon: provinceSVG,
                 iconSize: 32,
-                iconTint: province.color,
+                iconTint: useColor ? province.color : "#00FF000",
                 text: province.name,
                 fontSize: 24,
                 textAnchor: CONST.TEXT_ANCHOR_POINTS.CENTER,
@@ -467,6 +470,8 @@ class LoadAzgaarMap extends FormApplication {
         const [burgMinZoom, burgMaxZoom] = this.element
             .find("#azgaar-pin-fixer-select #burgs input")
             .map((i, input) => input.value);
+
+        useColor = this.element.find("#azgaar-icon-select #burgs input#iconColors").is(":checked");
         let burgData = this.burgs.map((burg) => {
             if (jQuery.isEmptyObject(burg)) return; // For some reason there's a {} at the beginning.
             let journalEntry = this.retrieveJournalByName({ name: burg.name });
@@ -479,7 +484,7 @@ class LoadAzgaarMap extends FormApplication {
                 y: burg.y * heightMultiplier,
                 icon: burgSVG,
                 iconSize: 32,
-                iconTint: "#00FF000",
+                iconTint: useColor ? burg.color : "#00FF000",
                 text: burg.name,
                 fontSize: 24,
                 textAnchor: CONST.TEXT_ANCHOR_POINTS.CENTER,
