@@ -381,6 +381,10 @@ class LoadAzgaarMap extends FormApplication {
 
         // Make the scene
         let picture = this.element.find('[name="pictureMap"]').val();
+        if (!picture) {
+            ui.notifications.error("[Azgaar FMG] You must attach a picture and a map file to the form.");
+            return;
+        }
         let [scene, widthMultiplier, heightMultiplier] = await this.makeScene(picture);
 
         // get icons to use for notes
