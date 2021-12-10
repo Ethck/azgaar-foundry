@@ -223,7 +223,7 @@ class LoadAzgaarMap extends FormApplication {
             let countryData = this.countries.map((country) => {
                 if (!(jQuery.isEmptyObject(country) || country.name === "Neutrals")) {
                     // TODO: Extrapolate Provinces, add Burgs?, Neighbors, Diplomacy, Campaigns?, Military?
-                    let culture = cultureLookup[country.culture];
+                    let culture = cultureLookup[country.culture - 1];
                     country.culture = culture;
                     // for i in country.provinces
                     // map to actual province
@@ -250,7 +250,7 @@ class LoadAzgaarMap extends FormApplication {
             ui.notifications.notify("UAFMGI: Creating Journals for Burgs.");
             let burgData = this.burgs.map((burg, i) => {
                 if (burg !== 0 && !jQuery.isEmptyObject(burg)) {
-                    burg.culture = cultureLookup[burg.culture];
+                    burg.culture = cultureLookup[burg.culture - 1];
                     burg.country = countryLookup[burg.state];
                     burg.burgURL = this.generateBurgURL(burg, i);
                 }
@@ -349,9 +349,10 @@ class LoadAzgaarMap extends FormApplication {
         id = id.toString();
         const seed = this.seed + id.padStart(4, 0);
         const site = "http://fantasycities.watabou.ru/?random=0&continuous=0";
+        const pop = ("" + burg.population).replace(".", "");
         const url = `${site}&name=${
             burg.name
-        }&population=${+burg.population}&size=${+burg.size}&seed=${seed}&coast=${+burg.coast}&citadel=${+burg.citadel}&plaza=${+burg.plaza}&temple=${+burg.temple}&walls=${+burg.walls}&shantytown=${+burg.shanty}`;
+        }&population=${+pop}&size=${+burg.size}&seed=${seed}&coast=${+burg.coast}&citadel=${+burg.citadel}&plaza=${+burg.plaza}&temple=${+burg.temple}&walls=${+burg.walls}&shantytown=${+burg.shanty}`;
         return url;
     }
 
