@@ -12,6 +12,7 @@
     "manifest": "Replaced in Releases",
     "download": "Replaced in Releases",
     "readme": "https://github.com/Ethck/azgaar-foundry/blob/master/README.md",
+    "changelog": "https://github.com/Ethck/azgaar-foundry/blob/master/README.md",
     "dependencies": [
         {
             "name": "pin-fixer",
