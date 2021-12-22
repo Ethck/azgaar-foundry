@@ -227,7 +227,7 @@ class LoadAzgaarMap extends FormApplication {
                     country.culture = culture;
                     // for i in country.provinces
                     // map to actual province
-                    let provinces = country.provinces.map((provIndex) => provinceLookup[provIndex]);
+                    let provinces = country.provinces?.map((provIndex) => provinceLookup[provIndex]);
                     country.selProvinces = provinces;
                 }
                 return country;
@@ -440,7 +440,7 @@ class LoadAzgaarMap extends FormApplication {
 
         useColor = this.element.find("#azgaar-icon-select #provinces input#iconColors").is(":checked");
         let provinceData = this.provinces.map((province) => {
-            if (province === 0) return; // For some reason there's a 0 at the beginning.
+            if (province === 0 || province.removed) return; // For some reason there's a 0 at the beginning.
             let journalEntry = this.retrieveJournalByName({
                 type: "province",
                 name: province.name,
