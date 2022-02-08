@@ -51,6 +51,34 @@ class LoadAzgaarMap extends FormApplication {
             html.find("#azgaar-map-select #mapY").val(978 * sVal);
         });
 
+        html.find("#azgaar-map-select input[name='pictureMap']").change(async (event) => {
+            const picture = $(event.currentTarget).val();
+            let picWidth = 0;
+            let picHeight = 0;
+
+            await fetch(picture).then(async (response) => {
+                return new Promise((resolve) => {
+                    let sceneImg = new Image();
+                    sceneImg.onload = () => {
+                        picWidth = sceneImg.width;
+                        picHeight = sceneImg.height;
+
+                        this.picWidth = picWidth;
+                        this.picHeight = picHeight;
+
+                        // Enable submit button now that picture is loaded
+                        html.find("button[type='submit']").prop("disabled", false);
+                        resolve();
+                    };
+
+                    sceneImg.src = response.url;
+
+                    // Disable submit button while picture is loading
+                    html.find("button[type='submit']").prop("disabled", true);
+                });
+            });
+        });
+
         html.find("#azgaar-pin-fixer-select input[type=range]").change((event) => {
             const sVal = $(event.currentTarget).val();
             const zoomSpan = $(event.currentTarget).siblings("span");
@@ -276,8 +304,8 @@ class LoadAzgaarMap extends FormApplication {
             const ogWidth = parseInt(this.mapWidth);
             const ogHeight = parseInt(this.mapHeight);
 
-            const newWidth = parseInt(this.element.find("#mapX").val()) || ogWidth;
-            const newHeight = parseInt(this.element.find("#mapY").val()) || ogHeight;
+            const newWidth = this.picWidth;
+            const newHeight = this.picHeight;
 
             const widthMultiplier = newWidth / ogWidth;
             const heightMultiplier = newHeight / ogHeight;
@@ -285,8 +313,8 @@ class LoadAzgaarMap extends FormApplication {
             //Create The Map Scene
             let sceneData = await Scene.create({
                 name: sceneName,
-                width: newWidth,
-                height: newHeight,
+                width: this.picWidth,
+                height: this.picHeight,
                 padding: 0.0,
                 img: picture,
                 // Flags for making pinfix work immediately.
