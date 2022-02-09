@@ -7,18 +7,21 @@
 ## How to use
 
 ### Azgaar's Fantasy Map Generator (FMG)
+
 In order to use this module you will first need to retrieve two files from Azgaar's Fantasy Map Generator (https://azgaar.github.io/Fantasy-Map-Generator).
 You will need the .map file and a picture of your world. Once you have these, continue to the next step.
 
 ### Starting the Workflow
+
 To start please navigate to the Module settings and select the "Load Azgaar's Map into Foundry" button.
 
 ![Module Settings](images/moduleSettings.png)
 
 ### The Form
+
 First and foremost I'd like to say that this form appears a lot more daunting than it actually is, so here's a bunch a pictures to help guide you.
 
-There are only 3 steps that you actually *have* to do, the rest is just configuring.
+There are only 3 steps that you actually _have_ to do, the rest is just configuring.
 
 #### Section 1 - Map Selection
 
@@ -30,7 +33,9 @@ Once the map file is loaded we'll want to click the giant "Link to Picture" butt
 
 Those are the only mandatory steps in this section (and pretty much the whole form), but the configuration really helps make these maps yours.
 
-If you scaled up the map on export from Azgaar's, then you'll want to change the "Scale Factor" here to match it. For the most part you can safely ignore the X/Y coordinates, those are just estimates to show you how big the end result will be.
+##### Important note regarding pictures
+
+In order for your map to be properly aligned you MUST export your PNG/JPEG/SVG while your browser is in FULLSCREEN mode (typically f11). Azgaar's Fantasy Map Generator will only capture what you can currently see, so make sure you see everything!
 
 #### Section 2 - MapNote Icon Selection
 
@@ -52,13 +57,11 @@ Like the notice says the minimum zoom level requires you to be zoomed in to that
 
 Congrats! If you've reached this far then you've done everything you need to get this to work, and now you can just slam that import button and watch the magic happen!
 
-
 ## How Does It Work?
 
 So you might be asking yourself won't this cause my players to not be able to load in fast? What's the performance impact of having 1000+ map notes on a single scene?
 
 While I can't gurantee that your players won't experience difficulties loading into the scene I have made use of every possible method in Foundry to ensure that it is the quickest it can be. To this end you'll notice that on map creation all of the Journal Entries are actually stored in Compendiums. This means that unless you've opened that Journal recently it is stored in the database and you (and your players!) don't need to load it to log in.
-
 
 ### Updates
 
@@ -66,18 +69,17 @@ Whenever a new update is published you'll need to reimport the map in order to u
 
 ## Future Plans
 
-* Find a way to allow updating of journals via a separate window so we don't have to create another new scene.
-* Incorporate other dataset(s) from the FMG map file
-* Find better ways to display *most* of the data.
+-   Find a way to allow updating of journals via a separate window so we don't have to create another new scene.
+-   Incorporate other dataset(s) from the FMG map file
+-   Find better ways to display _most_ of the data.
 
 ## Contact, Issues, and Recommendations
 
 If you have any desire to contact me feel free to send me a message on Discord (Ethck#6879). Additionally if you run into any issues with the program and/or have any recommendations for future development please do not hesitate to post an issue here on Github.
 
-
 ## Additional Licensing & Thanks
 
-This work is also licensed under the 
+This work is also licensed under the
 
 [Foundry Virtual Tabletop EULA - Limited License Agreement for Module Development.](https://foundryvtt.com/article/license/)
 
