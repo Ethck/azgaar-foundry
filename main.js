@@ -239,6 +239,7 @@ class LoadAzgaarMap extends FormApplication {
                 return {
                     id: province.i,
                     name: province.name,
+                    burgs: province.burgs,
                     journal: this.retrieveJournalByName({ type: "province", name: province.name }),
                 };
             });
@@ -261,9 +262,12 @@ class LoadAzgaarMap extends FormApplication {
                 return country;
             });
 
+            // We provide countryData a 2nd time in the "extraData" field because the "baseData"
+            // field gets trimmed to a single entity when rendering.
             this.countryComp = await compendiumUpdater("Countries", "country.hbs", countryData, {
                 countries: countryData,
             });
+
             let countryLookup = this.countries.map((country) => {
                 return {
                     id: country.i,
@@ -276,16 +280,38 @@ class LoadAzgaarMap extends FormApplication {
              * Burgs
              */
             ui.notifications.notify("UAFMGI: Creating Journals for Burgs.");
-            let burgData = this.burgs.map((burg, i) => {
+            const burgData = this.burgs.map((burg, i) => {
                 if (burg !== 0 && !jQuery.isEmptyObject(burg)) {
                     burg.culture = cultureLookup[burg.culture - 1];
                     burg.country = countryLookup[burg.state];
+                    burg.province = provinceLookup.find((province) => province.burgs?.includes(burg.i));
                     burg.burgURL = this.generateBurgURL(burg, i);
                 }
                 return burg;
             });
 
             this.burgComp = await compendiumUpdater("Burgs", "burg.hbs", burgData, {});
+
+            const burgLookup = this.burgs.map((burg, i) => {
+                return {
+                    id: burg.i,
+                    name: burg.name,
+                    journal: this.retrieveJournalByName({ type: "burg", name: burg.name }),
+                };
+            });
+
+            // We have a circular dependency on everything so provinces kinda get shafted in the initial journals
+            // so here we update them to hold all sorts of information
+
+            const provinceData = this.provinces.map((province, i) => {
+                if (province !== 0 && !jQuery.isEmptyObject(province)) {
+                    province.country = countryLookup[province.state];
+                    province.burgs = province.burgs?.map((id) => burgLookup[id]);
+                }
+                return province;
+            });
+
+            this.provinceComp = await compendiumUpdater("Provinces", "province.hbs", provinceData, {});
 
             resolve();
         });
@@ -401,7 +427,8 @@ class LoadAzgaarMap extends FormApplication {
         let azgaarJournal = game.journal.getName("Azgaar FMG");
         if (!azgaarJournal) {
             let fakeJournal = {
-                content: "This journal entry is necessary for the azgaar-foundry importer to work properly",
+                content:
+                    "This journal entry is necessary for the azgaar-foundry importer to work properly. Please check the world's compendiums for your world's contents.",
                 name: "Azgaar FMG",
                 permission: { default: 0 },
             };
@@ -492,7 +519,7 @@ class LoadAzgaarMap extends FormApplication {
                 textColor: "#00FFFF",
                 "flags.pinfix.minZoomLevel": provinceMinZoom,
                 "flags.pinfix.maxZoomLevel": provinceMaxZoom,
-                "flags.azgaar-foundry.journal": { compendium: "world.Provinces", journal: journalEntry.id },
+                "flags.azgaar-foundry.journal": { compendium: "world.Provinces", journal: journalEntry?.id },
             };
         });
 

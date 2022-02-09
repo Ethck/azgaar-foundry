@@ -3,7 +3,7 @@
     <h4><b>Type: </b>{{iter.type}}</h4>
     <h4><b>Expansionism: </b>{{iter.expansionism}}</h4>
     <h4><b>Color: </b>
-        <span style='background-color: {{iter.color}};'> {{iter.color}}</span>
+        <span style="background-color: {{iter.color}};"> {{iter.color}}</span>
     </h4>
     <h4><b>Culture:</b> @Compendium[world.Cultures.{{iter.culture.journal.id}}]</h4>
     <h4><b>Urban: </b>{{iter.urban}}</h4>
@@ -28,37 +28,37 @@
             <tr>
                 <th>Military</th>
                 <th>
-	                <div class="tooltip">
+                    <div class="tooltip">
                         <span>⚔️</span>
                         <span class="tooltiptext">Infantry</span>
                     </div>
                 </th>
                 <th>
-	                <div class="tooltip">
+                    <div class="tooltip">
                         <span>🏹</span>
                         <span class="tooltiptext">Archers</span>
                     </div>
                 </th>
                 <th>
-	                <div class="tooltip">
+                    <div class="tooltip">
                         <span>🐴</span>
                         <span class="tooltiptext">Cavalry</span>
                     </div>
                 </th>
                 <th>
-	                <div class="tooltip">
+                    <div class="tooltip">
                         <span>💣</span>
                         <span class="tooltiptext">Artillery</span>
                     </div>
                 </th>
                 <th>
-	                <div class="tooltip">
+                    <div class="tooltip">
                         <span>🌊</span>
                         <span class="tooltiptext">Fleet</span>
                     </div>
                 </th>
 
-                {{!--
+                {{!
                 TODO: Figure out if these are EVER actually used, if so we need to support it!
                 💪
                 <th>🦄</th>
@@ -67,7 +67,7 @@
 
                 <th>Knights</th>
                 <th>Flying</th>
-                <th>Magic</th> --}}
+                <th>Magic</th> }}
 
             </tr>
             {{#each iter.military}}
@@ -87,9 +87,9 @@
         <tr>
             <th></th>
             {{#each extras.countries}}
-            <th class="rotate">
-                <div><span>{{this.name}}</span></div>
-            </th>
+                <th class="rotate">
+                    <div><span>{{this.name}}</span></div>
+                </th>
             {{/each}}
         </tr>
         <tr>
