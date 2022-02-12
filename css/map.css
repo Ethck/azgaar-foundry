@@ -1,3 +1,9 @@
+.azgaar-foundry {
+    --color-text-dark-primary: #191813;
+    --color-border-light-highlight: #f0f0e0;
+    --color-shadow-highlight: #ff6400;
+}
+
 #azgaar-icon-select span,
 #azgaar-map-select span,
 #azgaar-pin-fixer-select span {
@@ -12,8 +18,8 @@
     position: relative;
     display: inline-block;
     border-bottom: 1px dotted black;
-  }
-  
+}
+
 #azgaar-foundry .tooltip .tooltiptext {
     visibility: hidden;
     width: 200px;
@@ -36,9 +42,68 @@
 
 #azgaar-foundry .tooltip .tooltiptext.left {
     top: 0px;
-    right: 105%; 
+    right: 105%;
 }
 
 #azgaar-foundry .tooltip:hover .tooltiptext {
     visibility: visible;
+}
+
+.azgaar-foundry .sheet-tabs {
+    flex: 0 0 32px;
+    line-height: 32px;
+    font-size: 2em;
+    border-bottom: 1px solid var(--color-border-dark);
+}
+
+.azgaar-foundry .content {
+    margin-top: 1%;
+}
+
+.azgaar-foundry .container {
+    height: 100%;
+    min-height: 100%;
+    margin: 0 auto;
+    list-style: none;
+}
+
+.azgaar-foundry .container #permission-groups div:first-child div li:first-child > label {
+    border: 2px groove var(--color-border-light-highlight);
+}
+
+.azgaar-foundry .button-label {
+    background: rgba(0, 0, 0, 0.1);
+    border: 2px groove var(--color-border-light-highlight);
+    border-left: 0px;
+    display: inline-block;
+    font-size: var(--font-size-14);
+    font-family: var(--font-primary);
+    line-height: 28px;
+    margin: 0px;
+    text-align: center;
+    width: 100%;
+}
+
+.azgaar-foundry .hidden {
+    display: none;
+}
+
+.azgaar-foundry input:checked + .button-label {
+    background-color: var(--color-shadow-highlight);
+    background-color: #ff640066;
+    box-shadow: inset 0 0 3px #000000cc;
+}
+
+.azgaar-foundry .container #permission-groups div div {
+    margin-bottom: 1em;
+}
+
+.azgaar-foundry .container #permission-groups div span {
+    width: 100%;
+    text-align: center;
+    display: inline-block;
+    border-top: 1px solid rgba(0, 0, 0, 0.25);
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    margin-bottom: 0.5rem;
 }

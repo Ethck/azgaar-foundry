@@ -12,15 +12,16 @@ class LoadAzgaarMap extends FormApplication {
     }
 
     static get defaultOptions() {
-        const options = super.defaultOptions;
-        options.title = "Load Azgaar's Map";
-        options.id = "azgaar-foundry";
-        options.template = "modules/azgaar-foundry/templates/loadAzgaarsMap.html";
-        options.closeOnSubmit = true;
-        options.popOut = true;
-        options.width = 600;
-        options.height = 600;
-        return options;
+        return foundry.utils.mergeObject(super.defaultOptions, {
+            title: "Load Azgaar's Map",
+            id: "azgaar-foundry",
+            template: "modules/azgaar-foundry/templates/loadAzgaarsMap.html",
+            closeOnSubmit: true,
+            popOut: true,
+            width: 600,
+            height: 600,
+            tabs: [{ navSelector: ".tabs", contentSelector: ".content", initial: "main" }],
+        });
     }
     /**
      * @return {object}    Object that contains all information necessary to render template.
@@ -41,15 +42,10 @@ class LoadAzgaarMap extends FormApplication {
      */
     activateListeners(html) {
         super.activateListeners(html);
+        // Parse map whenever the file input changes.
         html.find("#map").change((event) => this.parseMap(event));
+        // Trigger FilePicker for icon selection
         html.find("#azgaar-icon-select img").click((event) => this._onEditImage(event));
-
-        html.find("#azgaar-map-select input[type=range]").change((event) => {
-            const sVal = $(event.currentTarget).val();
-            html.find("#azgaar-map-select #scaleFactorValue").text("Scale Factor: " + sVal);
-            html.find("#azgaar-map-select #mapX").val(1827 * sVal);
-            html.find("#azgaar-map-select #mapY").val(978 * sVal);
-        });
 
         html.find("#azgaar-map-select input[name='pictureMap']").change(async (event) => {
             const picture = $(event.currentTarget).val();
@@ -79,6 +75,7 @@ class LoadAzgaarMap extends FormApplication {
             });
         });
 
+        // Update text based on input value.
         html.find("#azgaar-pin-fixer-select input[type=range]").change((event) => {
             const sVal = $(event.currentTarget).val();
             const zoomSpan = $(event.currentTarget).siblings("span");
@@ -89,6 +86,7 @@ class LoadAzgaarMap extends FormApplication {
             }
         });
 
+        // Revert to default zoom levels
         html.find("#azgaar-pin-fixer-select button").click((e) => {
             const defaults = [1, 2, 0.1, 2, 2, 3];
             html.find("#azgaar-pin-fixer-select .flexcol").each((i, event) => {
@@ -103,6 +101,15 @@ class LoadAzgaarMap extends FormApplication {
                 }
                 $(event).find("input").val(defaults[i]);
             });
+        });
+
+        // Revert to default of "Observer" for all permission configs.
+        html.find("#azgaar-permissions-select #permissionDefaults").click((e) => {
+            html.find("#azgaar-permissions-select #permission-groups #permission2,#permission6,#permission10").each(
+                (i, event) => {
+                    $(event).prop("checked", "checked");
+                }
+            );
         });
     }
 
@@ -359,7 +366,7 @@ class LoadAzgaarMap extends FormApplication {
     }
 
     /**
-     * Handle changing the actor profile image by opening a FilePicker
+     * Handle changing the icons by opening a FilePicker
      * @private
      */
     _onEditImage(event) {
@@ -392,7 +399,6 @@ class LoadAzgaarMap extends FormApplication {
         } else if (type === "province") {
             searchable = this.provinceComp;
         }
-        //let searchList = searchable.entities;
 
         let journal = searchable.find((elem) => elem.name === name);
 
@@ -430,7 +436,7 @@ class LoadAzgaarMap extends FormApplication {
                 content:
                     "This journal entry is necessary for the azgaar-foundry importer to work properly. Please check the world's compendiums for your world's contents.",
                 name: "Azgaar FMG",
-                permission: { default: 0 },
+                permission: { default: 2 },
             };
             azgaarJournal = await JournalEntry.create(fakeJournal);
         }
@@ -447,6 +453,13 @@ class LoadAzgaarMap extends FormApplication {
         const burgSVG = this.element.find("#burgSVG").attr("src");
         const countrySVG = this.element.find("#countrySVG").attr("src");
         const provinceSVG = this.element.find("#provinceSVG").attr("src");
+
+        // get permissions to use
+        const burgPerm = parseInt(this.element.find("[name='permissionBurg']:checked").val());
+        const countryPerm = parseInt(this.element.find("[name='permissionCountry']:checked").val());
+        const provincePerm = parseInt(this.element.find("[name='permissionProvince']:checked").val());
+
+        console.log(burgPerm, countryPerm, provincePerm);
 
         // import our data
         await this.importData();
@@ -486,6 +499,7 @@ class LoadAzgaarMap extends FormApplication {
                 "flags.pinfix.minZoomLevel": countryMinZoom,
                 "flags.pinfix.maxZoomLevel": countryMaxZoom,
                 "flags.azgaar-foundry.journal": { compendium: "world.Countries", journal: journalEntry?.id },
+                "flags.azgaar-foundry.permission": { default: countryPerm },
             };
         });
 
@@ -520,6 +534,7 @@ class LoadAzgaarMap extends FormApplication {
                 "flags.pinfix.minZoomLevel": provinceMinZoom,
                 "flags.pinfix.maxZoomLevel": provinceMaxZoom,
                 "flags.azgaar-foundry.journal": { compendium: "world.Provinces", journal: journalEntry?.id },
+                "flags.azgaar-foundry.permission": { default: provincePerm },
             };
         });
 
@@ -548,6 +563,7 @@ class LoadAzgaarMap extends FormApplication {
                 "flags.pinfix.minZoomLevel": burgMinZoom,
                 "flags.pinfix.maxZoomLevel": burgMaxZoom,
                 "flags.azgaar-foundry.journal": { compendium: "world.Burgs", journal: journalEntry?.id },
+                "flags.azgaar-foundry.permission": { default: burgPerm },
             };
         });
 
@@ -642,7 +658,11 @@ Hooks.once("libWrapper.Ready", () => {
         "Note.prototype._onClickLeft2",
         async function (wrapped, ...args) {
             const cJournal = this.document.getFlag("azgaar-foundry", "journal");
-            if (cJournal) {
+            const cPerm = this.document.getFlag("azgaar-foundry", "permission");
+            // Technically all of our MapNotes are the default "Azgaar FMG"
+            // JournalEntry, so here we check the permissions on the "real"
+            // JournalEntry. As a default just let the GM through though.
+            if (cJournal && (cPerm?.default >= 1 || game.user.isGM)) {
                 const comp = game.packs.get(cJournal.compendium);
                 let doc = await comp.getDocument(cJournal.journal);
                 doc.sheet.render(true);
