@@ -187,7 +187,7 @@ class LoadAzgaarMap extends FormApplication {
                 // Provinces
                 if ("state" in obj[1] && !("cell" in obj[1])) {
                     console.log("Provinces:", obj);
-                    this.provinces = obj;
+                    this.provinces = obj || [];
                 } // Burgs
                 else if ("population" in obj[1] && "citadel" in obj[1]) {
                     console.log("Burgs:", obj);
@@ -240,16 +240,19 @@ class LoadAzgaarMap extends FormApplication {
             /**
              * Provinces
              */
-            ui.notifications.notify("UAFMGI: Creating Journals for Provinces.");
-            this.provinceComp = await compendiumUpdater("Provinces", "province.hbs", this.provinces, {});
-            let provinceLookup = this.provinces.map((province) => {
-                return {
-                    id: province.i,
-                    name: province.name,
-                    burgs: province.burgs,
-                    journal: this.retrieveJournalByName({ type: "province", name: province.name }),
-                };
-            });
+            let provinceLookup = [];
+            if (this.provinces) {
+                ui.notifications.notify("UAFMGI: Creating Journals for Provinces.");
+                this.provinceComp = await compendiumUpdater("Provinces", "province.hbs", this.provinces, {});
+                provinceLookup = this.provinces.map((province) => {
+                    return {
+                        id: province.i,
+                        name: province.name,
+                        burgs: province.burgs,
+                        journal: this.retrieveJournalByName({ type: "province", name: province.name }),
+                    };
+                });
+            }
 
             /**
              * Countries
@@ -261,18 +264,26 @@ class LoadAzgaarMap extends FormApplication {
                     // TODO: Extrapolate Provinces, add Burgs?, Neighbors, Diplomacy, Campaigns?, Military?
                     let culture = cultureLookup[country.culture - 1];
                     country.culture = culture;
+                    // Removed countries are still in Diplomacy as an X
+                    if (country.diplomacy) {
+                        country.diplomacy = country.diplomacy.filter((c) => c !== "x");
+                    }
                     // for i in country.provinces
                     // map to actual province
-                    let provinces = country.provinces?.map((provIndex) => provinceLookup[provIndex]);
-                    country.selProvinces = provinces;
+                    if (this.provinces) {
+                        let provinces = country.provinces?.map((provIndex) => provinceLookup[provIndex]);
+                        country.selProvinces = provinces;
+                    }
                 }
                 return country;
             });
 
+            const renderCountryData = countryData.filter((c) => !c.removed);
+
             // We provide countryData a 2nd time in the "extraData" field because the "baseData"
             // field gets trimmed to a single entity when rendering.
-            this.countryComp = await compendiumUpdater("Countries", "country.hbs", countryData, {
-                countries: countryData,
+            this.countryComp = await compendiumUpdater("Countries", "country.hbs", renderCountryData, {
+                countries: renderCountryData,
             });
 
             let countryLookup = this.countries.map((country) => {
@@ -310,15 +321,16 @@ class LoadAzgaarMap extends FormApplication {
             // We have a circular dependency on everything so provinces kinda get shafted in the initial journals
             // so here we update them to hold all sorts of information
 
-            const provinceData = this.provinces.map((province, i) => {
-                if (province !== 0 && !jQuery.isEmptyObject(province)) {
-                    province.country = countryLookup[province.state];
-                    province.burgs = province.burgs?.map((id) => burgLookup[id]);
-                }
-                return province;
-            });
-
-            this.provinceComp = await compendiumUpdater("Provinces", "province.hbs", provinceData, {});
+            if (this.provinces) {
+                const provinceData = this.provinces.map((province, i) => {
+                    if (province !== 0 && !jQuery.isEmptyObject(province)) {
+                        province.country = countryLookup[province.state];
+                        province.burgs = province.burgs?.map((id) => burgLookup[id]);
+                    }
+                    return province;
+                });
+                this.provinceComp = await compendiumUpdater("Provinces", "province.hbs", provinceData, {});
+            }
 
             resolve();
         });
@@ -461,8 +473,6 @@ class LoadAzgaarMap extends FormApplication {
         const countryPerm = parseInt(this.element.find("[name='permissionCountry']:checked").val());
         const provincePerm = parseInt(this.element.find("[name='permissionProvince']:checked").val());
 
-        console.log(burgPerm, countryPerm, provincePerm);
-
         // import our data
         await this.importData();
 
@@ -510,35 +520,38 @@ class LoadAzgaarMap extends FormApplication {
             .map((i, input) => input.value);
 
         useColor = this.element.find("#azgaar-icon-select #provinces input#iconColors").is(":checked");
-        let provinceData = this.provinces.map((province) => {
-            if (province === 0 || province.removed) return; // For some reason there's a 0 at the beginning.
-            let journalEntry = this.retrieveJournalByName({
-                type: "province",
-                name: province.name,
+        let provinceData = [];
+        if (this.provinces) {
+            provinceData = this.provinces.map((province) => {
+                if (province === 0 || province.removed) return; // For some reason there's a 0 at the beginning.
+                let journalEntry = this.retrieveJournalByName({
+                    type: "province",
+                    name: province.name,
+                });
+
+                // Some provinces do not have a burg... For now we skip those.
+                if (province.burg === 0) return;
+                let centerBurg = this.burgs.find((burg) => burg.i === province.burg);
+
+                // Assemble data required for notes
+                return {
+                    entryId: azgaarJournal.id,
+                    x: centerBurg.x * widthMultiplier,
+                    y: centerBurg.y * heightMultiplier,
+                    icon: provinceSVG,
+                    iconSize: 32,
+                    iconTint: useColor ? province.color : "#00FF000",
+                    text: province.name,
+                    fontSize: 24,
+                    textAnchor: CONST.TEXT_ANCHOR_POINTS.CENTER,
+                    textColor: "#00FFFF",
+                    "flags.pinfix.minZoomLevel": provinceMinZoom,
+                    "flags.pinfix.maxZoomLevel": provinceMaxZoom,
+                    "flags.azgaar-foundry.journal": { compendium: "world.Provinces", journal: journalEntry?.id },
+                    "flags.azgaar-foundry.permission": { default: provincePerm },
+                };
             });
-
-            // Some provinces do not have a burg... For now we skip those.
-            if (province.burg === 0) return;
-            let centerBurg = this.burgs.find((burg) => burg.i === province.burg);
-
-            // Assemble data required for notes
-            return {
-                entryId: azgaarJournal.id,
-                x: centerBurg.x * widthMultiplier,
-                y: centerBurg.y * heightMultiplier,
-                icon: provinceSVG,
-                iconSize: 32,
-                iconTint: useColor ? province.color : "#00FF000",
-                text: province.name,
-                fontSize: 24,
-                textAnchor: CONST.TEXT_ANCHOR_POINTS.CENTER,
-                textColor: "#00FFFF",
-                "flags.pinfix.minZoomLevel": provinceMinZoom,
-                "flags.pinfix.maxZoomLevel": provinceMaxZoom,
-                "flags.azgaar-foundry.journal": { compendium: "world.Provinces", journal: journalEntry?.id },
-                "flags.azgaar-foundry.permission": { default: provincePerm },
-            };
-        });
+        }
 
         const [burgMinZoom, burgMaxZoom] = this.element
             .find("#azgaar-pin-fixer-select #burgs input")
@@ -584,6 +597,8 @@ async function compendiumUpdater(compType, contentSchema, baseData, extraData) {
     // Assumptions for updating
     // 1. Same number of entities (be it is, countries, burgs, whatever)
     // 2. all entities already exist (no new ones!)
+    if (!baseData) return;
+
     let comp;
     let oldIds = [];
     if (game.packs.get("world." + compType)) {
@@ -605,9 +620,6 @@ async function compendiumUpdater(compType, contentSchema, baseData, extraData) {
             // of true
             if (!jQuery.isEmptyObject(i)) {
                 if (!("removed" in i && i.removed === true)) {
-                    // if (compType === "Countries") {
-                    //     console.log(i, extraData);
-                    // }
                     let content = await renderTemplate("modules/azgaar-foundry/templates/" + contentSchema, {
                         iter: i,
                         extras: extraData,
@@ -636,7 +648,6 @@ async function compendiumUpdater(compType, contentSchema, baseData, extraData) {
         });
         await JournalEntry.updateDocuments(updates, { pack: "world." + compType });
     } else {
-        console.log(compData);
         await JournalEntry.createDocuments(compData, { pack: "world." + compType });
     }
 

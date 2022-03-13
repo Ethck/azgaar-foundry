@@ -87,9 +87,12 @@
         <tr>
             <th></th>
             {{#each extras.countries}}
-                <th class="rotate">
-                    <div><span>{{this.name}}</span></div>
-                </th>
+                {{!-- we don't have a relation to ourself, so don't include "us" --}}
+                {{#if (ne this.name ../iter.name)}}
+                    <th class="rotate">
+                        <div><span>{{this.name}}</span></div>
+                    </th>
+                {{/if}}
             {{/each}}
         </tr>
         <tr>
