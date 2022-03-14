@@ -278,6 +278,7 @@ class LoadAzgaarMap extends FormApplication {
                 return country;
             });
 
+            // ignore removed countries
             const renderCountryData = countryData.filter((c) => !c.removed);
 
             // We provide countryData a 2nd time in the "extraData" field because the "baseData"
@@ -484,6 +485,7 @@ class LoadAzgaarMap extends FormApplication {
         // Start prepping notes
         let countryData = this.countries.map((country) => {
             if (country.name === "Neutrals") return;
+            if (country.removed) return;
             let journalEntry = this.retrieveJournalByName({
                 type: "country",
                 name: country.name,
@@ -560,6 +562,7 @@ class LoadAzgaarMap extends FormApplication {
         useColor = this.element.find("#azgaar-icon-select #burgs input#iconColors").is(":checked");
         let burgData = this.burgs.map((burg) => {
             if (jQuery.isEmptyObject(burg)) return; // For some reason there's a {} at the beginning.
+            if (burg.removed) return;
             let journalEntry = this.retrieveJournalByName({ name: burg.name });
 
             // Assemble data required for notes
