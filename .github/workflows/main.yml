@@ -55,7 +55,7 @@ jobs:
 
             # Publish this new version to the Foundry VTT Module Listing
             - name: FoundryVTT AutoPublish
-              uses: Varriount/fvtt-autopublish@v1.0.2a
+              uses: Varriount/fvtt-autopublish@v1.0.9
               with:
                   username: ${{ secrets.FOUNDRY_ADMIN_USER }}
                   password: ${{ secrets.FOUNDRY_ADMIN_PW }}
