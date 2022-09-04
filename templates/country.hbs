@@ -82,45 +82,61 @@
             {{/each}}
         </table>
     </details>
-
-    <table>
-        <tr>
-            <th></th>
-            {{#each extras.countries}}
-                {{!-- we don't have a relation to ourself, so don't include "us" --}}
-                {{#if (ne this.name ../iter.name)}}
-                    <th class="rotate">
-                        <div><span>{{this.name}}</span></div>
-                    </th>
-                {{/if}}
+        <details>
+        <summary>
+            Relationships
+        </summary>
+        <table>
+            <tr>
+                <th>
+                    <div class="tooltip">
+                        <span class="tooltiptext">Country</span>
+                    </div>
+                </th>
+                <th>
+                    <div class="tooltip">
+                        <span class="tooltiptext">Current Feelings</span>
+                    </div>
+                </th>
+            </tr>
+            {{#each iter.relationships}}
+                <tr>
+                    <th>{{this.refCountry}}</th>
+                    <td>{{this.Status}}</td>
+                </tr>
             {{/each}}
-        </tr>
-        <tr>
-            <th class="rotate-90">{{iter.fullName}}</th>
-            {{#each iter.diplomacy}}
-                <td>
-                    "{{this}}"
-
-                    {{!--
-                        <div class="tooltip">
-
-                            {{#if this === "Ally"}}
-                                <th> 🛡️</th>
-                                <span class="tooltiptext">Ally</span>
-                            {{/if}}
-                            {{#if this === "Friendly"}} <th>🤝 </th> <span class="tooltiptext">Friendly</span>{{/if}}
-                            {{#if this === "Neutral"}} <th>😐 </th> <span class="tooltiptext">Neutral</span>{{/if }}
-                            {{#if this === "Suspicion"}} <th> 👀</th> <span class="tooltiptext">Suspicion</span>{{/if }}
-                            {{#if this === "Enemy"}} <th>😡 </th> <span class="tooltiptext">Enemy</span>{{/if }}
-                            {{#if this === "Unknown"}} <th> ❓</th> <span class="tooltiptext">Unknown</span>{{/if }}
-                            {{#if this === "Rival"}} <th>✊ </th> <span class="tooltiptext">Rival</span>{{/if}}
-                            {{#if this === "Vassal"}} <th>🎩 </th> <span class="tooltiptext">Vassal</span>{{/if}}
-                            {{#if this === "Suzerain"}} <th>👞 </th> <span class="tooltiptext">Suzerain</span>{{/if}}
-
-                        </div>
-                    --}}
-                </td>
+        </table>
+    </details>
+    <details>
+        <summary>
+            Campaigns
+        </summary>
+        <table>
+            <tr>
+                <th>
+                    <div class="tooltip">
+                        <span class="tooltiptext">Campaign</span>
+                    </div>
+                </th>
+                <th>
+                    <div class="tooltip">
+                        <span class="tooltiptext">Start Date</span>
+                    </div>
+                </th>
+                <th>
+                    <div class="tooltip">
+                        <span class="tooltiptext">End Date</span>
+                    </div>
+                </th>
+            </tr>
+            {{#each iter.campaigns}}
+                <tr>
+                    <th>{{this.name}}</th>
+                    <td>{{this.start}}</td>
+                    <td>{{this.end}}</td>
+                </tr>
             {{/each}}
-        </tr>
-    </table>
+        </table>
+    </details>
+    
 </div>
