@@ -195,8 +195,19 @@ class LoadAzgaarMap extends FormApplication {
                 }
                 // These are our countries
                 else if ("diplomacy" in obj[0]) {
-                    console.log("Countries:", obj);
                     this.countries = obj;
+                    for (let i = 1; i < this.countries.length; i++){
+                        let relationships = [];
+                        for(let k = 1; k < this.countries[i].diplomacy.length; k++){
+                            if(this.countries[i].diplomacy[k] != "x"){
+                                let relationship = {refCountry: this.countries[k].fullName, Status: this.countries[i].diplomacy[k]}
+                                relationships.push(relationship)
+                            }
+                        }
+                        console.log(relationships);
+                        this.countries[i].relationships = relationships;
+                    }
+                    console.log("Countries:", this.countries);
                     // Religions
                 } else if (obj[0].name === "No religion") {
                     console.log("Religions:", obj);
@@ -213,6 +224,12 @@ class LoadAzgaarMap extends FormApplication {
                 // Many things in the file are not JSON, we don't care about them.
             } catch (error) {}
         });
+        for(let i =1;i<this.religions.length; i++){
+            if(this.cultures[this.religions[i].culture].Religions == undefined){
+                this.cultures[this.religions[i].culture].Religions = [];
+            }
+            this.cultures[this.religions[i].culture].Religions.push(this.religions[i].i);
+        }
     }
 
     /**
@@ -226,6 +243,19 @@ class LoadAzgaarMap extends FormApplication {
             /**
              * Cultures
              */
+            let religionLookup = [];
+            if(this.religions){
+                ui.notifications.notify("UAFMGI: Creating Journals for Religions");
+                this.religionComp = await compendiumUpdater("Religions","religion.hbs",this.religions, {});
+                religionLookup = this.religions.map((religion) => {
+                    return {
+                        id: religion.i,
+                        name: religion.name,
+                        journal: this.retrieveJournalByName({type: "religion",name: religion.name}),
+                    };
+                });
+            }
+
             ui.notifications.notify("UAFMGI: Creating Journals for Cultures.");
             this.cultureComp = await compendiumUpdater("Cultures", "culture.hbs", this.cultures, {});
 
@@ -280,7 +310,6 @@ class LoadAzgaarMap extends FormApplication {
 
             // ignore removed countries
             const renderCountryData = countryData.filter((c) => !c.removed);
-
             // We provide countryData a 2nd time in the "extraData" field because the "baseData"
             // field gets trimmed to a single entity when rendering.
             this.countryComp = await compendiumUpdater("Countries", "country.hbs", renderCountryData, {
@@ -411,6 +440,8 @@ class LoadAzgaarMap extends FormApplication {
             searchable = this.cultureComp;
         } else if (type === "province") {
             searchable = this.provinceComp;
+        } else if (type === "religion") {
+            searchable = this.religionComp;
         }
 
         let journal = searchable.find((elem) => elem.name === name);
