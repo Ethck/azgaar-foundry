@@ -608,14 +608,17 @@ async function compendiumUpdater(compType, contentSchema, baseData, extraData) {
         // empty the content
         const oldCComp = game.packs.get("world." + compType);
         const oldCCompContent = await oldCComp.getDocuments();
-        let jIds = oldCCompContent.map((journal) => journal.id);
+        let jIds = oldCCompContent
+            .sort((a, b) => a["data"]["flags"]["azgaar-foundry"]["i"] - b["data"]["flags"]["azgaar-foundry"]["i"])
+            .map((journal) => journal.id);
+        console.log(jIds);
         oldIds = jIds;
         comp = oldCComp;
     } else {
         comp = await CompendiumCollection.createCompendium({ name: compType, label: compType, entity: "JournalEntry" });
+        baseData.shift(); // remove first element, usually blank or a "remainder".
     }
 
-    baseData.shift(); // remove first element, usually blank or a "remainder".
     let compData = await Promise.all(
         baseData.map(async (i) => {
             // items that have been removed are missing some properties that cause failures
@@ -631,6 +634,7 @@ async function compendiumUpdater(compType, contentSchema, baseData, extraData) {
                         let journal = {
                             content: content,
                             name: i.name,
+                            "flags.azgaar-foundry.i": i.i,
                         };
                         if (oldIds.length === 0) {
                             journal.permission = { default: CONST.ENTITY_PERMISSIONS.OBSERVER };
@@ -645,10 +649,12 @@ async function compendiumUpdater(compType, contentSchema, baseData, extraData) {
     compData = compData.filter(Boolean); // apparently some items can still be undefined at this point
 
     if (oldIds.length) {
-        let updates = compData.map((cJournal, index) => {
-            cJournal._id = oldIds[index];
-            return cJournal;
-        });
+        let updates = compData
+            .sort((a, b) => a["flags.azgaar-foundry.i"] - b["flags.azgaar-foundry.i"])
+            .map((cJournal, index) => {
+                cJournal._id = oldIds[index];
+                return cJournal;
+            });
         await JournalEntry.updateDocuments(updates, { pack: "world." + compType });
     } else {
         await JournalEntry.createDocuments(compData, { pack: "world." + compType });
