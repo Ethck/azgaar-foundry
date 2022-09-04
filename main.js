@@ -421,11 +421,29 @@ class LoadAzgaarMap extends FormApplication {
     generateBurgURL(burg, id) {
         id = id.toString();
         const seed = this.seed + id.padStart(4, 0);
-        const site = "http://fantasycities.watabou.ru/?random=0&continuous=0";
+        const site = "https://watabou.github.io/city-generator/?";
         const pop = ("" + burg.population).replace(".", "");
-        const url = `${site}&name=${
-            burg.name
-        }&population=${+pop}&size=${+burg.size}&seed=${seed}&coast=${+burg.coast}&citadel=${+burg.citadel}&plaza=${+burg.plaza}&temple=${+burg.temple}&walls=${+burg.walls}&shantytown=${+burg.shanty}`;
+        const parameters = [
+            "size",
+            "river",
+            "coast",
+            "farms",
+            "citadel",
+            "hub",
+            "plaza",
+            "temple",
+            "walls",
+            "shantytown",
+        ];
+
+        const param_string = parameters.map((param) => {
+            if (burg[param]) {
+                return `&${param}=${+burg[param]}`;
+            }
+            return "";
+        });
+
+        const url = `${site}${param_string.join("")}&seed=${seed}&name=${burg.name}&population=${pop}&gates=-1`;
         return url;
     }
 
