@@ -196,15 +196,17 @@ class LoadAzgaarMap extends FormApplication {
                 // These are our countries
                 else if ("diplomacy" in obj[0]) {
                     this.countries = obj;
-                    for (let i = 1; i < this.countries.length; i++){
+                    for (let i = 1; i < this.countries.length; i++) {
                         let relationships = [];
-                        for(let k = 1; k < this.countries[i].diplomacy.length; k++){
-                            if(this.countries[i].diplomacy[k] != "x"){
-                                let relationship = {refCountry: this.countries[k].fullName, Status: this.countries[i].diplomacy[k]}
-                                relationships.push(relationship)
+                        for (let k = 1; k < this.countries[i].diplomacy.length; k++) {
+                            if (this.countries[i].diplomacy[k] != "x") {
+                                let relationship = {
+                                    refCountry: this.countries[k].fullName,
+                                    Status: this.countries[i].diplomacy[k],
+                                };
+                                relationships.push(relationship);
                             }
                         }
-                        console.log(relationships);
                         this.countries[i].relationships = relationships;
                     }
                     console.log("Countries:", this.countries);
@@ -224,11 +226,12 @@ class LoadAzgaarMap extends FormApplication {
                 // Many things in the file are not JSON, we don't care about them.
             } catch (error) {}
         });
-        for(let i =1;i<this.religions.length; i++){
-            if(this.cultures[this.religions[i].culture].Religions == undefined){
+        // Tie together religions and cultures
+        for (let i = 1; i < this.religions.length; i++) {
+            if (this.cultures[this.religions[i].culture].Religions == undefined) {
                 this.cultures[this.religions[i].culture].Religions = [];
             }
-            this.cultures[this.religions[i].culture].Religions.push(this.religions[i].i);
+            this.cultures[this.religions[i].culture].Religions.push(this.religions[i]);
         }
     }
 
@@ -244,20 +247,30 @@ class LoadAzgaarMap extends FormApplication {
              * Cultures
              */
             let religionLookup = [];
-            if(this.religions){
+            if (this.religions) {
                 ui.notifications.notify("UAFMGI: Creating Journals for Religions");
-                this.religionComp = await compendiumUpdater("Religions","religion.hbs",this.religions, {});
+                this.religionComp = await compendiumUpdater("Religions", "religion.hbs", this.religions, {});
                 religionLookup = this.religions.map((religion) => {
                     return {
                         id: religion.i,
                         name: religion.name,
-                        journal: this.retrieveJournalByName({type: "religion",name: religion.name}),
+                        culture: religion.culture,
+                        journal: this.retrieveJournalByName({ type: "religion", name: religion.name }),
                     };
                 });
             }
 
             ui.notifications.notify("UAFMGI: Creating Journals for Cultures.");
-            this.cultureComp = await compendiumUpdater("Cultures", "culture.hbs", this.cultures, {});
+
+            const cultureData = this.cultures.map((culture, i) => {
+                console.log(religionLookup);
+                if (culture !== 0 && !jQuery.isEmptyObject(culture)) {
+                    culture.religion = religionLookup.find((rel) => rel.culture === culture.i);
+                }
+                return culture;
+            });
+
+            this.cultureComp = await compendiumUpdater("Cultures", "culture.hbs", cultureData, {});
 
             let cultureLookup = this.cultures.map((culture) => {
                 return {
