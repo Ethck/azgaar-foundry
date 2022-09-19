@@ -677,7 +677,7 @@ async function compendiumUpdater(compType, contentSchema, baseData, extraData) {
         oldIds = jIds;
         comp = oldCComp;
     } else {
-        comp = await CompendiumCollection.createCompendium({ name: compType, label: compType, entity: "JournalEntry" });
+        comp = await CompendiumCollection.createCompendium({ name: compType, label: compType, type: "JournalEntry" });
         baseData.shift(); // remove first element, usually blank or a "remainder".
     }
 
@@ -699,7 +699,7 @@ async function compendiumUpdater(compType, contentSchema, baseData, extraData) {
                             "flags.azgaar-foundry.i": i.i,
                         };
                         if (oldIds.length === 0) {
-                            journal.permission = { default: CONST.ENTITY_PERMISSIONS.OBSERVER };
+                            journal.permission = { default: CONST.DOCUMENT_PERMISSION_LEVELS.OBSERVER };
                         }
                         return journal;
                     }
