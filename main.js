@@ -263,7 +263,6 @@ class LoadAzgaarMap extends FormApplication {
             ui.notifications.notify("UAFMGI: Creating Journals for Cultures.");
 
             const cultureData = this.cultures.map((culture, i) => {
-                console.log(religionLookup);
                 if (culture !== 0 && !jQuery.isEmptyObject(culture)) {
                     culture.religion = religionLookup.find((rel) => rel.culture === culture.i);
                 }
@@ -563,8 +562,8 @@ class LoadAzgaarMap extends FormApplication {
             // Assemble data required for notes
             return {
                 entryId: azgaarJournal.id,
-                x: xpole * widthMultiplier,
-                y: ypole * heightMultiplier,
+                x: xpole * widthMultiplier || 0,
+                y: ypole * heightMultiplier || 0,
                 icon: countrySVG,
                 iconSize: 32,
                 iconTint: useColor ? country.color : "#00FF000",
@@ -600,8 +599,8 @@ class LoadAzgaarMap extends FormApplication {
                 // Assemble data required for notes
                 return {
                     entryId: azgaarJournal.id,
-                    x: centerBurg.x * widthMultiplier,
-                    y: centerBurg.y * heightMultiplier,
+                    x: centerBurg.x * widthMultiplier || 0,
+                    y: centerBurg.y * heightMultiplier || 0,
                     icon: provinceSVG,
                     iconSize: 32,
                     iconTint: useColor ? province.color : "#00FF000",
@@ -631,8 +630,8 @@ class LoadAzgaarMap extends FormApplication {
             return {
                 // entryId must be a valid journal entry (NOT from compendium, otherwise things really break.)
                 entryId: azgaarJournal.id,
-                x: burg.x * widthMultiplier,
-                y: burg.y * heightMultiplier,
+                x: burg.x * widthMultiplier || 0,
+                y: burg.y * heightMultiplier || 0,
                 icon: burgSVG,
                 iconSize: 32,
                 iconTint: useColor ? burg.color : "#00FF000",
@@ -671,7 +670,7 @@ async function compendiumUpdater(compType, contentSchema, baseData, extraData) {
         const oldCComp = game.packs.get("world." + compType);
         const oldCCompContent = await oldCComp.getDocuments();
         let jIds = oldCCompContent
-            .sort((a, b) => a["data"]["flags"]["azgaar-foundry"]["i"] - b["data"]["flags"]["azgaar-foundry"]["i"])
+            .sort((a, b) => a["flags"]["azgaar-foundry"]["i"] - b["flags"]["azgaar-foundry"]["i"])
             .map((journal) => journal.id);
         console.log(jIds);
         oldIds = jIds;
