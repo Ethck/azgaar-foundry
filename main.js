@@ -228,7 +228,7 @@ class LoadAzgaarMap extends FormApplication {
         });
         // Tie together religions and cultures
         for (let i = 1; i < this.religions.length; i++) {
-            if (this.cultures[this.religions[i].culture].Religions == undefined) {
+            if (this.cultures[this.religions[i].culture]?.Religions == undefined) {
                 this.cultures[this.religions[i].culture].Religions = [];
             }
             this.cultures[this.religions[i].culture].Religions.push(this.religions[i]);
@@ -672,7 +672,6 @@ async function compendiumUpdater(compType, contentSchema, baseData, extraData) {
         let jIds = oldCCompContent
             .sort((a, b) => a["flags"]["azgaar-foundry"]["i"] - b["flags"]["azgaar-foundry"]["i"])
             .map((journal) => journal.id);
-        console.log(jIds);
         oldIds = jIds;
         comp = oldCComp;
     } else {
