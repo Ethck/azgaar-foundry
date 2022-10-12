@@ -685,21 +685,23 @@ async function compendiumUpdater(compType, contentSchema, baseData, extraData) {
             // but these are signified by having a "removed" property on them with a value
             // of true
             if (!jQuery.isEmptyObject(i)) {
-                if (!("removed" in i && i.removed === true)) {
-                    let content = await renderTemplate("modules/azgaar-foundry/templates/" + contentSchema, {
-                        iter: i,
-                        extras: extraData,
-                    });
-                    if (i.name) {
-                        let journal = {
-                            content: content,
-                            name: i.name,
-                            "flags.azgaar-foundry.i": i.i,
-                        };
-                        if (oldIds.length === 0) {
-                            journal.permission = { default: CONST.DOCUMENT_PERMISSION_LEVELS.OBSERVER };
+                if (i !== 0) {
+                    if (!("removed" in i && i.removed === true)) {
+                        let content = await renderTemplate("modules/azgaar-foundry/templates/" + contentSchema, {
+                            iter: i,
+                            extras: extraData,
+                        });
+                        if (i.name) {
+                            let journal = {
+                                content: content,
+                                name: i.name,
+                                "flags.azgaar-foundry.i": i.i,
+                            };
+                            if (oldIds.length === 0) {
+                                journal.permission = { default: CONST.DOCUMENT_PERMISSION_LEVELS.OBSERVER };
+                            }
+                            return journal;
                         }
-                        return journal;
                     }
                 }
             }
