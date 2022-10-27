@@ -687,7 +687,7 @@ async function compendiumUpdater(compType, contentSchema, baseData, extraData) {
             // but these are signified by having a "removed" property on them with a value
             // of true
             if (!jQuery.isEmptyObject(i)) {
-                if (!("removed" in i && i.removed === true)) {
+                if (!(i === 0 && "removed" in i && i.removed === true)) {
                     let content = await renderTemplate("modules/azgaar-foundry/templates/" + contentSchema, {
                         iter: i,
                         extras: extraData,
