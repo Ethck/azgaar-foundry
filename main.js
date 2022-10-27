@@ -344,7 +344,7 @@ class LoadAzgaarMap extends FormApplication {
             ui.notifications.notify("UAFMGI: Creating Journals for Burgs.");
             const burgData = this.burgs.map((burg, i) => {
                 if (burg !== 0 && !jQuery.isEmptyObject(burg)) {
-                    burg.culture = cultureLookup[burg.culture - 1];
+                    burg.culture = cultureLookup[burg.culture];
                     burg.country = countryLookup[burg.state];
                     burg.province = provinceLookup.find((province) => province.burgs?.includes(burg.i));
                     burg.burgURL = this.generateBurgURL(burg, i);
@@ -667,14 +667,14 @@ async function compendiumUpdater(compType, contentSchema, baseData, extraData) {
 
     let comp;
     let oldIds = [];
+    let oldSortedJournals = [];
     if (game.packs.get("world." + compType)) {
         // empty the content
         const oldCComp = game.packs.get("world." + compType);
         const oldCCompContent = await oldCComp.getDocuments();
-        let jIds = oldCCompContent
-            .sort((a, b) => a["flags"]["azgaar-foundry"]["i"] - b["flags"]["azgaar-foundry"]["i"])
-            .map((journal) => journal.id);
-        oldIds = jIds;
+        oldSortedJournals = oldCCompContent.sort(
+            (a, b) => a["flags"]["azgaar-foundry"]["i"] - b["flags"]["azgaar-foundry"]["i"]
+        );
         comp = oldCComp;
     } else {
         comp = await CompendiumCollection.createCompendium({ name: compType, label: compType, type: "JournalEntry" });
@@ -694,7 +694,7 @@ async function compendiumUpdater(compType, contentSchema, baseData, extraData) {
                     });
                     if (i.name) {
                         let journal = {
-                            content: content,
+                            content: [content],
                             name: i.name,
                             "flags.azgaar-foundry.i": i.i,
                         };
@@ -710,13 +710,38 @@ async function compendiumUpdater(compType, contentSchema, baseData, extraData) {
 
     compData = compData.filter(Boolean); // apparently some items can still be undefined at this point
 
-    if (oldIds.length) {
+    if (oldSortedJournals.length) {
+        let oldJournalPageIds = oldSortedJournals.map((journal) => Array.from(journal.pages.keys()));
+        let oldIds = oldSortedJournals.map((journal) => journal.id);
+
+        // compData
+        // .name = journal name
+        // .content = new page content
+        // "flags.azgaar-foundry.i" = attribute to maintain sort order
+
         let updates = compData
             .sort((a, b) => a["flags.azgaar-foundry.i"] - b["flags.azgaar-foundry.i"])
             .map((cJournal, index) => {
                 cJournal._id = oldIds[index];
                 return cJournal;
             });
+
+        let journalUpdatePromises = oldSortedJournals.map(async (journal, index) => {
+            return await journal.updateEmbeddedDocuments(
+                "JournalEntryPage",
+                journal.pages.map((page, i) => {
+                    console.log(page, i);
+                    return {
+                        _id: oldJournalPageIds[index][i],
+                        name: updates[index].name,
+                        "text.content": updates[index].content[i],
+                    };
+                }),
+                { pack: "world." + compType }
+            );
+        });
+
+        await Promise.all(journalUpdatePromises);
         await JournalEntry.updateDocuments(updates, { pack: "world." + compType });
     } else {
         await JournalEntry.createDocuments(compData, { pack: "world." + compType });
