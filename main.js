@@ -663,6 +663,7 @@ async function compendiumUpdater(compType, contentSchema, baseData, extraData) {
     // 1. Same number of entities (be it is, countries, burgs, whatever)
     // 2. all entities already exist (no new ones!)
     if (!baseData) return;
+    baseData.shift(); // remove first element, usually blank or a "remainder".
 
     let comp;
     let oldIds = [];
@@ -677,7 +678,6 @@ async function compendiumUpdater(compType, contentSchema, baseData, extraData) {
         comp = oldCComp;
     } else {
         comp = await CompendiumCollection.createCompendium({ name: compType, label: compType, type: "JournalEntry" });
-        baseData.shift(); // remove first element, usually blank or a "remainder".
     }
 
     let compData = await Promise.all(
@@ -732,8 +732,8 @@ async function compendiumUpdater(compType, contentSchema, baseData, extraData) {
                     console.log(page, i);
                     return {
                         _id: oldJournalPageIds[index][i],
-                        name: updates[index].name,
-                        "text.content": updates[index].content[i],
+                        "text.content":
+                            updates[index]?.content[i] || journal.pages.get(oldJournalPageIds[index][i]).text.content,
                     };
                 }),
                 { pack: "world." + compType }
