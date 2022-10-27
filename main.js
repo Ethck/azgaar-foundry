@@ -468,27 +468,26 @@ class LoadAzgaarMap extends FormApplication {
         const seed = this.seed + id.padStart(4, 0);
         const site = "https://watabou.github.io/city-generator/?";
         const pop = ("" + burg.population).replace(".", "");
-        const parameters = [
-            "size",
-            "river",
-            "coast",
-            "farms",
-            "citadel",
-            "hub",
-            "plaza",
-            "temple",
-            "walls",
-            "shantytown",
-        ];
+        const parameters = ["size", "farms", "citadel", "hub", "plaza", "temple", "walls", "shantytown"];
 
         const param_string = parameters.map((param) => {
-            if (burg[param]) {
+            if (param in burg) {
                 return `&${param}=${+burg[param]}`;
             }
             return "";
         });
+        let urban_castle = 0;
+        if ("citadel" in burg) {
+            urban_castle = +burg["citadel"];
+        }
+        let coast = 0;
+        if ("port" in burg) {
+            coast = Number(burg["port"] > 0);
+        }
 
-        const url = `${site}${param_string.join("")}&seed=${seed}&name=${burg.name}&population=${pop}&gates=-1`;
+        const url = `${site}${param_string.join("")}&seed=${seed}&name=${
+            burg.name
+        }&population=${pop}&gates=-1&urban_castle=${urban_castle}&coast=${coast}`;
         return url;
     }
 
