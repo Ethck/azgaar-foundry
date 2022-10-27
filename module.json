@@ -1,11 +1,19 @@
 {
-    "name": "azgaar-foundry",
+    "id": "azgaar-foundry",
     "title": "Unofficial Azgaar's Fantasy Map Generator Import",
     "description": "Import a map from Azgaar's Fantasy Map Generator into Foundry.",
     "version": "Replaced in Releases",
     "minimumCoreVersion": "10",
     "compatibleCoreVersion": "10",
-    "author": "Ethck & Snark (TheSnarky)",
+    "compatibility": {
+        "minimum": 10,
+        "verified": 10,
+        "maximum": 10
+    },
+    "authors": {
+        "name": "Ethck",
+        "discord": "Ethck#6879"
+    },
     "esmodules": ["/main.js"],
     "styles": ["/css/map.css"],
     "url": "https://github.com/ethck/azgaar-foundry",
@@ -13,14 +21,14 @@
     "download": "Replaced in Releases",
     "readme": "https://github.com/Ethck/azgaar-foundry/blob/master/README.md",
     "changelog": "https://github.com/Ethck/azgaar-foundry/blob/master/README.md",
-    "dependencies": [
-        {
-            "name": "pin-fixer",
-            "type": "module"
-        },
-        {
-            "name": "lib-wrapper",
-            "type": "module"
-        }
-    ]
+    "relationships": {
+        "requires": [
+            {
+                "id": "pin-fixer"
+            },
+            {
+                "id": "lib-wrapper"
+            }
+        ]
+    }
 }
