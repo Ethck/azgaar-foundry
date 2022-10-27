@@ -8,6 +8,11 @@
 
 In order for your map to be properly aligned you MUST export your PNG/JPEG/SVG while your browser is in FULLSCREEN mode (typically f11). Azgaar's Fantasy Map Generator will only capture what you can currently see, so make sure you see everything!
 
+## New Features!
+
+-   Added the ability to use multiple pages. Anything you put on any page besides the first is NOT TOUCHED by the importer. You can now save custom notes with your entities! Huzzah!
+-   Fixed several bugs regarding reimporting, so now reimports should work and update documents properly.
+
 ## How to use
 
 ### Azgaar's Fantasy Map Generator (FMG)
@@ -29,7 +34,7 @@ There are only 3 steps that you actually _have_ to do, the rest is just configur
 
 #### Section 1 - Map Selection
 
-![Map File Selection](images/mapSelection.png)
+![Map File Selection](images/newAzgaarImport.png)
 
 First we want to load our map file into Foundry. We can do this by selecting the "Browse..." button and giving it our map file.
 
