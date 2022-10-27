@@ -251,12 +251,14 @@ class LoadAzgaarMap extends FormApplication {
                 ui.notifications.notify("UAFMGI: Creating Journals for Religions");
                 this.religionComp = await compendiumUpdater("Religions", "religion.hbs", this.religions, {});
                 religionLookup = this.religions.map((religion) => {
-                    return {
-                        id: religion.i,
-                        name: religion.name,
-                        culture: religion.culture,
-                        journal: this.retrieveJournalByName({ type: "religion", name: religion.name }),
-                    };
+                    if (!(jQuery.isEmptyObject(religion) || religion.name === "No religion")) {
+                        return {
+                            id: religion.i,
+                            name: religion.name,
+                            culture: religion.culture,
+                            journal: this.retrieveJournalByName({ type: "religion", name: religion.name }),
+                        };
+                    }
                 });
             }
 
@@ -304,7 +306,7 @@ class LoadAzgaarMap extends FormApplication {
             let countryData = this.countries.map((country) => {
                 if (!(jQuery.isEmptyObject(country) || country.name === "Neutrals")) {
                     // TODO: Extrapolate Provinces, add Burgs?, Neighbors, Diplomacy, Campaigns?, Military?
-                    let culture = cultureLookup[country.culture - 1];
+                    let culture = cultureLookup[country.culture];
                     country.culture = culture;
                     // Removed countries are still in Diplomacy as an X
                     if (country.diplomacy) {
