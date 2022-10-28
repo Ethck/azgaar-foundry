@@ -761,6 +761,9 @@ Hooks.once("init", () => {
 });
 
 Hooks.once("libWrapper.Ready", () => {
+    if (game.modules.get("monks-enhanced-journal")?.active) {
+        libWrapper.ignore_conflicts("azgaar-foundry", "monks-enhanced-journal", "Note.prototype._onClickLeft2");
+    }
     libWrapper.register(
         "azgaar-foundry",
         "Note.prototype._onClickLeft2",
@@ -773,7 +776,12 @@ Hooks.once("libWrapper.Ready", () => {
             if (cJournal && (cPerm?.default >= 1 || game.user.isGM)) {
                 const comp = game.packs.get(cJournal.compendium);
                 let doc = await comp.getDocument(cJournal.journal);
-                doc.sheet.render(true);
+
+                if (game.modules.get("monks-enhanced-journal")?.active) {
+                    game.MonksEnhancedJournal.openJournalEntry(doc);
+                } else {
+                    doc.sheet.render(true);
+                }
             } else {
                 return wrapped(...args);
             }
