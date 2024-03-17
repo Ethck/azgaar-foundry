@@ -113,6 +113,11 @@ class LoadAzgaarMap extends FormApplication {
         });
     }
 
+    updateMapSize(w, h) {
+        this.element[0].querySelector(".azgaar-foundry #mapsize #mapw").value = w;
+        this.element[0].querySelector(".azgaar-foundry #mapsize #maph").value = h;
+    }
+
     /**
      * Load map file as text
      *
@@ -143,6 +148,7 @@ class LoadAzgaarMap extends FormApplication {
         // Load the file
         let text = await this.loadMap(event);
         let json = JSON.parse(text);
+        console.log(json);
         /* Data format as presented in v1.97 of Azgaar's Fantasy Map Generator
             {
                 biomesData: {},
@@ -198,11 +204,20 @@ class LoadAzgaarMap extends FormApplication {
         this.notes = json.notes;
         this.cells = json.pack.cells;
 
+        // Required for burg map link generation
         this.cells.r = this.cells.map((cell) => cell.r);
         this.cells.haven = this.cells.map((cell) => cell.haven);
         this.cells.p = this.cells.map((cell) => cell.p);
         this.cells.biome = this.cells.map((cell) => cell.biome);
         this.cells.road = this.cells.map((cell) => cell.road);
+
+        // Used to scale the picture later, might be wrong if map file is from different
+        // computer, or it was fullscreen vs not or OS level zoom, etc.
+        this.mapWidth = window.innerWidth;
+        this.mapHeight = window.innerHeight;
+
+        // Update our default values to what we know the current screen is as a best guess
+        this.updateMapSize(this.mapWidth, this.mapHeight);
 
         // Turn file into array of lines
         // const lines = text.split(/[\r\n]+/g);
@@ -430,12 +445,14 @@ class LoadAzgaarMap extends FormApplication {
      * @param  {string} picture    File path to the picture asset
      * @return {Scene}         New Scene to work on
      */
-    async makeScene(picture) {
+    async makeScene(picture, mapW, mapH) {
         return new Promise(async (resolve, reject) => {
             let sceneName = picture.split("%20")[0].split(".(svg|png|jpg|jpeg|webm)")[0];
 
-            const ogWidth = parseInt(this.mapWidth);
-            const ogHeight = parseInt(this.mapHeight);
+            // Defaulted to window.innerWidth and window.innerHeight
+            // but sometimes it's different so accept the new val
+            const ogWidth = parseInt(mapW);
+            const ogHeight = parseInt(mapH);
 
             const newWidth = this.picWidth;
             const newHeight = this.picHeight;
@@ -506,6 +523,8 @@ class LoadAzgaarMap extends FormApplication {
 
         return journal;
     }
+
+    // TODO: Add Village generator
 
     createMfcgLink(burg) {
         const cells = this.cells;
@@ -599,7 +618,9 @@ class LoadAzgaarMap extends FormApplication {
             ui.notifications.error("[Azgaar FMG] You must attach a picture and a map file to the form.");
             return;
         }
-        let [scene, widthMultiplier, heightMultiplier] = await this.makeScene(picture);
+        let mapW = this.element.find(".azgaar-foundry #mapsize #mapw").val();
+        let mapH = this.element.find(".azgaar-foundry #mapsize #maph").val();
+        let [scene, widthMultiplier, heightMultiplier] = await this.makeScene(picture, mapW, mapH);
 
         // get icons to use for notes
         const burgSVG = this.element.find("#burgSVG").attr("src");
