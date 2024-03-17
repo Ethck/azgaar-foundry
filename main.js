@@ -141,15 +141,40 @@ class LoadAzgaarMap extends FormApplication {
      */
     async parseMap(event) {
         // Load the file
+        console.log("LOADING MAP");
         let text = await this.loadMap(event);
-        /* Data format as presented in v1.4 of Azgaar's Fantasy Map Generator
-    const data = [params, settings, coords, biomes, notesData, svg_xml,
-      gridGeneral, grid.cells.h, grid.cells.prec, grid.cells.f, grid.cells.t, grid.cells.temp,
-      features, cultures, states, burgs,
-      pack.cells.biome, pack.cells.burg, pack.cells.conf, pack.cells.culture, pack.cells.fl,
-      pop, pack.cells.r, pack.cells.road, pack.cells.s, pack.cells.state,
-      pack.cells.religion, pack.cells.province, pack.cells.crossroad, religions, provinces,
-      namesData, rivers].join("\r\n");
+        let json = JSON.parse(text);
+        console.log(json);
+        /* Data format as presented in v1.97 of Azgaar's Fantasy Map Generator
+            {
+                biomesData: {},
+                grid: {},
+                info: {
+                    seed
+                },
+                mapCoordinates: {},
+                nameBases: {},
+                notes: [], #notes about generated militaries and markers (no coordinates)
+                pack: {
+                    burgs: [],
+                    cells: [],
+                    cultures: [],
+                    features: [],
+                    markers: [],
+                    provinces: [],
+                    religions: [],
+                    rivers: [],
+                    states: [],
+                    vertices: []
+                },
+                settings: {
+                    mapName,
+                    mapSize,
+                    populationRate,
+                    urbanDensity,
+                    urbanization
+                }
+            }
     */
 
         /* We are interested in the following fields, so extract them smartly (since order may change)
@@ -162,77 +187,96 @@ class LoadAzgaarMap extends FormApplication {
     namesData: Real world basis (culture) for countries/cultures.
     Rivers: Rivers
     */
+
+        this.provinces = json.pack.provinces;
+        this.burgs = json.pack.burgs;
+        this.countries = json.pack.states;
+        this.religions = json.pack.religions;
+        this.cultures = json.pack.cultures;
+        this.rivers = json.pack.rivers;
+        this.settings = json.settings;
+        this.seed = json.info.seed;
+        this.pack = json.pack;
+        this.notes = json.notes;
+        this.cells = json.pack.cells;
+
+        this.cells.r = this.cells.map((cell) => cell.r);
+        this.cells.haven = this.cells.map((cell) => cell.haven);
+        this.cells.p = this.cells.map((cell) => cell.p);
+        this.cells.biome = this.cells.map((cell) => cell.biome);
+        this.cells.road = this.cells.map((cell) => cell.road);
+
         // Turn file into array of lines
-        const lines = text.split(/[\r\n]+/g);
+        // const lines = text.split(/[\r\n]+/g);
 
-        // FMG Settings
-        let firstLine = lines[0].split("|");
-        // Extract FMG seed
-        this.seed = firstLine[3];
-        // Extract image size
-        this.mapWidth = firstLine[4];
-        this.mapHeight = firstLine[5];
+        // // FMG Settings
+        // let firstLine = lines[0].split("|");
+        // // Extract FMG seed
+        // this.seed = firstLine[3];
+        // // Extract image size
+        // this.mapWidth = firstLine[4];
+        // this.mapHeight = firstLine[5];
 
-        lines.forEach((line) => {
-            try {
-                // Only interested in JSON objects
-                const obj = JSON.parse(line);
+        // lines.forEach((line) => {
+        //     try {
+        //         // Only interested in JSON objects
+        //         const obj = JSON.parse(line);
 
-                /**
-                 * Each JSON object is one of the following categories
-                 * so here we determine which one it is, then assign
-                 * the proper variables to it.
-                 */
+        //         /**
+        //          * Each JSON object is one of the following categories
+        //          * so here we determine which one it is, then assign
+        //          * the proper variables to it.
+        //          */
 
-                // Provinces
-                if ("state" in obj[1] && !("cell" in obj[1])) {
-                    console.log("Provinces:", obj);
-                    this.provinces = obj || [];
-                } // Burgs
-                else if ("population" in obj[1] && "citadel" in obj[1]) {
-                    console.log("Burgs:", obj);
-                    this.burgs = obj;
-                }
-                // These are our countries
-                else if ("diplomacy" in obj[0]) {
-                    this.countries = obj;
-                    for (let i = 1; i < this.countries.length; i++) {
-                        let relationships = [];
-                        for (let k = 1; k < this.countries[i].diplomacy.length; k++) {
-                            if (this.countries[i].diplomacy[k] != "x") {
-                                let relationship = {
-                                    refCountry: this.countries[k].fullName,
-                                    Status: this.countries[i].diplomacy[k],
-                                };
-                                relationships.push(relationship);
-                            }
-                        }
-                        this.countries[i].relationships = relationships;
-                    }
-                    console.log("Countries:", this.countries);
-                    // Religions
-                } else if (obj[0].name === "No religion") {
-                    console.log("Religions:", obj);
-                    this.religions = obj;
-                    // Cultures
-                } else if (obj[0].name === "Wildlands") {
-                    console.log("Cultures:", obj);
-                    this.cultures = obj;
-                    // Rivers
-                } else if ("mouth" in obj[0]) {
-                    console.log("Rivers:", obj);
-                    this.rivers = obj;
-                }
-                // Many things in the file are not JSON, we don't care about them.
-            } catch (error) {}
-        });
-        // Tie together religions and cultures
-        for (let i = 1; i < this.religions.length; i++) {
-            if (this.cultures[this.religions[i].culture]?.Religions == undefined) {
-                this.cultures[this.religions[i].culture].Religions = [];
-            }
-            this.cultures[this.religions[i].culture].Religions.push(this.religions[i]);
-        }
+        //         // Provinces
+        //         if ("state" in obj[1] && !("cell" in obj[1])) {
+        //             console.log("Provinces:", obj);
+        //             this.provinces = obj || [];
+        //         } // Burgs
+        //         else if ("population" in obj[1] && "citadel" in obj[1]) {
+        //             console.log("Burgs:", obj);
+        //             this.burgs = obj;
+        //         }
+        //         // These are our countries
+        //         else if ("diplomacy" in obj[0]) {
+        //             this.countries = obj;
+        //             for (let i = 1; i < this.countries.length; i++) {
+        //                 let relationships = [];
+        //                 for (let k = 1; k < this.countries[i].diplomacy.length; k++) {
+        //                     if (this.countries[i].diplomacy[k] != "x") {
+        //                         let relationship = {
+        //                             refCountry: this.countries[k].fullName,
+        //                             Status: this.countries[i].diplomacy[k],
+        //                         };
+        //                         relationships.push(relationship);
+        //                     }
+        //                 }
+        //                 this.countries[i].relationships = relationships;
+        //             }
+        //             console.log("Countries:", this.countries);
+        //             // Religions
+        //         } else if (obj[0].name === "No religion") {
+        //             console.log("Religions:", obj);
+        //             this.religions = obj;
+        //             // Cultures
+        //         } else if (obj[0].name === "Wildlands") {
+        //             console.log("Cultures:", obj);
+        //             this.cultures = obj;
+        //             // Rivers
+        //         } else if ("mouth" in obj[0]) {
+        //             console.log("Rivers:", obj);
+        //             this.rivers = obj;
+        //         }
+        //         // Many things in the file are not JSON, we don't care about them.
+        //     } catch (error) {}
+        // });
+        // // Tie together religions and cultures
+        // for (let i = 1; i < this.religions.length; i++) {
+        //     if (this.cultures[this.religions[i].culture]?.Religions == undefined) {
+        //         this.cultures[this.religions[i].culture].Religions = [];
+        //     }
+        //     this.cultures[this.religions[i].culture].Religions.push(this.religions[i]);
+        // }
     }
 
     /**
@@ -348,6 +392,7 @@ class LoadAzgaarMap extends FormApplication {
                     burg.country = countryLookup[burg.state];
                     burg.province = provinceLookup.find((province) => province.burgs?.includes(burg.i));
                     burg.burgURL = this.generateBurgURL(burg, i);
+                    burg.mfcg2 = this.createMfcgLink(burg);
                 }
                 return burg;
             });
@@ -365,6 +410,8 @@ class LoadAzgaarMap extends FormApplication {
             // We have a circular dependency on everything so provinces kinda get shafted in the initial journals
             // so here we update them to hold all sorts of information
 
+            // TODO: Provinces seem broken
+
             if (this.provinces) {
                 const provinceData = this.provinces.map((province, i) => {
                     if (province !== 0 && !jQuery.isEmptyObject(province)) {
@@ -375,7 +422,7 @@ class LoadAzgaarMap extends FormApplication {
                 });
                 this.provinceComp = await compendiumUpdater("Provinces", "province.hbs", provinceData, {});
             }
-
+            ui.notifications.notify("UAFMGI: Creation Complete.");
             resolve();
         });
     }
@@ -489,6 +536,65 @@ class LoadAzgaarMap extends FormApplication {
             burg.name
         }&population=${pop}&gates=-1&urban_castle=${urban_castle}&coast=${coast}`;
         return url;
+    }
+
+    createMfcgLink(burg) {
+        const cells = this.cells;
+        const { i, name, population: burgPopulation, cell } = burg;
+        const burgSeed = burg.MFCG || this.seed + String(burg.i).padStart(4, 0);
+
+        const sizeRaw =
+            2.13 * Math.pow((burgPopulation * this.settings.populationRate) / this.settings.urbanDensity, 0.385);
+        const size = minmax(Math.ceil(sizeRaw), 6, 100);
+        const population = rn(burgPopulation * this.settings.populationRate * this.settings.urbanization);
+
+        const river = cells.r[cell] ? 1 : 0;
+        const coast = Number(burg.port > 0);
+        const sea = (() => {
+            if (!coast || !cells.haven[cell]) return null;
+
+            // calculate see direction: 0 = south, 0.5 = west, 1 = north, 1.5 = east
+            const p1 = cells.p[cell];
+            const p2 = cells.p[cells.haven[cell]];
+            let deg = (Math.atan2(p2[1] - p1[1], p2[0] - p1[0]) * 180) / Math.PI - 90;
+            if (deg < 0) deg += 360;
+            return rn(normalize(deg, 0, 360) * 2, 2);
+        })();
+
+        const arableBiomes = river ? [1, 2, 3, 4, 5, 6, 7, 8] : [5, 6, 7, 8];
+        const farms = +arableBiomes.includes(cells.biome[cell]);
+
+        const citadel = +burg.citadel;
+        const urban_castle = +(citadel && each(2)(i));
+
+        const hub = +cells.road[cell] > 50;
+
+        const walls = +burg.walls;
+        const plaza = +burg.plaza;
+        const temple = +burg.temple;
+        const shantytown = +burg.shanty;
+
+        const url = new URL("https://watabou.github.io/city-generator/");
+        url.search = new URLSearchParams({
+            name,
+            population,
+            size,
+            seed: burgSeed,
+            river,
+            coast,
+            farms,
+            citadel,
+            urban_castle,
+            hub,
+            plaza,
+            temple,
+            walls,
+            shantytown,
+            gates: -1,
+        });
+        if (sea) url.searchParams.append("sea", sea);
+
+        return url.toString();
     }
 
     /**
@@ -656,6 +762,23 @@ class LoadAzgaarMap extends FormApplication {
         await canvas.scene.createEmbeddedDocuments("Note", [...countryData, ...provinceData, ...burgData]);
         return;
     }
+}
+
+function minmax(value, min, max) {
+    return Math.min(Math.max(value, min), max);
+}
+
+function rn(v, d = 0) {
+    const m = Math.pow(10, d);
+    return Math.round(v * m) / m;
+}
+
+function normalize(val, min, max) {
+    return minmax((val - min) / (max - min), 0, 1);
+}
+
+function each(n) {
+    return (i) => i % n === 0;
 }
 
 async function compendiumUpdater(compType, contentSchema, baseData, extraData) {
