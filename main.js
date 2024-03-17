@@ -391,8 +391,7 @@ class LoadAzgaarMap extends FormApplication {
                     burg.culture = cultureLookup[burg.culture];
                     burg.country = countryLookup[burg.state];
                     burg.province = provinceLookup.find((province) => province.burgs?.includes(burg.i));
-                    burg.burgURL = this.generateBurgURL(burg, i);
-                    burg.mfcg2 = this.createMfcgLink(burg);
+                    burg.burgURL = this.createMfcgLink(burg);
                 }
                 return burg;
             });
@@ -508,34 +507,6 @@ class LoadAzgaarMap extends FormApplication {
         let journal = searchable.find((elem) => elem.name === name);
 
         return journal;
-    }
-
-    generateBurgURL(burg, id) {
-        id = id.toString();
-        const seed = this.seed + id.padStart(4, 0);
-        const site = "https://watabou.github.io/city-generator/?";
-        const pop = ("" + burg.population).replace(".", "");
-        const parameters = ["size", "farms", "citadel", "hub", "plaza", "temple", "walls", "shantytown"];
-
-        const param_string = parameters.map((param) => {
-            if (param in burg) {
-                return `&${param}=${+burg[param]}`;
-            }
-            return "";
-        });
-        let urban_castle = 0;
-        if ("citadel" in burg) {
-            urban_castle = +burg["citadel"];
-        }
-        let coast = 0;
-        if ("port" in burg) {
-            coast = Number(burg["port"] > 0);
-        }
-
-        const url = `${site}${param_string.join("")}&seed=${seed}&name=${
-            burg.name
-        }&population=${pop}&gates=-1&urban_castle=${urban_castle}&coast=${coast}`;
-        return url;
     }
 
     createMfcgLink(burg) {
