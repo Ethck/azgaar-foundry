@@ -141,10 +141,8 @@ class LoadAzgaarMap extends FormApplication {
      */
     async parseMap(event) {
         // Load the file
-        console.log("LOADING MAP");
         let text = await this.loadMap(event);
         let json = JSON.parse(text);
-        console.log(json);
         /* Data format as presented in v1.97 of Azgaar's Fantasy Map Generator
             {
                 biomesData: {},
@@ -823,7 +821,6 @@ async function compendiumUpdater(compType, contentSchema, baseData, extraData) {
             return await journal.updateEmbeddedDocuments(
                 "JournalEntryPage",
                 journal.pages.map((page, i) => {
-                    console.log(page, i);
                     return {
                         _id: oldJournalPageIds[index][i],
                         "text.content":
