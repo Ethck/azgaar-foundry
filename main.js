@@ -298,7 +298,7 @@ class LoadAzgaarMap extends FormApplication {
      *
      * @return {Promise}    resolve once all Foundry creations are done.
      */
-    async importData() {
+    async importData(azgaarFolder) {
         return new Promise(async (resolve, reject) => {
             /**
              * Cultures
@@ -306,7 +306,13 @@ class LoadAzgaarMap extends FormApplication {
             let religionLookup = [];
             if (this.religions) {
                 ui.notifications.notify("UAFMGI: Creating Journals for Religions");
-                this.religionComp = await compendiumUpdater("Religions", "religion.hbs", this.religions, {});
+                this.religionComp = await compendiumUpdater(
+                    "Religions",
+                    "religion.hbs",
+                    this.religions,
+                    {},
+                    azgaarFolder
+                );
                 religionLookup = this.religions.map((religion) => {
                     if (!(jQuery.isEmptyObject(religion) || religion.name === "No religion")) {
                         return {
@@ -328,7 +334,7 @@ class LoadAzgaarMap extends FormApplication {
                 return culture;
             });
 
-            this.cultureComp = await compendiumUpdater("Cultures", "culture.hbs", cultureData, {});
+            this.cultureComp = await compendiumUpdater("Cultures", "culture.hbs", cultureData, {}, azgaarFolder);
 
             let cultureLookup = this.cultures.map((culture) => {
                 return {
@@ -344,7 +350,13 @@ class LoadAzgaarMap extends FormApplication {
             let provinceLookup = [];
             if (this.provinces) {
                 ui.notifications.notify("UAFMGI: Creating Journals for Provinces.");
-                this.provinceComp = await compendiumUpdater("Provinces", "province.hbs", this.provinces, {});
+                this.provinceComp = await compendiumUpdater(
+                    "Provinces",
+                    "province.hbs",
+                    this.provinces,
+                    {},
+                    azgaarFolder
+                );
                 provinceLookup = this.provinces.map((province) => {
                     return {
                         id: province.i,
@@ -383,9 +395,15 @@ class LoadAzgaarMap extends FormApplication {
             const renderCountryData = countryData.filter((c) => !c.removed);
             // We provide countryData a 2nd time in the "extraData" field because the "baseData"
             // field gets trimmed to a single entity when rendering.
-            this.countryComp = await compendiumUpdater("Countries", "country.hbs", renderCountryData, {
-                countries: renderCountryData,
-            });
+            this.countryComp = await compendiumUpdater(
+                "Countries",
+                "country.hbs",
+                renderCountryData,
+                {
+                    countries: renderCountryData,
+                },
+                azgaarFolder
+            );
 
             let countryLookup = this.countries.map((country) => {
                 return {
@@ -409,7 +427,7 @@ class LoadAzgaarMap extends FormApplication {
                 return burg;
             });
 
-            this.burgComp = await compendiumUpdater("Burgs", "burg.hbs", burgData, {});
+            this.burgComp = await compendiumUpdater("Burgs", "burg.hbs", burgData, {}, azgaarFolder);
 
             const burgLookup = this.burgs.map((burg, i) => {
                 return {
@@ -432,7 +450,13 @@ class LoadAzgaarMap extends FormApplication {
                     }
                     return province;
                 });
-                this.provinceComp = await compendiumUpdater("Provinces", "province.hbs", provinceData, {});
+                this.provinceComp = await compendiumUpdater(
+                    "Provinces",
+                    "province.hbs",
+                    provinceData,
+                    {},
+                    azgaarFolder
+                );
             }
             ui.notifications.notify("UAFMGI: Creation Complete.");
             resolve();
@@ -612,6 +636,15 @@ class LoadAzgaarMap extends FormApplication {
             azgaarJournal = await JournalEntry.create(fakeJournal);
         }
 
+        let azgaarFolder = game.folders.getName("Azgaar FMG");
+        if (!azgaarFolder) {
+            azgaarFolder = await Folder.create({
+                name: "Azgaar FMG",
+                type: "Compendium",
+                description: "Folder to contain all of the Azgaar FMG compendium objects.",
+            });
+        }
+
         // Make the scene
         let picture = this.element.find('[name="pictureMap"]').val();
         if (!picture) {
@@ -633,7 +666,7 @@ class LoadAzgaarMap extends FormApplication {
         const provincePerm = parseInt(this.element.find("[name='permissionProvince']:checked").val());
 
         // import our data
-        await this.importData();
+        await this.importData(azgaarFolder);
 
         const [countryMinZoom, countryMaxZoom] = this.element
             .find("#azgaar-pin-fixer-select #countries input")
@@ -771,7 +804,7 @@ function each(n) {
     return (i) => i % n === 0;
 }
 
-async function compendiumUpdater(compType, contentSchema, baseData, extraData) {
+async function compendiumUpdater(compType, contentSchema, baseData, extraData, azgaarFolder) {
     // Assumptions for updating
     // 1. Same number of entities (be it is, countries, burgs, whatever)
     // 2. all entities already exist (no new ones!)
@@ -791,6 +824,7 @@ async function compendiumUpdater(compType, contentSchema, baseData, extraData) {
         comp = oldCComp;
     } else {
         comp = await CompendiumCollection.createCompendium({ name: compType, label: compType, type: "JournalEntry" });
+        await comp.setFolder(azgaarFolder.id);
     }
 
     let compData = await Promise.all(
