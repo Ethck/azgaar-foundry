@@ -211,6 +211,18 @@ class LoadAzgaarMap extends FormApplication {
         this.cells.biome = this.cells.map((cell) => cell.biome);
         this.cells.road = this.cells.map((cell) => cell.road);
 
+        this.countries.map((country) => {
+            country.relationships = [];
+            country.diplomacy.forEach((state, i) => {
+                if (state === "x") return;
+                country.relationships.push({
+                    refCountry: this.countries[i].fullName,
+                    status: state,
+                });
+            });
+            console.log(country);
+        });
+
         // Used to scale the picture later, might be wrong if map file is from different
         // computer, or it was fullscreen vs not or OS level zoom, etc.
         this.mapWidth = window.innerWidth;
