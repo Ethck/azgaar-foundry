@@ -19,7 +19,7 @@ class LoadAzgaarMap extends FormApplication {
             closeOnSubmit: true,
             popOut: true,
             width: 600,
-            height: 600,
+            height: 800,
             tabs: [{ navSelector: ".tabs", contentSelector: ".content", initial: "main" }],
         });
     }
@@ -431,6 +431,7 @@ class LoadAzgaarMap extends FormApplication {
                 height: this.picHeight,
                 padding: 0.0,
                 img: picture,
+                tokenVision: false,
                 // Flags for making pinfix work immediately.
                 "flags.pinfix.enable": true,
                 "flags.pinfix.minScale": 1,

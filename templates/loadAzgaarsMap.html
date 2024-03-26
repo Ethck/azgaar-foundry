@@ -1,92 +1,113 @@
 <form class="azgaar-foundry">
     <nav class="sheet-tabs tabs" data-group="primary">
-        <a class="item" data-tab="main" active>
-            Main
-        </a>
-        <a class="item" data-tab="permissions">
-            Permissions
-        </a>
+        <a class="item" data-tab="main" active> Main </a>
+        <a class="item" data-tab="permissions"> Permissions </a>
     </nav>
     <section class="content">
         <div class="tab" data-group="primary" data-tab="main">
             <section>
                 <h2>Map Selection</h2>
                 <div id="azgaar-map-select">
-                    <input id="map" type="file">Link to MAP file</input>
-                    <div class="tooltip"><i class="fas fa-info-circle"></i>
+                    <input id="map" type="file" />Link to MAP file
+                    <div class="tooltip">
+                        <i class="fas fa-info-circle"></i>
                         <span class="tooltiptext left">
-                        Press the "Browse..." button to select a .map file that has been exported from Azgaar's Fantasy Map Generator.
+                            Press the "Browse..." button to select a .map file that has been exported from Azgaar's
+                            Fantasy Map Generator.
                         </span>
                     </div>
-                    </br>
                     <div id="mapsize" class="flexrow">
-                        <label for="mapw">Map Width</label>
-                        <input id="mapw" class="mapw" type="text" placeholder="0"></input>
-                        <label for="maph">Map Height</label>
-                        <input id="maph" type="text" placeholder="0"></input>
+                        <div class="flexrow">
+                            <label for="mapw">Map Width</label>
+                            <input id="mapw" class="mapw" type="text" placeholder="0" />
+                        </div>
+                        <div class="flexrow">
+                            <label for="maph">Map Height</label>
+                            <input id="maph" type="text" placeholder="0" />
+                        </div>
                     </div>
-                    <input type="text" name="pictureMap" title="Picture Path" class="icon-path" placeholder="/icons/example.png" data-dtype="String">
-                    <button type="button" id="picture" name="file-picker" class="file-picker" data-target="pictureMap" data-type="image">
+                    <input
+                        type="text"
+                        name="pictureMap"
+                        title="Picture Path"
+                        class="icon-path"
+                        placeholder="/icons/example.png"
+                        data-dtype="String"
+                    />
+                    <button
+                        type="button"
+                        id="picture"
+                        name="file-picker"
+                        class="file-picker"
+                        data-target="pictureMap"
+                        data-type="image"
+                    >
                         <i class="fas fa-file-import fa-fw"></i>Link to Picture
-                        <div class="tooltip"><i class="fas fa-info-circle"></i>
+                        <div class="tooltip">
+                            <i class="fas fa-info-circle"></i>
                             <span class="tooltiptext left">
-                            The picture you select can be of any format and will be set as the background image of the scene.</br>
-                            It is extremely important that if you scale the picture in FMG that you also set the Scale Factor below.
+                                The picture you select can be of any format and will be set as the background image of
+                                the scene. It is extremely important that if you scale the picture in FMG that you also
+                                set the Scale Factor below.
                             </span>
                         </div>
                     </button>
                 </div>
-            </section></br>
+            </section>
             <section>
                 <h2>MapNote Icon Selection</h2>
                 <div id="azgaar-icon-select">
-                    <span>Here you can select which icons you want to see on the map notes that are created for each type of note.</span>
+                    <span
+                        >Here you can select which icons you want to see on the map notes that are created for each type
+                        of note.</span
+                    >
                     <div class="flexrow">
                         <div class="flexcol" id="burgs">
                             <span>Burgs</span>
-                            <img id="burgSVG" name="burgIcon" src="/icons/svg/village.svg">
+                            <img id="burgSVG" name="burgIcon" src="/icons/svg/village.svg" />
                             <div class="flexrow">
-                                <input type="checkbox" id="iconColors" name="options.use_colors_burg">Use FMG Colors?</input>
+                                <input type="checkbox" id="iconColors" name="options.use_colors_burg" />Use FMG Colors?
                             </div>
                         </div>
                         <div class="flexcol" id="countries">
                             <span>Countries</span>
-                            <img id="countrySVG" name="countryIcon" src="/icons/svg/castle.svg"/>
+                            <img id="countrySVG" name="countryIcon" src="/icons/svg/castle.svg" />
                             <div class="flexrow">
-                                <input type="checkbox" id="iconColors" name="options.use_colors_country" checked>Use FMG Colors?</input>
+                                <input type="checkbox" id="iconColors" name="options.use_colors_country" checked />Use
+                                FMG Colors?
                             </div>
                         </div>
                         <div class="flexcol" id="provinces">
                             <span>Provinces</span>
-                            <img id="provinceSVG" name="provinceIcon" src="/icons/svg/tower.svg"/>
+                            <img id="provinceSVG" name="provinceIcon" src="/icons/svg/tower.svg" />
                             <div class="flexrow">
-                                <input type="checkbox" id="iconColors" name="options.use_colors_province" checked>Use FMG Colors?</input>
+                                <input type="checkbox" id="iconColors" name="options.use_colors_province" checked />Use
+                                FMG Colors?
                             </div>
                         </div>
                     </div>
                 </div>
-            </section></br>
+            </section>
             <section>
                 <h2>MapNote Scaling</h2>
                 <div id="azgaar-pin-fixer-select">
                     <div class="flexrow">
-                        <span style="flex-basis: 70%;">
-                                Minimum zoom level means that pins will be hidden BELOW this value.</br>
-                                Maximum zoom level means that pins will be hidden ABOVE this value.
+                        <span style="flex-basis: 70%">
+                            Minimum zoom level means that pins will be hidden BELOW this value. Maximum zoom level means
+                            that pins will be hidden ABOVE this value.
                         </span>
                         <button type="button" id="zoomDefaults">Reset Zoom</button>
                     </div>
-                    </br>
                     <div id="provinces">
                         <span>Pin-Fixer Settings for <b>Provinces</b></span>
                         <div class="flexrow">
                             <div class="flexcol">
                                 <span id="minZoomValue">Min Zoom Level: 1</span>
-                                <input type="range" min="0" max="3" value="1" id="minZoom" step="0.1"/>
+                                <input type="range" min="0" max="3" value="1" id="minZoom" step="0.1" />
                             </div>
                             <div class="flexcol">
                                 <span id="maxZoomValue">Max Zoom Level: 2</span>
-                                <input type="range" min="0" max="3" value="2" id="maxZoom" step="0.1"/>
+                                <input type="range" min="0" max="3" value="2" id="maxZoom" step="0.1" />
                             </div>
                         </div>
                     </div>
@@ -95,11 +116,11 @@
                         <div class="flexrow">
                             <div class="flexcol">
                                 <span id="minZoomValue">Min Zoom Level: 0.1</span>
-                                <input type="range" min="0" max="3" value="0.1" id="minZoom" step="0.1"/>
+                                <input type="range" min="0" max="3" value="0.1" id="minZoom" step="0.1" />
                             </div>
                             <div class="flexcol">
                                 <span id="maxZoomValue">Max Zoom Level: 2</span>
-                                <input type="range" min="0" max="3" value="2" id="maxZoom" step="0.1"/>
+                                <input type="range" min="0" max="3" value="2" id="maxZoom" step="0.1" />
                             </div>
                         </div>
                     </div>
@@ -108,44 +129,71 @@
                         <div class="flexrow">
                             <div class="flexcol">
                                 <span id="minZoomValue">Min Zoom Level: 2</span>
-                                <input type="range" min="0" max="3" value="2" id="minZoom" step="0.1"/>
+                                <input type="range" min="0" max="3" value="2" id="minZoom" step="0.1" />
                             </div>
                             <div class="flexcol">
                                 <span id="maxZoomValue">Max Zoom Level: 3</span>
-                                <input type="range" min="0" max="3" value="3" id="maxZoom" step="0.1"/>
+                                <input type="range" min="0" max="3" value="3" id="maxZoom" step="0.1" />
                             </div>
                         </div>
                     </div>
                 </div>
-            </section></br>
+            </section>
         </div>
         <div id="permissions" class="tab" data-group="primary" data-tab="permissions">
             <section>
                 <h2>Permissions for Journal Entries / Map Notes</h2>
                 <div id="azgaar-permissions-select" class="container">
                     <div class="flexrow">
-                        <span style="flex-basis: 70%;">
-                                More info on permissions here: <a href="https://foundryvtt.com/article/users/">User Permissions</a>
+                        <span style="flex-basis: 70%">
+                            More info on permissions here:
+                            <a href="https://foundryvtt.com/article/users/">User Permissions</a>
                         </span>
                         <button type="button" id="permissionDefaults">Reset Permissions</button>
                     </div>
-                    </br>
                     <div id="permission-groups">
                         <div id="provinces">
                             <span><b>Provinces</b></span>
                             <div class="flexrow">
-                                <li><input type="radio" name="permissionProvince" id="permission0" value="0" class="hidden">
-                                    <label for="permission0" class="button-label">None</label></li>
                                 <li>
-                                    <input type="radio" name="permissionProvince" id="permission1" value="1" class="hidden">
+                                    <input
+                                        type="radio"
+                                        name="permissionProvince"
+                                        id="permission0"
+                                        value="0"
+                                        class="hidden"
+                                    />
+                                    <label for="permission0" class="button-label">None</label>
+                                </li>
+                                <li>
+                                    <input
+                                        type="radio"
+                                        name="permissionProvince"
+                                        id="permission1"
+                                        value="1"
+                                        class="hidden"
+                                    />
                                     <label for="permission1" class="button-label">Limited</label>
                                 </li>
                                 <li>
-                                    <input type="radio" name="permissionProvince" id="permission2" value="2" checked class="hidden">
+                                    <input
+                                        type="radio"
+                                        name="permissionProvince"
+                                        id="permission2"
+                                        value="2"
+                                        checked
+                                        class="hidden"
+                                    />
                                     <label for="permission2" class="button-label">Observer</label>
                                 </li>
                                 <li>
-                                    <input type="radio" name="permissionProvince" id="permission3" value="3" class="hidden">
+                                    <input
+                                        type="radio"
+                                        name="permissionProvince"
+                                        id="permission3"
+                                        value="3"
+                                        class="hidden"
+                                    />
                                     <label for="permission3" class="button-label">Owner</label>
                                 </li>
                             </div>
@@ -154,47 +202,97 @@
                             <span><b>Countries</b></span>
                             <div class="flexrow">
                                 <li>
-                                    <input type="radio" name="permissionCountry" id="permission4" value="0" class="hidden">
+                                    <input
+                                        type="radio"
+                                        name="permissionCountry"
+                                        id="permission4"
+                                        value="0"
+                                        class="hidden"
+                                    />
                                     <label for="permission4" class="button-label">None</label>
                                 </li>
                                 <li>
-                                    <input type="radio" name="permissionCountry" id="permission5" value="1" class="hidden">
+                                    <input
+                                        type="radio"
+                                        name="permissionCountry"
+                                        id="permission5"
+                                        value="1"
+                                        class="hidden"
+                                    />
                                     <label for="permission5" class="button-label">Limited</label>
                                 </li>
                                 <li>
-                                    <input type="radio" name="permissionCountry" id="permission6" value="2" checked class="hidden">
+                                    <input
+                                        type="radio"
+                                        name="permissionCountry"
+                                        id="permission6"
+                                        value="2"
+                                        checked
+                                        class="hidden"
+                                    />
                                     <label for="permission6" class="button-label">Observer</label>
                                 </li>
                                 <li>
-                                    <input type="radio" name="permissionCountry" id="permission7" value="3" class="hidden">
+                                    <input
+                                        type="radio"
+                                        name="permissionCountry"
+                                        id="permission7"
+                                        value="3"
+                                        class="hidden"
+                                    />
                                     <label for="permission7" class="button-label">Owner</label>
                                 </li>
                             </div>
                         </div>
                         <div id="burgs">
-                        <span><b>Burgs</b></span>
-                        <div class="flexrow">
-                            <li>
-                                <input type="radio" name="permissionBurg" id="permission8" value="0" class="hidden">
-                                <label for="permission8" class="button-label">None</label>
-                            </li>
-                            <li>
-                                <input type="radio" name="permissionBurg" id="permission9" value="1" class="hidden">
-                                <label for="permission9" class="button-label">Limited</label>
-                            </li>
-                            <li>
-                                <input type="radio" name="permissionBurg" id="permission10" value="2" checked class="hidden">
-                                <label for="permission10" class="button-label">Observer</label>
-                            </li>
-                            <li>
-                                <input type="radio" name="permissionBurg" id="permission11" value="3" class="hidden">
-                                <label for="permission11" class="button-label">Owner</label>
-                            </li>
+                            <span><b>Burgs</b></span>
+                            <div class="flexrow">
+                                <li>
+                                    <input
+                                        type="radio"
+                                        name="permissionBurg"
+                                        id="permission8"
+                                        value="0"
+                                        class="hidden"
+                                    />
+                                    <label for="permission8" class="button-label">None</label>
+                                </li>
+                                <li>
+                                    <input
+                                        type="radio"
+                                        name="permissionBurg"
+                                        id="permission9"
+                                        value="1"
+                                        class="hidden"
+                                    />
+                                    <label for="permission9" class="button-label">Limited</label>
+                                </li>
+                                <li>
+                                    <input
+                                        type="radio"
+                                        name="permissionBurg"
+                                        id="permission10"
+                                        value="2"
+                                        checked
+                                        class="hidden"
+                                    />
+                                    <label for="permission10" class="button-label">Observer</label>
+                                </li>
+                                <li>
+                                    <input
+                                        type="radio"
+                                        name="permissionBurg"
+                                        id="permission11"
+                                        value="3"
+                                        class="hidden"
+                                    />
+                                    <label for="permission11" class="button-label">Owner</label>
+                                </li>
+                            </div>
                         </div>
                     </div>
                 </div>
-                </div>
-            </section></br>
+            </section>
         </div>
     </section>
     <button type="submit">Import</button>

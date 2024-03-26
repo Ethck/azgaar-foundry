@@ -107,3 +107,12 @@
     padding-top: 0.5rem;
     margin-bottom: 0.5rem;
 }
+
+.azgaar-foundry #mapsize {
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+}
+
+.azgaar-foundry #mapsize .flexrow {
+    padding-right: 0.5em;
+}
