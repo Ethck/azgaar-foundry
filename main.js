@@ -203,6 +203,7 @@ class LoadAzgaarMap extends FormApplication {
         this.pack = json.pack;
         this.notes = json.notes;
         this.cells = json.pack.cells;
+        this.markers = json.pack.markers;
 
         // Required for burg map link generation
         this.cells.r = this.cells.map((cell) => cell.r);
@@ -220,9 +221,19 @@ class LoadAzgaarMap extends FormApplication {
                     status: state,
                 });
             });
-            console.log(country);
+
+            return country;
         });
 
+        this.markers.map((marker) => {
+            const mapNotes = json.notes.filter((note) => note.id === "marker" + marker.i)[0];
+            marker.name = mapNotes.name;
+            marker.legend = mapNotes.legend;
+
+            return marker;
+        });
+
+        console.log(this.markers);
         // Used to scale the picture later, might be wrong if map file is from different
         // computer, or it was fullscreen vs not or OS level zoom, etc.
         this.mapWidth = window.innerWidth;
@@ -377,10 +388,27 @@ class LoadAzgaarMap extends FormApplication {
                 };
             });
 
+            /**
+             * Markers
+             */
+            ui.notifications.notify("UAFMGI: Creating Journals for Markers.");
+            if (this.markers) {
+                ui.notifications.notify("UAFMGI: Creating Journals for Markers.");
+                const markerData = this.markers;
+                this.markerComp = await compendiumUpdater("Markers", "marker.hbs", markerData, {}, azgaarFolder);
+                const markerLookup = this.markers.map((marker) => {
+                    return {
+                        id: marker.i,
+                        name: marker.name,
+                        icon: marker.icon,
+                        type: marker.type,
+                        journal: this.retrieveJournalByName({ type: "marker", name: marker.name }),
+                    };
+                });
+            }
+
             // We have a circular dependency on everything so provinces kinda get shafted in the initial journals
             // so here we update them to hold all sorts of information
-
-            // TODO: Provinces seem broken
 
             if (this.provinces) {
                 const provinceData = this.provinces.map((province, i) => {
@@ -482,6 +510,8 @@ class LoadAzgaarMap extends FormApplication {
             searchable = this.provinceComp;
         } else if (type === "religion") {
             searchable = this.religionComp;
+        } else if (type === "marker") {
+            searchable = this.markerComp;
         }
 
         let journal = searchable.find((elem) => elem.name === name);
@@ -605,6 +635,7 @@ class LoadAzgaarMap extends FormApplication {
         const burgPerm = parseInt(this.element.find("[name='permissionBurg']:checked").val());
         const countryPerm = parseInt(this.element.find("[name='permissionCountry']:checked").val());
         const provincePerm = parseInt(this.element.find("[name='permissionProvince']:checked").val());
+        const markerPerm = parseInt(this.element.find("[name='permissionProvince']:checked").val());
 
         // import our data
         await this.importData(azgaarFolder);
@@ -717,13 +748,50 @@ class LoadAzgaarMap extends FormApplication {
             };
         });
 
+        const [markerMinZoom, markerMaxZoom] = this.element
+            .find("#azgaar-pin-fixer-select #provinces input")
+            .map((i, input) => input.value);
+
+        let markerData = [];
+        if (this.markers) {
+            markerData = this.markers.map((marker) => {
+                let journalEntry = this.retrieveJournalByName({
+                    type: "marker",
+                    name: marker.name,
+                });
+
+                // Assemble data required for notes
+                return {
+                    entryId: azgaarJournal.id,
+                    x: marker.x * widthMultiplier || 0,
+                    y: marker.y * heightMultiplier || 0,
+                    icon: "/icons/svg/hanging-sign.svg",
+                    iconSize: 32,
+                    iconTint: useColor ? marker.color : "#FFCC99",
+                    text: marker.name,
+                    fontSize: 24,
+                    textAnchor: CONST.TEXT_ANCHOR_POINTS.CENTER,
+                    textColor: "#00FFFF",
+                    "flags.pinfix.minZoomLevel": markerMinZoom,
+                    "flags.pinfix.maxZoomLevel": markerMaxZoom,
+                    "flags.azgaar-foundry.journal": { compendium: "world.Markers", journal: journalEntry?.id },
+                    "flags.azgaar-foundry.permission": { default: markerPerm },
+                };
+            });
+        }
+
         // Remove all falsy values.
         countryData = countryData.filter(Boolean);
         provinceData = provinceData.filter(Boolean);
         burgData = burgData.filter(Boolean);
 
         // Make all of our notes, in one call to the db.
-        await canvas.scene.createEmbeddedDocuments("Note", [...countryData, ...provinceData, ...burgData]);
+        await canvas.scene.createEmbeddedDocuments("Note", [
+            ...countryData,
+            ...provinceData,
+            ...burgData,
+            ...markerData,
+        ]);
         return;
     }
 }
