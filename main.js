@@ -228,7 +228,7 @@ class LoadAzgaarMap extends FormApplication {
         this.markers.map((marker) => {
             const mapNotes = json.notes.filter((note) => note.id === "marker" + marker.i)[0];
             marker.name = mapNotes.name;
-            marker.legend = mapNotes.legend;
+            marker.legend = this.sanitizeLegend(mapNotes.legend);
 
             return marker;
         });
@@ -429,6 +429,29 @@ class LoadAzgaarMap extends FormApplication {
             ui.notifications.notify("UAFMGI: Creation Complete.");
             resolve();
         });
+    }
+
+    /**
+     *
+     * @param {string} suspectHTML Legend text from Full Export file, often littered with HTML fragments
+     * @returns Clean version of string with "bad" HTML removed.
+     */
+
+    sanitizeLegend(suspectHTML) {
+        // The legend will sometimes have iframes in it, notably for One Page Dungeons or Random Encounters
+        // This will strip the iframe (it would be lost on reload by the Foundry Server anyways)
+        // and save a "clean" version that will maintain the link.
+        const regex = /\n*\s*<iframe.*?\\?>.*?<\/iframe\\?>\s*\n*/gi;
+        let cleanString = suspectHTML.replace(regex, "");
+        if (suspectHTML.includes("You have encountered a character.")) {
+            // Create a fake wrapper element so we can grab the link without resorting to more regex
+            const i = document.createElement("div");
+            i.innerHTML = suspectHTML;
+            const link = i.querySelector("iframe")?.src;
+            // Make a non iframe version of the link by replacing the word character with the link
+            cleanString = '<div>You have encountered a <a href="' + link + '">character.</a></div>';
+        }
+        return cleanString;
     }
 
     /**
