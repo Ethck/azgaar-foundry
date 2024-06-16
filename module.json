@@ -7,8 +7,7 @@
     "compatibleCoreVersion": "11",
     "compatibility": {
         "minimum": 11,
-        "verified": 11,
-        "maximum": 11
+        "verified": 11
     },
     "authors": {
         "name": "Ethck",

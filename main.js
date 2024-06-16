@@ -272,6 +272,8 @@ class LoadAzgaarMap extends FormApplication {
                             culture: religion.culture,
                             journal: this.retrieveJournalByName({ type: "religion", name: religion.name }),
                         };
+                    } else {
+                        return {};
                     }
                 });
             }
@@ -481,7 +483,7 @@ class LoadAzgaarMap extends FormApplication {
                 width: this.picWidth,
                 height: this.picHeight,
                 padding: 0.0,
-                img: picture,
+                "background.src": picture,
                 tokenVision: false,
                 // Flags for making pinfix work immediately.
                 "flags.pinfix.enable": true,
@@ -689,9 +691,9 @@ class LoadAzgaarMap extends FormApplication {
                 entryId: azgaarJournal.id,
                 x: xpole * widthMultiplier || 0,
                 y: ypole * heightMultiplier || 0,
-                icon: countrySVG,
+                "texture.src": countrySVG,
                 iconSize: 32,
-                iconTint: useColor ? country.color : "#00FF000",
+                "texture.tint": useColor ? country.color : "#00FF000",
                 text: country.name,
                 fontSize: 24,
                 textAnchor: CONST.TEXT_ANCHOR_POINTS.CENTER,
@@ -726,9 +728,9 @@ class LoadAzgaarMap extends FormApplication {
                     entryId: azgaarJournal.id,
                     x: centerBurg.x * widthMultiplier || 0,
                     y: centerBurg.y * heightMultiplier || 0,
-                    icon: provinceSVG,
+                    "texture.src": provinceSVG,
                     iconSize: 32,
-                    iconTint: useColor ? province.color : "#00FF000",
+                    "texture.tint": useColor ? province.color : "#00FF000",
                     text: province.name,
                     fontSize: 24,
                     textAnchor: CONST.TEXT_ANCHOR_POINTS.CENTER,
@@ -757,9 +759,9 @@ class LoadAzgaarMap extends FormApplication {
                 entryId: azgaarJournal.id,
                 x: burg.x * widthMultiplier || 0,
                 y: burg.y * heightMultiplier || 0,
-                icon: burgSVG,
+                "texture.src": burgSVG,
                 iconSize: 32,
-                iconTint: useColor ? burg.color : "#00FF000",
+                "texture.tint": useColor ? burg.color : "#00FF000",
                 text: burg.name,
                 fontSize: 24,
                 textAnchor: CONST.TEXT_ANCHOR_POINTS.CENTER,
@@ -788,9 +790,9 @@ class LoadAzgaarMap extends FormApplication {
                     entryId: azgaarJournal.id,
                     x: marker.x * widthMultiplier || 0,
                     y: marker.y * heightMultiplier || 0,
-                    icon: "/icons/svg/hanging-sign.svg",
+                    "texture.src": "/icons/svg/hanging-sign.svg",
                     iconSize: 32,
-                    iconTint: useColor ? marker.color : "#FFCC99",
+                    "texture.tint": useColor ? marker.color : "#FFCC99",
                     text: marker.name,
                     fontSize: 24,
                     textAnchor: CONST.TEXT_ANCHOR_POINTS.CENTER,
@@ -841,7 +843,6 @@ async function compendiumUpdater(compType, contentSchema, baseData, extraData, a
     // 1. Same number of entities (be it is, countries, burgs, whatever)
     // 2. all entities already exist (no new ones!)
     if (!baseData) return;
-    baseData.shift(); // remove first element, usually blank or a "remainder".
 
     let comp;
     let oldIds = [];
@@ -859,11 +860,9 @@ async function compendiumUpdater(compType, contentSchema, baseData, extraData, a
         await comp.setFolder(azgaarFolder.id);
     }
 
+    // Using data from the map file, create JournalEntry json data for createDocuments
     let compData = await Promise.all(
         baseData.map(async (i) => {
-            // items that have been removed are missing some properties that cause failures
-            // but these are signified by having a "removed" property on them with a value
-            // of true
             if (!jQuery.isEmptyObject(i)) {
                 if (!(i === 0 && "removed" in i && i.removed === true)) {
                     let content = await renderTemplate("modules/azgaar-foundry/templates/" + contentSchema, {
@@ -872,12 +871,19 @@ async function compendiumUpdater(compType, contentSchema, baseData, extraData, a
                     });
                     if (i.name) {
                         let journal = {
-                            content: [content],
                             name: i.name,
+                            pages: [
+                                {
+                                    type: "text",
+                                    name: "Overview",
+                                    text: { content: content },
+                                    "flags.azgaar-foundry.perm": true,
+                                },
+                            ],
                             "flags.azgaar-foundry.i": i.i,
                         };
                         if (oldIds.length === 0) {
-                            journal.permission = { default: CONST.DOCUMENT_PERMISSION_LEVELS.OBSERVER };
+                            journal.permission = { default: CONST.DOCUMENT_OWNERSHIP_LEVELS.OBSERVER };
                         }
                         return journal;
                     }
@@ -888,38 +894,28 @@ async function compendiumUpdater(compType, contentSchema, baseData, extraData, a
 
     compData = compData.filter(Boolean); // apparently some items can still be undefined at this point
 
+    // If we have old journals, then we overwrite the module-created pages with the new content dervied from the map file.
     if (oldSortedJournals.length) {
-        let oldJournalPageIds = oldSortedJournals.map((journal) => Array.from(journal.pages.keys()));
-        let oldIds = oldSortedJournals.map((journal) => journal.id);
-
-        // compData
-        // .name = journal name
-        // .content = new page content
-        // "flags.azgaar-foundry.i" = attribute to maintain sort order
-
-        let updates = compData
-            .sort((a, b) => a["flags.azgaar-foundry.i"] - b["flags.azgaar-foundry.i"])
-            .map((cJournal, index) => {
-                cJournal._id = oldIds[index];
-                return cJournal;
-            });
-
-        let journalUpdatePromises = oldSortedJournals.map(async (journal, index) => {
-            return await journal.updateEmbeddedDocuments(
-                "JournalEntryPage",
-                journal.pages.map((page, i) => {
-                    return {
-                        _id: oldJournalPageIds[index][i],
-                        "text.content":
-                            updates[index]?.content[i] || journal.pages.get(oldJournalPageIds[index][i]).text.content,
-                    };
-                }),
-                { pack: "world." + compType }
+        let journalUpdatePromises = oldSortedJournals.map(async (oldJournal) => {
+            const newJournal = compData.find(
+                (j) => j["flags.azgaar-foundry.i"] === oldJournal.flags["azgaar-foundry"]["i"]
             );
+
+            const pageUpdates = oldJournal.pages
+                .filter((page) => "azgaar-foundry" in page.flags && "perm" in page.flags["azgaar-foundry"])
+                .map((page) => {
+                    return {
+                        _id: page.id,
+                        "text.content": newJournal.pages[0].text.content,
+                    };
+                });
+
+            return await oldJournal.updateEmbeddedDocuments("JournalEntryPage", pageUpdates, {
+                pack: "world." + compType,
+            });
         });
 
         await Promise.all(journalUpdatePromises);
-        await JournalEntry.updateDocuments(updates, { pack: "world." + compType });
     } else {
         await JournalEntry.createDocuments(compData, { pack: "world." + compType });
     }
