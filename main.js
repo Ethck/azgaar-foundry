@@ -622,10 +622,17 @@ class LoadAzgaarMap extends FormApplication {
         let azgaarJournal = game.journal.getName("Azgaar FMG");
         if (!azgaarJournal) {
             let fakeJournal = {
-                content: `This journal entry is necessary for the azgaar-foundry importer to work properly. 
+                pages: [
+                    {
+                        name: "Overview",
+                        text: {
+                            content: `This journal entry is necessary for the azgaar-foundry importer to work properly. 
                           Please check the world's compendiums for your world's contents.
                           If you are not the GM, then you are not allowed to view the contents of the Note
                           you have selected.`,
+                        },
+                    },
+                ],
                 name: "Azgaar FMG",
                 permission: { default: 2 },
             };
