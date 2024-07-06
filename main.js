@@ -94,7 +94,6 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
      */
     _onRender(context, options) {
         const html = $(this.element);
-        console.log(html);
         super._onRender(context, options);
         // Parse map whenever the file input changes.
         html.find("#map").change((event) => this.parseMap(event));
@@ -124,7 +123,8 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
         });
 
         // Update text based on input value.
-        html.find("#azgaar-pin-fixer-select input[type=range]").change((event) => {
+        // TODO: FIX
+        html.find("#azgaar-pin-fixer-select input[type=range]").on("input", (event) => {
             const sVal = $(event.currentTarget).val();
             const zoomSpan = $(event.currentTarget).siblings("span");
             if (zoomSpan[0].id === "minZoomValue") {
@@ -152,12 +152,10 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
         });
 
         // Revert to default of "Observer" for all permission configs.
-        html.find("#azgaar-permissions-select #permissionDefaults").click((e) => {
-            html.find("#azgaar-permissions-select #permission-groups #permission2,#permission6,#permission10").each(
-                (i, event) => {
-                    $(event).prop("checked", "checked");
-                }
-            );
+        html.find("#permissionDefaults").click((e) => {
+            html.find("#permission-groups #permission2,#permission6,#permission10,#permission14").each((i, event) => {
+                $(event).prop("checked", "checked");
+            });
         });
     }
 
@@ -544,8 +542,6 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
             const widthMultiplier = newWidth / ogWidth;
             const heightMultiplier = newHeight / ogHeight;
 
-            console.log(mapW, ogWidth, newWidth, widthMultiplier);
-
             //Create The Map Scene
             let sceneData = await Scene.create({
                 name: sceneName,
@@ -715,7 +711,7 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
         const burgPerm = parseInt(formData.permissionBurg);
         const countryPerm = parseInt(formData.permissionCountry);
         const provincePerm = parseInt(formData.permissionProvince);
-        const markerPerm = parseInt(formData.permissionProvince);
+        const markerPerm = parseInt(formData.permissionMarker);
 
         // import our data
         await this.importData(azgaarFolder);

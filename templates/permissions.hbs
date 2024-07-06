@@ -1,7 +1,7 @@
-<div id="permissions" class="tab {{tab.cssClass}}" data-group="sheet" data-tab="permissions">
-    <section>
-        <h2>Permissions for Journal Entries / Map Notes</h2>
-        <div id="azgaar-permissions-select" class="container">
+<div id="permissions" class="tab standard-form {{tab.cssClass}}" data-group="sheet" data-tab="permissions">
+    <section class="form-group">
+        <div id="azgaar-permissions-select" class="container">\
+            <h2>Permissions for Journal Entries / Map Notes</h2>
             <div class="flexrow">
                 <span style="flex-basis: 70%">
                     More info on permissions here:
@@ -91,6 +91,34 @@
                         <li>
                             <input type="radio" name="permissionBurg" id="permission11" value="3" class="hidden" />
                             <label for="permission11" class="button-label">Owner</label>
+                        </li>
+                    </div>
+                </div>
+                <div id="markers">
+                    <span><b>Markers</b></span>
+                    <div class="flexrow">
+                        <li>
+                            <input type="radio" name="permissionMarker" id="permission12" value="0" class="hidden" />
+                            <label for="permission12" class="button-label">None</label>
+                        </li>
+                        <li>
+                            <input type="radio" name="permissionMarker" id="permission13" value="1" class="hidden" />
+                            <label for="permission13" class="button-label">Limited</label>
+                        </li>
+                        <li>
+                            <input
+                                type="radio"
+                                name="permissionMarker"
+                                id="permission14"
+                                value="2"
+                                checked
+                                class="hidden"
+                            />
+                            <label for="permission14" class="button-label">Observer</label>
+                        </li>
+                        <li>
+                            <input type="radio" name="permissionMarker" id="permission15" value="3" class="hidden" />
+                            <label for="permission15" class="button-label">Owner</label>
                         </li>
                     </div>
                 </div>

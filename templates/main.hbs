@@ -1,41 +1,56 @@
-<div id="main" class="tab {{tab.cssClass}}" data-group="sheet" data-tab="main">
-    <section>
-        <h2>Map Selection</h2>
+<div id="main" class="tab standard-form {{tab.cssClass}}" data-group="sheet" data-tab="main">
+    <section class="form-group">
         <div id="azgaar-map-select">
-            <span>Link to Map file (Must be FULL JSON export from Azgaar's)</span>
-            <div class="tooltip">
-                <i class="fas fa-info-circle"></i>
-                <span class="tooltiptext left">
-                    Press the "Browse..." button to select a map file that has been exported from Azgaar's Fantasy Map
-                    Generator.
-                </span>
+            <h2>Map Selection</h2>
+            <div class="form-group">
+                <div>
+                    <label>Link to Map file (Must be FULL JSON export from Azgaar's)</label>
+                    <div class="tooltip">
+                        <i class="fas fa-info-circle"></i>
+                        <span class="tooltiptext right">
+                            Press the "Browse..." button to select a map file that has been exported from Azgaar's
+                            Fantasy Map Generator.
+                        </span>
+                    </div>
+                </div>
+                <div class="form-fields">
+                    <input id="map" type="file" />
+                </div>
             </div>
-            <input id="map" type="file" />
-            <div id="mapsize" class="flexrow">
-                <div class="flexrow">
+            <div id="mapsize" class="form-group">
+                <div class="form-group">
                     <label for="mapw">Map Width</label>
-                    <input id="mapw" class="mapw" name="mapw" type="text" placeholder="0" />
+                    <div class="form-fields">
+                        <input id="mapw" class="mapw" name="mapw" type="text" placeholder="0" />
+                    </div>
                 </div>
-                <div class="flexrow">
+                <div class="form-group">
                     <label for="maph">Map Height</label>
-                    <input id="maph" type="text" name="maph" placeholder="0" />
+                    <div class="form-fields">
+                        <input id="maph" type="text" name="maph" placeholder="0" />
+                    </div>
                 </div>
             </div>
-            <div class="tooltip">
-                <span>Link to Map Picture</span>
-                <i class="fas fa-info-circle"></i>
-                <span class="tooltiptext right">
-                    The picture you select can be of any format and will be set as the background image of the scene. It
-                    is extremely important that if you scale the picture in FMG that you also set the Scale Factor
-                    below.
-                </span>
+            <div class="form-group">
+                <div>
+                    <span>Link to Map Picture</span>
+                    <div class="tooltip">
+                        <i class="fas fa-info-circle"></i>
+                        <span class="tooltiptext right">
+                            The picture you select can be of any format and will be set as the background image of the
+                            scene.
+                        </span>
+                    </div>
+                </div>
+                <div class="form-fields">
+                    <file-picker name="mapPicture" type="image"></file-picker>
+                </div>
             </div>
-            <file-picker name="mapPicture" type="image"></file-picker>
         </div>
     </section>
-    <section>
-        <h2>MapNote Icon Selection</h2>
+    <section class="form-group">
         <div id="azgaar-icon-select">
+            <h2>MapNote Icon Selection</h2>
             <span>Here you can select which icons you want to see on the map notes that are created for each type of
                 note.</span>
             <div class="flexrow">
@@ -73,9 +88,9 @@
             </div>
         </div>
     </section>
-    <section>
-        <h2>MapNote Scaling</h2>
+    <section class="form-group">
         <div id="azgaar-pin-fixer-select">
+            <h2>MapNote Scaling</h2>
             <div class="flexrow">
                 <span style="flex-basis: 70%">
                     Minimum zoom level means that pins will be hidden BELOW this value. Maximum zoom level means that
