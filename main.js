@@ -1,37 +1,89 @@
+const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
+
 /**
- * A Configuration menu that allows the user to specify a *.map file
- * and a *.svg to build a world off of. This FormApplication will parse
+ * A Configuration menu that allows the user to specify a map file
+ * and a picture to build a world off of. This class will parse
  * the map file for all relevant information, and build a new scene to
  * represent all of the data gathered. Additionally will store data in
- * Journal Entries in order to make future referencing easier.
+ * Journal Entries in Compendiums in order to make future referencing easier
+ * and reduce the burden of having thousands of JournalEntries always loaded.
  */
-class LoadAzgaarMap extends FormApplication {
-    constructor(...args) {
-        super(...args);
-        game.users.apps.push(this);
+class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
+    static DEFAULT_OPTIONS = {
+        id: "azgaar-foundry",
+        form: {
+            handler: this.onSubmit,
+            closeOnSubmit: true,
+        },
+        position: {
+            width: 640,
+            height: "auto",
+        },
+        tag: "form",
+        window: {
+            icon: "fas fa-gear", // You can now add an icon to the header
+            title: "Load Azgaar's Map",
+            contentClasses: ["standard-form"],
+        },
+    };
+
+    static PARTS = {
+        tabs: {
+            template: "templates/generic/tab-navigation.hbs",
+        },
+        main: {
+            template: "modules/azgaar-foundry/templates/main.hbs",
+        },
+        permissions: {
+            template: "modules/azgaar-foundry/templates/permissions.hbs",
+        },
+        footer: {
+            template: "templates/generic/form-footer.hbs",
+        },
+    };
+
+    /** @override */
+    async _preparePartContext(partId, context) {
+        switch (partId) {
+            case "main":
+                context.tab = context.tabs.main;
+                break;
+            case "permissions":
+                context.tab = context.tabs.permissions;
+                break;
+        }
+        return context;
     }
 
-    static get defaultOptions() {
-        return foundry.utils.mergeObject(super.defaultOptions, {
-            title: "Load Azgaar's Map",
-            id: "azgaar-foundry",
-            template: "modules/azgaar-foundry/templates/loadAzgaarsMap.html",
-            closeOnSubmit: true,
-            popOut: true,
-            width: 600,
-            height: 800,
-            tabs: [{ navSelector: ".tabs", contentSelector: ".content", initial: "main" }],
-        });
+    tabGroups = {
+        sheet: "main",
+    };
+
+    /**
+     * Prepare an array of form header tabs.
+     * @returns {Record<string, Partial<ApplicationTab>>}
+     */
+    #getTabs() {
+        const tabs = {
+            main: { id: "main", group: "sheet", icon: "fa-solid fa-tag", label: "Main" },
+            permissions: { id: "permissions", group: "sheet", icon: "fa-solid fa-shapes", label: "Permissions" },
+        };
+        for (const v of Object.values(tabs)) {
+            v.active = this.tabGroups[v.group] === v.id;
+            v.cssClass = v.active ? "active" : "";
+        }
+        console.log(tabs);
+        return tabs;
     }
+
     /**
      * @return {object}    Object that contains all information necessary to render template.
      */
-    async getData() {
-        return {};
-    }
-
-    render(force, context = {}) {
-        return super.render(force, context);
+    async _prepareContext(options) {
+        return {
+            buttons: [{ type: "submit", icon: "fa-solid fa-save", label: "Import Map" }],
+            tabs: this.#getTabs(),
+        };
     }
 
     /**
@@ -40,14 +92,16 @@ class LoadAzgaarMap extends FormApplication {
      *
      * @param  {DOM} html    DOM of the Form Application (template)
      */
-    activateListeners(html) {
-        super.activateListeners(html);
+    _onRender(context, options) {
+        const html = $(this.element);
+        console.log(html);
+        super._onRender(context, options);
         // Parse map whenever the file input changes.
         html.find("#map").change((event) => this.parseMap(event));
         // Trigger FilePicker for icon selection
         html.find("#azgaar-icon-select img").click((event) => this._onEditImage(event));
 
-        html.find("#azgaar-map-select input[name='pictureMap']").change(async (event) => {
+        html.find("#azgaar-map-select file-picker").change(async (event) => {
             const picture = $(event.currentTarget).val();
             let picWidth = 0;
             let picHeight = 0;
@@ -61,16 +115,10 @@ class LoadAzgaarMap extends FormApplication {
 
                         this.picWidth = picWidth;
                         this.picHeight = picHeight;
-
-                        // Enable submit button now that picture is loaded
-                        html.find("button[type='submit']").prop("disabled", false);
                         resolve();
                     };
 
                     sceneImg.src = response.url;
-
-                    // Disable submit button while picture is loading
-                    html.find("button[type='submit']").prop("disabled", true);
                 });
             });
         });
@@ -113,9 +161,30 @@ class LoadAzgaarMap extends FormApplication {
         });
     }
 
+    /**
+     * Handle changing a Document's image.
+     * @param {MouseEvent} event  The click event.
+     * @returns {Promise}
+     * @protected
+     */
+    _onEditImage(event) {
+        const attr = event.currentTarget.dataset.edit;
+        const current = foundry.utils.getProperty(this.object, attr);
+        const fp = new FilePicker({
+            current,
+            type: "image",
+            callback: (path) => {
+                event.currentTarget.src = path;
+            },
+            top: this.position.top + 40,
+            left: this.position.left + 10,
+        });
+        return fp.browse();
+    }
+
     updateMapSize(w, h) {
-        this.element[0].querySelector(".azgaar-foundry #mapsize #mapw").value = w;
-        this.element[0].querySelector(".azgaar-foundry #mapsize #maph").value = h;
+        this.element.querySelector("#mapsize #mapw").value = w;
+        this.element.querySelector("#mapsize #maph").value = h;
     }
 
     /**
@@ -148,7 +217,6 @@ class LoadAzgaarMap extends FormApplication {
         // Load the file
         let text = await this.loadMap(event);
         let json = JSON.parse(text);
-        console.log(json);
         /* Data format as presented in v1.97 of Azgaar's Fantasy Map Generator
             {
                 biomesData: {},
@@ -233,7 +301,6 @@ class LoadAzgaarMap extends FormApplication {
             return marker;
         });
 
-        console.log(this.markers);
         // Used to scale the picture later, might be wrong if map file is from different
         // computer, or it was fullscreen vs not or OS level zoom, etc.
         this.mapWidth = window.innerWidth;
@@ -477,6 +544,8 @@ class LoadAzgaarMap extends FormApplication {
             const widthMultiplier = newWidth / ogWidth;
             const heightMultiplier = newHeight / ogHeight;
 
+            console.log(mapW, ogWidth, newWidth, widthMultiplier);
+
             //Create The Map Scene
             let sceneData = await Scene.create({
                 name: sceneName,
@@ -498,22 +567,6 @@ class LoadAzgaarMap extends FormApplication {
 
             resolve([sceneData, widthMultiplier, heightMultiplier]);
         });
-    }
-
-    /**
-     * Handle changing the icons by opening a FilePicker
-     * @private
-     */
-    _onEditImage(event) {
-        const fp = new FilePicker({
-            type: "image",
-            callback: (path) => {
-                event.currentTarget.src = path;
-            },
-            top: this.position.top + 40,
-            left: this.position.left + 10,
-        });
-        return fp.browse();
     }
 
     /**
@@ -605,15 +658,9 @@ class LoadAzgaarMap extends FormApplication {
         return url.toString();
     }
 
-    /**
-     * Automatically called by Foundry upon submission of FormApplication
-     * Controls the process of creating everything. Scene, data, notes, etc.
-     *
-     * @param  {event} event        event that triggered this call, usually a click
-     * @param  {String} formData    HTML of the form that was submitted
-     * @return {None}               Foundry expects it to return something.
-     */
-    async _updateObject(event, formData) {
+    static async onSubmit(event, form, formData) {
+        formData = formData.object;
+        console.log(formData);
         // Make a journal entry to tie fake notes to or find the old one
         // If no "real" journal entry is provided than the map notes fail
         // to show up, hence why this block of code exists.
@@ -649,34 +696,31 @@ class LoadAzgaarMap extends FormApplication {
         }
 
         // Make the scene
-        let picture = this.element.find('[name="pictureMap"]').val();
+        let picture = formData.mapPicture;
         if (!picture) {
             ui.notifications.error("[Azgaar FMG] You must attach a picture and a map file to the form.");
             return;
         }
-        let mapW = this.element.find(".azgaar-foundry #mapsize #mapw").val();
-        let mapH = this.element.find(".azgaar-foundry #mapsize #maph").val();
+        let mapW = formData.mapw;
+        let mapH = formData.maph;
         let [scene, widthMultiplier, heightMultiplier] = await this.makeScene(picture, mapW, mapH);
 
         // get icons to use for notes
-        const burgSVG = this.element.find("#burgSVG").attr("src");
-        const countrySVG = this.element.find("#countrySVG").attr("src");
-        const provinceSVG = this.element.find("#provinceSVG").attr("src");
+        const burgSVG = formData.burgIcon;
+        const countrySVG = formData.countryIcon;
+        const provinceSVG = formData.provinceIcon;
+        const markerSVG = formData.markerIcon;
 
         // get permissions to use
-        const burgPerm = parseInt(this.element.find("[name='permissionBurg']:checked").val());
-        const countryPerm = parseInt(this.element.find("[name='permissionCountry']:checked").val());
-        const provincePerm = parseInt(this.element.find("[name='permissionProvince']:checked").val());
-        const markerPerm = parseInt(this.element.find("[name='permissionProvince']:checked").val());
+        const burgPerm = parseInt(formData.permissionBurg);
+        const countryPerm = parseInt(formData.permissionCountry);
+        const provincePerm = parseInt(formData.permissionProvince);
+        const markerPerm = parseInt(formData.permissionProvince);
 
         // import our data
         await this.importData(azgaarFolder);
 
-        const [countryMinZoom, countryMaxZoom] = this.element
-            .find("#azgaar-pin-fixer-select #countries input")
-            .map((i, input) => input.value);
-
-        let useColor = this.element.find("#azgaar-icon-select #countries input#iconColors").is(":checked");
+        let useColor = formData["options.use_colors_country"];
         // Start prepping notes
         let countryData = this.countries.map((country) => {
             if (country.name === "Neutrals") return;
@@ -705,18 +749,14 @@ class LoadAzgaarMap extends FormApplication {
                 fontSize: 24,
                 textAnchor: CONST.TEXT_ANCHOR_POINTS.CENTER,
                 textColor: "#00FFFF",
-                "flags.pinfix.minZoomLevel": countryMinZoom,
-                "flags.pinfix.maxZoomLevel": countryMaxZoom,
+                "flags.pinfix.minZoomLevel": formData.countryMinZoom,
+                "flags.pinfix.maxZoomLevel": formData.countryMaxZoom,
                 "flags.azgaar-foundry.journal": { compendium: "world.Countries", journal: journalEntry?.id },
                 "flags.azgaar-foundry.permission": { default: countryPerm },
             };
         });
 
-        const [provinceMinZoom, provinceMaxZoom] = this.element
-            .find("#azgaar-pin-fixer-select #provinces input")
-            .map((i, input) => input.value);
-
-        useColor = this.element.find("#azgaar-icon-select #provinces input#iconColors").is(":checked");
+        useColor = formData["options.use_colors_province"];
         let provinceData = [];
         if (this.provinces) {
             provinceData = this.provinces.map((province) => {
@@ -742,19 +782,15 @@ class LoadAzgaarMap extends FormApplication {
                     fontSize: 24,
                     textAnchor: CONST.TEXT_ANCHOR_POINTS.CENTER,
                     textColor: "#00FFFF",
-                    "flags.pinfix.minZoomLevel": provinceMinZoom,
-                    "flags.pinfix.maxZoomLevel": provinceMaxZoom,
+                    "flags.pinfix.minZoomLevel": formData.provinceMinZoom,
+                    "flags.pinfix.maxZoomLevel": formData.provinceMaxZoom,
                     "flags.azgaar-foundry.journal": { compendium: "world.Provinces", journal: journalEntry?.id },
                     "flags.azgaar-foundry.permission": { default: provincePerm },
                 };
             });
         }
 
-        const [burgMinZoom, burgMaxZoom] = this.element
-            .find("#azgaar-pin-fixer-select #burgs input")
-            .map((i, input) => input.value);
-
-        useColor = this.element.find("#azgaar-icon-select #burgs input#iconColors").is(":checked");
+        useColor = formData["options.use_colors_burg"];
         let burgData = this.burgs.map((burg) => {
             if (jQuery.isEmptyObject(burg)) return; // For some reason there's a {} at the beginning.
             if (burg.removed) return;
@@ -773,18 +809,15 @@ class LoadAzgaarMap extends FormApplication {
                 fontSize: 24,
                 textAnchor: CONST.TEXT_ANCHOR_POINTS.CENTER,
                 textColor: "#00FFFF",
-                "flags.pinfix.minZoomLevel": burgMinZoom,
-                "flags.pinfix.maxZoomLevel": burgMaxZoom,
+                "flags.pinfix.minZoomLevel": formData.burgMinZoom,
+                "flags.pinfix.maxZoomLevel": formData.burgMaxZoom,
                 "flags.azgaar-foundry.journal": { compendium: "world.Burgs", journal: journalEntry?.id },
                 "flags.azgaar-foundry.permission": { default: burgPerm },
             };
         });
 
-        const [markerMinZoom, markerMaxZoom] = this.element
-            .find("#azgaar-pin-fixer-select #provinces input")
-            .map((i, input) => input.value);
-
         let markerData = [];
+        useColor = formData["options.use_colors_marker"];
         if (this.markers) {
             markerData = this.markers.map((marker) => {
                 let journalEntry = this.retrieveJournalByName({
@@ -797,15 +830,15 @@ class LoadAzgaarMap extends FormApplication {
                     entryId: azgaarJournal.id,
                     x: marker.x * widthMultiplier || 0,
                     y: marker.y * heightMultiplier || 0,
-                    "texture.src": "/icons/svg/hanging-sign.svg",
+                    "texture.src": markerSVG,
                     iconSize: 32,
                     "texture.tint": useColor ? marker.color : "#FFCC99",
                     text: marker.name,
                     fontSize: 24,
                     textAnchor: CONST.TEXT_ANCHOR_POINTS.CENTER,
                     textColor: "#00FFFF",
-                    "flags.pinfix.minZoomLevel": markerMinZoom,
-                    "flags.pinfix.maxZoomLevel": markerMaxZoom,
+                    "flags.pinfix.minZoomLevel": formData.markerMinZoom,
+                    "flags.pinfix.maxZoomLevel": formData.markerMaxZoom,
                     "flags.azgaar-foundry.journal": { compendium: "world.Markers", journal: journalEntry?.id },
                     "flags.azgaar-foundry.permission": { default: markerPerm },
                 };
@@ -816,6 +849,7 @@ class LoadAzgaarMap extends FormApplication {
         countryData = countryData.filter(Boolean);
         provinceData = provinceData.filter(Boolean);
         burgData = burgData.filter(Boolean);
+        markerData = markerData.filter(Boolean);
 
         // Make all of our notes, in one call to the db.
         await canvas.scene.createEmbeddedDocuments("Note", [
