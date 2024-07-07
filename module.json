@@ -3,12 +3,11 @@
     "title": "Unofficial Azgaar's Fantasy Map Generator Import",
     "description": "Import a map from Azgaar's Fantasy Map Generator into Foundry.",
     "version": "Replaced in Releases",
-    "minimumCoreVersion": "11",
-    "compatibleCoreVersion": "11",
+    "minimumCoreVersion": "12",
+    "compatibleCoreVersion": "12",
     "compatibility": {
-        "minimum": 11,
-        "verified": 11,
-        "maximum": 11
+        "minimum": 12,
+        "verified": 12
     },
     "authors": {
         "name": "Ethck",

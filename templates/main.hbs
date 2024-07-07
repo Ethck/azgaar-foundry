@@ -1,0 +1,155 @@
+<div id="main" class="tab standard-form {{tab.cssClass}}" data-group="sheet" data-tab="main">
+    <section class="form-group">
+        <div id="azgaar-map-select">
+            <h2>Map Selection</h2>
+            <div class="form-group">
+                <div>
+                    <label>Link to Map file (Must be FULL JSON export from Azgaar's)</label>
+                    <div class="tooltip">
+                        <i class="fas fa-info-circle"></i>
+                        <span class="tooltiptext right">
+                            Press the "Browse..." button to select a map file that has been exported from Azgaar's
+                            Fantasy Map Generator.
+                        </span>
+                    </div>
+                </div>
+                <div class="form-fields">
+                    <input id="map" type="file" />
+                </div>
+            </div>
+            <div id="mapsize" class="form-group">
+                <div class="form-group">
+                    <label for="mapw">Map Width</label>
+                    <div class="form-fields">
+                        <input id="mapw" class="mapw" name="mapw" type="text" placeholder="0" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="maph">Map Height</label>
+                    <div class="form-fields">
+                        <input id="maph" type="text" name="maph" placeholder="0" />
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div>
+                    <span>Link to Map Picture</span>
+                    <div class="tooltip">
+                        <i class="fas fa-info-circle"></i>
+                        <span class="tooltiptext right">
+                            The picture you select can be of any format and will be set as the background image of the
+                            scene.
+                        </span>
+                    </div>
+                </div>
+                <div class="form-fields">
+                    <file-picker name="mapPicture" type="image"></file-picker>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="form-group">
+        <div id="azgaar-icon-select">
+            <h2>MapNote Icon Selection</h2>
+            <span>Here you can select which icons you want to see on the map notes that are created for each type of
+                note.</span>
+            <div class="flexrow">
+                <div class="flexcol" id="burgs">
+                    <span>Burgs</span>
+                    <img id="burgSVG" data-edit="burgIcon" src="/icons/svg/village.svg" />
+                    <div class="flexrow">
+                        <input type="checkbox" id="iconColors" name="options.use_colors_burg" />Use FMG Colors?
+                    </div>
+                </div>
+                <div class="flexcol" id="countries">
+                    <span>Countries</span>
+                    <img id="countrySVG" data-edit="countryIcon" src="/icons/svg/castle.svg" />
+                    <div class="flexrow">
+                        <input type="checkbox" id="iconColors" name="options.use_colors_country" checked />Use FMG
+                        Colors?
+                    </div>
+                </div>
+                <div class="flexcol" id="provinces">
+                    <span>Provinces</span>
+                    <img id="provinceSVG" data-edit="provinceIcon" src="/icons/svg/tower.svg" />
+                    <div class="flexrow">
+                        <input type="checkbox" id="iconColors" name="options.use_colors_province" checked />Use FMG
+                        Colors?
+                    </div>
+                </div>
+                <div class="flexcol" id="markers">
+                    <span>Markers</span>
+                    <img id="markerSVG" data-edit="markerIcon" src="/icons/svg/hanging-sign.svg" />
+                    <div class="flexrow">
+                        <input type="checkbox" id="iconColors" name="options.use_colors_marker" checked />Use FMG
+                        Colors?
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="form-group">
+        <div id="azgaar-pin-fixer-select">
+            <h2>MapNote Scaling</h2>
+            <div class="flexrow">
+                <span style="flex-basis: 70%">
+                    Minimum zoom level means that pins will be hidden BELOW this value. Maximum zoom level means that
+                    pins will be hidden ABOVE this value.
+                </span>
+                <button type="button" id="zoomDefaults">Reset Zoom</button>
+            </div>
+            <div id="burgs">
+                <span>Pin-Fixer Settings for <b>Burgs</b></span>
+                <div class="flexrow">
+                    <div class="flexcol">
+                        <span id="minZoomValue">Min Zoom Level: 2</span>
+                        <input type="range" min="0" max="3" value="2" id="minZoom" name="burgMinZoom" step="0.1" />
+                    </div>
+                    <div class="flexcol">
+                        <span id="maxZoomValue">Max Zoom Level: 3</span>
+                        <input type="range" min="0" max="3" value="3" id="maxZoom" name="burgMaxZoom" step="0.1" />
+                    </div>
+                </div>
+            </div>
+            <div id="countries">
+                <span>Pin-Fixer Settings for <b>Countries</b></span>
+                <div class="flexrow">
+                    <div class="flexcol">
+                        <span id="minZoomValue">Min Zoom Level: 0.1</span>
+                        <input type="range" min="0" max="3" value="0.1" id="minZoom" name="countryMinZoom" step="0.1" />
+                    </div>
+                    <div class="flexcol">
+                        <span id="maxZoomValue">Max Zoom Level: 2</span>
+                        <input type="range" min="0" max="3" value="2" id="maxZoom" name="countryMaxZoom" step="0.1" />
+                    </div>
+                </div>
+            </div>
+            <div id="provinces">
+                <span>Pin-Fixer Settings for <b>Provinces</b></span>
+                <div class="flexrow">
+                    <div class="flexcol">
+                        <span id="minZoomValue">Min Zoom Level: 1</span>
+                        <input type="range" min="0" max="3" value="1" id="minZoom" name="provinceMinZoom" step="0.1" />
+                    </div>
+                    <div class="flexcol">
+                        <span id="maxZoomValue">Max Zoom Level: 2</span>
+                        <input type="range" min="0" max="3" value="2" id="maxZoom" name="provinceMaxZoom" step="0.1" />
+                    </div>
+                </div>
+            </div>
+            <div id="markers">
+                <span>Pin-Fixer Settings for <b>Markers</b></span>
+                <div class="flexrow">
+                    <div class="flexcol">
+                        <span id="minZoomValue">Min Zoom Level: 1</span>
+                        <input type="range" min="0" max="3" value="1" id="minZoom" name="markerMinZoom" step="0.1" />
+                    </div>
+                    <div class="flexcol">
+                        <span id="maxZoomValue">Max Zoom Level: 2</span>
+                        <input type="range" min="0" max="3" value="2" id="maxZoom" name="markerMaxZoom" step="0.1" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
