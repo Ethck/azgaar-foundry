@@ -72,7 +72,6 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
             v.active = this.tabGroups[v.group] === v.id;
             v.cssClass = v.active ? "active" : "";
         }
-        console.log(tabs);
         return tabs;
     }
 
@@ -258,6 +257,7 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
     Rivers: Rivers
     */
 
+        this.mapName = json.info.mapName;
         this.provinces = json.pack.provinces;
         this.burgs = json.pack.burgs;
         this.countries = json.pack.states;
@@ -327,7 +327,8 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
                     "religion.hbs",
                     this.religions,
                     {},
-                    azgaarFolder
+                    azgaarFolder,
+                    this.mapName
                 );
                 religionLookup = this.religions.map((religion) => {
                     if (!(jQuery.isEmptyObject(religion) || religion.name === "No religion")) {
@@ -352,7 +353,14 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
                 return culture;
             });
 
-            this.cultureComp = await compendiumUpdater("Cultures", "culture.hbs", cultureData, {}, azgaarFolder);
+            this.cultureComp = await compendiumUpdater(
+                "Cultures",
+                "culture.hbs",
+                cultureData,
+                {},
+                azgaarFolder,
+                this.mapName
+            );
 
             let cultureLookup = this.cultures.map((culture) => {
                 return {
@@ -373,7 +381,8 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
                     "province.hbs",
                     this.provinces,
                     {},
-                    azgaarFolder
+                    azgaarFolder,
+                    this.mapName
                 );
                 provinceLookup = this.provinces.map((province) => {
                     return {
@@ -420,7 +429,8 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
                 {
                     countries: renderCountryData,
                 },
-                azgaarFolder
+                azgaarFolder,
+                this.mapName
             );
 
             let countryLookup = this.countries.map((country) => {
@@ -445,7 +455,7 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
                 return burg;
             });
 
-            this.burgComp = await compendiumUpdater("Burgs", "burg.hbs", burgData, {}, azgaarFolder);
+            this.burgComp = await compendiumUpdater("Burgs", "burg.hbs", burgData, {}, azgaarFolder, this.mapName);
 
             const burgLookup = this.burgs.map((burg, i) => {
                 return {
@@ -462,7 +472,14 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
             if (this.markers) {
                 ui.notifications.notify("UAFMGI: Creating Journals for Markers.");
                 const markerData = this.markers;
-                this.markerComp = await compendiumUpdater("Markers", "marker.hbs", markerData, {}, azgaarFolder);
+                this.markerComp = await compendiumUpdater(
+                    "Markers",
+                    "marker.hbs",
+                    markerData,
+                    {},
+                    azgaarFolder,
+                    this.mapName
+                );
                 const markerLookup = this.markers.map((marker) => {
                     return {
                         id: marker.i,
@@ -490,7 +507,8 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
                     "province.hbs",
                     provinceData,
                     {},
-                    azgaarFolder
+                    azgaarFolder,
+                    this.mapName
                 );
             }
             ui.notifications.notify("UAFMGI: Creation Complete.");
@@ -716,6 +734,13 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
         // import our data
         await this.importData(azgaarFolder);
 
+        // this.mapName is the map name imported in this.importData
+        let desiredPrefix = "";
+        if (true) {
+            // TODO: Change to setting
+            desiredPrefix = this.mapName + "_";
+        }
+
         let useColor = formData["options.use_colors_country"];
         // Start prepping notes
         let countryData = this.countries.map((country) => {
@@ -747,7 +772,10 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
                 textColor: "#00FFFF",
                 "flags.pinfix.minZoomLevel": formData.countryMinZoom,
                 "flags.pinfix.maxZoomLevel": formData.countryMaxZoom,
-                "flags.azgaar-foundry.journal": { compendium: "world.Countries", journal: journalEntry?.id },
+                "flags.azgaar-foundry.journal": {
+                    compendium: "world." + desiredPrefix + "Countries",
+                    journal: journalEntry?.id,
+                },
                 "flags.azgaar-foundry.permission": { default: countryPerm },
             };
         });
@@ -780,7 +808,10 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
                     textColor: "#00FFFF",
                     "flags.pinfix.minZoomLevel": formData.provinceMinZoom,
                     "flags.pinfix.maxZoomLevel": formData.provinceMaxZoom,
-                    "flags.azgaar-foundry.journal": { compendium: "world.Provinces", journal: journalEntry?.id },
+                    "flags.azgaar-foundry.journal": {
+                        compendium: "world." + desiredPrefix + "Provinces",
+                        journal: journalEntry?.id,
+                    },
                     "flags.azgaar-foundry.permission": { default: provincePerm },
                 };
             });
@@ -807,7 +838,10 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
                 textColor: "#00FFFF",
                 "flags.pinfix.minZoomLevel": formData.burgMinZoom,
                 "flags.pinfix.maxZoomLevel": formData.burgMaxZoom,
-                "flags.azgaar-foundry.journal": { compendium: "world.Burgs", journal: journalEntry?.id },
+                "flags.azgaar-foundry.journal": {
+                    compendium: "world." + desiredPrefix + "Burgs",
+                    journal: journalEntry?.id,
+                },
                 "flags.azgaar-foundry.permission": { default: burgPerm },
             };
         });
@@ -835,7 +869,10 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
                     textColor: "#00FFFF",
                     "flags.pinfix.minZoomLevel": formData.markerMinZoom,
                     "flags.pinfix.maxZoomLevel": formData.markerMaxZoom,
-                    "flags.azgaar-foundry.journal": { compendium: "world.Markers", journal: journalEntry?.id },
+                    "flags.azgaar-foundry.journal": {
+                        compendium: "world." + desiredPrefix + "Markers",
+                        journal: journalEntry?.id,
+                    },
                     "flags.azgaar-foundry.permission": { default: markerPerm },
                 };
             });
@@ -875,7 +912,7 @@ function each(n) {
     return (i) => i % n === 0;
 }
 
-async function compendiumUpdater(compType, contentSchema, baseData, extraData, azgaarFolder) {
+async function compendiumUpdater(compType, contentSchema, baseData, extraData, azgaarFolder, mapName) {
     // Assumptions for updating
     // 1. Same number of entities (be it is, countries, burgs, whatever)
     // 2. all entities already exist (no new ones!)
@@ -884,16 +921,25 @@ async function compendiumUpdater(compType, contentSchema, baseData, extraData, a
     let comp;
     let oldIds = [];
     let oldSortedJournals = [];
-    if (game.packs.get("world." + compType)) {
+    let desiredName = compType;
+    if (true) {
+        // TODO: Change this to a setting
+        desiredName = mapName + "_" + compType;
+    }
+    if (game.packs.get("world." + desiredName)) {
         // empty the content
-        const oldCComp = game.packs.get("world." + compType);
+        const oldCComp = game.packs.get("world." + desiredName);
         const oldCCompContent = await oldCComp.getDocuments();
         oldSortedJournals = oldCCompContent.sort(
             (a, b) => a["flags"]["azgaar-foundry"]["i"] - b["flags"]["azgaar-foundry"]["i"]
         );
         comp = oldCComp;
     } else {
-        comp = await CompendiumCollection.createCompendium({ name: compType, label: compType, type: "JournalEntry" });
+        comp = await CompendiumCollection.createCompendium({
+            name: desiredName,
+            label: desiredName,
+            type: "JournalEntry",
+        });
         await comp.setFolder(azgaarFolder.id);
     }
 
@@ -948,13 +994,13 @@ async function compendiumUpdater(compType, contentSchema, baseData, extraData, a
                 });
 
             return await oldJournal.updateEmbeddedDocuments("JournalEntryPage", pageUpdates, {
-                pack: "world." + compType,
+                pack: "world." + desiredName,
             });
         });
 
         await Promise.all(journalUpdatePromises);
     } else {
-        await JournalEntry.createDocuments(compData, { pack: "world." + compType });
+        await JournalEntry.createDocuments(compData, { pack: "world." + desiredName });
     }
 
     return comp;
