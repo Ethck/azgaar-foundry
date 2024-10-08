@@ -322,10 +322,14 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
             let religionLookup = [];
             if (this.religions) {
                 ui.notifications.notify("UAFMGI: Creating Journals for Religions");
+                const religionData = this.religions.map((religion, i) => {
+                    religion.compendium = this.getCompendiumLink(this.mapName, "Religions");
+                    return religion;
+                });
                 this.religionComp = await compendiumUpdater(
                     "Religions",
                     "religion.hbs",
-                    this.religions,
+                    religionData,
                     {},
                     azgaarFolder,
                     this.mapName
@@ -350,6 +354,7 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
                 if (culture !== 0 && !jQuery.isEmptyObject(culture)) {
                     culture.religion = religionLookup.find((rel) => rel.culture === culture.i);
                 }
+                culture.religion_compendium = this.getCompendiumLink(this.mapName, "Religions");
                 return culture;
             });
 
@@ -404,6 +409,8 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
                     // TODO: Extrapolate Provinces, add Burgs?, Neighbors, Diplomacy, Campaigns?, Military?
                     let culture = cultureLookup[country.culture];
                     country.culture = culture;
+                    country.culture_compendium = this.getCompendiumLink(this.mapName, "Cultures");
+                    country.province_compendium = this.getCompendiumLink(this.mapName, "Provinces");
                     // Removed countries are still in Diplomacy as an X
                     if (country.diplomacy) {
                         country.diplomacy = country.diplomacy.filter((c) => c !== "x");
@@ -451,6 +458,7 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
                     burg.country = countryLookup[burg.state];
                     burg.province = provinceLookup.find((province) => province.burgs?.includes(burg.i));
                     burg.burgURL = this.createMfcgLink(burg);
+                    burg.compendium = this.getCompendiumLink(this.mapName, "Burgs");
                 }
                 return burg;
             });
@@ -471,7 +479,10 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
             ui.notifications.notify("UAFMGI: Creating Journals for Markers.");
             if (this.markers) {
                 ui.notifications.notify("UAFMGI: Creating Journals for Markers.");
-                const markerData = this.markers;
+                const markerData = this.markers.map((marker, i) => {
+                    marker.compendium = this.getCompendiumLink(this.mapName, "Markers");
+                    return marker;
+                });
                 this.markerComp = await compendiumUpdater(
                     "Markers",
                     "marker.hbs",
@@ -499,6 +510,7 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
                     if (province !== 0 && !jQuery.isEmptyObject(province)) {
                         province.country = countryLookup[province.state];
                         province.burgs = province.burgs?.map((id) => burgLookup[id]);
+                        province.country_compendium = this.getCompendiumLink(this.mapName, "Countries");
                     }
                     return province;
                 });
@@ -892,6 +904,16 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
             ...markerData,
         ]);
         return;
+    }
+
+    getCompendiumLink(mapName, azgaarType) {
+        let desiredName = "@UUID[Compendium.world." + azgaarType + ".";
+        if (true) {
+            // implement setting
+            desiredName = "@UUID[Compendium.world." + mapName + "_" + azgaarType + ".";
+        }
+
+        return desiredName;
     }
 }
 
