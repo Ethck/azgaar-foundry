@@ -23,7 +23,7 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
         window: {
             icon: "fas fa-gear", // You can now add an icon to the header
             title: "Load Azgaar's Map",
-            contentClasses: ["standard-form"],
+            contentClasses: ["scrollable"],
         },
     };
 
@@ -95,7 +95,7 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
         const html = $(this.element);
         super._onRender(context, options);
         // Parse map whenever the file input changes.
-        html.find("#map").change((event) => this.parseMap(event));
+        html.find("#map2").change((event) => this.parseMap(event));
         // Trigger FilePicker for icon selection
         html.find("#azgaar-icon-select img").click((event) => this._onEditImage(event));
 
@@ -191,15 +191,10 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
      * @return {Promise}        resolve once file is loaded.
      */
     loadMap(event) {
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             let input = $(event.currentTarget)[0];
-            let fr = new FileReader();
-            let file = input.files[0];
-
-            fr.onload = () => {
-                resolve(fr.result);
-            };
-            fr.readAsText(file);
+            let file = await foundry.utils.fetchWithTimeout(input.value);
+            resolve(file.json());
         });
     }
 
@@ -212,8 +207,7 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
      */
     async parseMap(event) {
         // Load the file
-        let text = await this.loadMap(event);
-        let json = JSON.parse(text);
+        let json = await this.loadMap(event);
         /* Data format as presented in v1.97 of Azgaar's Fantasy Map Generator
             {
                 biomesData: {},
@@ -332,7 +326,8 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
                     religionData,
                     {},
                     azgaarFolder,
-                    this.mapName
+                    this.mapName,
+                    this.useWorldCompend
                 );
                 religionLookup = this.religions.map((religion) => {
                     if (!(jQuery.isEmptyObject(religion) || religion.name === "No religion")) {
@@ -364,7 +359,8 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
                 cultureData,
                 {},
                 azgaarFolder,
-                this.mapName
+                this.mapName,
+                this.useWorldCompend
             );
 
             let cultureLookup = this.cultures.map((culture) => {
@@ -387,7 +383,8 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
                     this.provinces,
                     {},
                     azgaarFolder,
-                    this.mapName
+                    this.mapName,
+                    this.useWorldCompend
                 );
                 provinceLookup = this.provinces.map((province) => {
                     return {
@@ -437,7 +434,8 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
                     countries: renderCountryData,
                 },
                 azgaarFolder,
-                this.mapName
+                this.mapName,
+                this.useWorldCompend
             );
 
             let countryLookup = this.countries.map((country) => {
@@ -463,7 +461,15 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
                 return burg;
             });
 
-            this.burgComp = await compendiumUpdater("Burgs", "burg.hbs", burgData, {}, azgaarFolder, this.mapName);
+            this.burgComp = await compendiumUpdater(
+                "Burgs",
+                "burg.hbs",
+                burgData,
+                {},
+                azgaarFolder,
+                this.mapName,
+                this.useWorldCompend
+            );
 
             const burgLookup = this.burgs.map((burg, i) => {
                 return {
@@ -489,7 +495,8 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
                     markerData,
                     {},
                     azgaarFolder,
-                    this.mapName
+                    this.mapName,
+                    this.useWorldCompend
                 );
                 const markerLookup = this.markers.map((marker) => {
                     return {
@@ -520,7 +527,8 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
                     provinceData,
                     {},
                     azgaarFolder,
-                    this.mapName
+                    this.mapName,
+                    this.useWorldCompend
                 );
             }
             ui.notifications.notify("UAFMGI: Creation Complete.");
@@ -686,7 +694,6 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
 
     static async onSubmit(event, form, formData) {
         formData = formData.object;
-        console.log(formData);
         // Make a journal entry to tie fake notes to or find the old one
         // If no "real" journal entry is provided than the map notes fail
         // to show up, hence why this block of code exists.
@@ -743,12 +750,14 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
         const provincePerm = parseInt(formData.permissionProvince);
         const markerPerm = parseInt(formData.permissionMarker);
 
+        this.useWorldCompend = formData["options.use_world_compendium"];
+
         // import our data
         await this.importData(azgaarFolder);
 
         // this.mapName is the map name imported in this.importData
         let desiredPrefix = "";
-        if (true) {
+        if (this.useWorldCompend) {
             // TODO: Change to setting
             desiredPrefix = this.mapName + "_";
         }
@@ -908,7 +917,7 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
 
     getCompendiumLink(mapName, azgaarType) {
         let desiredName = "@UUID[Compendium.world." + azgaarType + ".";
-        if (true) {
+        if (this.useWorldCompend) {
             // implement setting
             desiredName = "@UUID[Compendium.world." + mapName + "_" + azgaarType + ".";
         }
@@ -934,7 +943,7 @@ function each(n) {
     return (i) => i % n === 0;
 }
 
-async function compendiumUpdater(compType, contentSchema, baseData, extraData, azgaarFolder, mapName) {
+async function compendiumUpdater(compType, contentSchema, baseData, extraData, azgaarFolder, mapName, useCompend) {
     // Assumptions for updating
     // 1. Same number of entities (be it is, countries, burgs, whatever)
     // 2. all entities already exist (no new ones!)

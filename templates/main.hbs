@@ -1,50 +1,47 @@
-<div id="main" class="tab standard-form {{tab.cssClass}}" data-group="sheet" data-tab="main">
-    <section class="form-group">
+<div id="main" class="tab {{tab.cssClass}}" data-group="sheet" data-tab="main">
+    <section>
         <div id="azgaar-map-select">
             <h2>Map Selection</h2>
             <div class="form-group">
-                <div>
-                    <label>Link to Map file (Must be FULL JSON export from Azgaar's)</label>
-                    <div class="tooltip">
-                        <i class="fas fa-info-circle"></i>
-                        <span class="tooltiptext right">
-                            Press the "Browse..." button to select a map file that has been exported from Azgaar's
-                            Fantasy Map Generator.
-                        </span>
-                    </div>
-                </div>
+                <label>Link to Map file</label>
                 <div class="form-fields">
-                    <input id="map" type="file" />
+                    <file-picker id="map"></file-picker>
                 </div>
+                <p class="notes">A FULL JSON export from Azgaar's Fantasy Map Generator. It's under the "Export" menu.</p>
             </div>
-            <div id="mapsize" class="form-group">
+            <div class="form-group">
+                <label>Use world specific compendium?</label>
+                <div class="form-fields">
+                    <input type="checkbox" name="options.use_world_compendium" checked="" />
+                </div>
+                <p class="notes">Should each world have its own compendium? Required to import multiple worlds, leave
+                    off if you plan to update old worlds created before October 2024.</p>
+            </div>
+            <div id="mapsize">
                 <div class="form-group">
                     <label for="mapw">Map Width</label>
                     <div class="form-fields">
                         <input id="mapw" class="mapw" name="mapw" type="text" placeholder="0" />
                     </div>
+                    <p class="notes">The detected pixel size of the map's width. If this value is wrong, change it from
+                        the auto-detected version.</p>
                 </div>
                 <div class="form-group">
                     <label for="maph">Map Height</label>
                     <div class="form-fields">
                         <input id="maph" type="text" name="maph" placeholder="0" />
                     </div>
+                    <p class="notes">The detected pixel size of the map's height. If this value is wrong, change it from
+                        the auto-detected version.</p>
                 </div>
             </div>
             <div class="form-group">
-                <div>
-                    <span>Link to Map Picture</span>
-                    <div class="tooltip">
-                        <i class="fas fa-info-circle"></i>
-                        <span class="tooltiptext right">
-                            The picture you select can be of any format and will be set as the background image of the
-                            scene.
-                        </span>
-                    </div>
-                </div>
+                <label>Link to Map Picture</label>
                 <div class="form-fields">
                     <file-picker name="mapPicture" type="image"></file-picker>
                 </div>
+                <p class="notes">The picture you select can be of any format and will be set as the background image of
+                    the scene.</p>
             </div>
         </div>
     </section>

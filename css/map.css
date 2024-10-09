@@ -4,6 +4,10 @@
     --color-shadow-highlight: #ff6400;
 }
 
+#azgaar-foundry .form-group .notes {
+    color: var(--color-text-primary);
+}
+
 #azgaar-icon-select span,
 #azgaar-map-select span,
 #azgaar-pin-fixer-select span {
@@ -112,7 +116,7 @@
     margin-bottom: 0.5rem;
 }
 
-.azgaar-foundry #mapsize {
+/* .azgaar-foundry #mapsize {
     padding-top: 0.5em;
     padding-bottom: 0.5em;
 }
@@ -123,4 +127,4 @@
 
 #azgaar-foundry .form-group {
     margin-bottom: 1rem;
-}
+} */
