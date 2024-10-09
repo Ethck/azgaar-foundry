@@ -481,31 +481,37 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
             /**
              * Markers
              */
-            // if (this.markers) {
-            //     ui.notifications.notify("UAFMGI: Creating Journals for Markers.");
-            //     const markerData = this.markers.map((marker, i) => {
-            //         marker.compendium = this.getCompendiumLink(this.mapName, "Markers");
-            //         return marker;
-            //     });
-            //     this.markerComp = await compendiumUpdater(
-            //         "Markers",
-            //         "marker.hbs",
-            //         markerData,
-            //         {},
-            //         azgaarFolder,
-            //         this.mapName,
-            //         this.useWorldCompend
-            //     );
-            //     const markerLookup = this.markers.map((marker) => {
-            //         return {
-            //             id: marker.i,
-            //             name: marker.name,
-            //             icon: marker.icon,
-            //             type: marker.type,
-            //             journal: this.retrieveJournalByID({ type: "marker", id: marker.i }),
-            //         };
-            //     });
-            // }
+            if (this.markers) {
+                ui.notifications.notify("UAFMGI: Creating Journals for Markers.");
+                const markerData = this.markers.map((marker, i) => {
+                    marker.compendium = this.getCompendiumLink(this.mapName, "Markers");
+                    // TODO: Statues for some reason cause an obscure "Invalid code point error" from bad unicode values
+                    // I need to find a better way to strip those out, but for now we have this.
+                    if (marker.type === "statues") {
+                        marker.legend =
+                            "The inscription on this statue cannot be read at this time, please check FMG for the actual text.";
+                    }
+                    return marker;
+                });
+                this.markerComp = await compendiumUpdater(
+                    "Markers",
+                    "marker.hbs",
+                    markerData,
+                    {},
+                    azgaarFolder,
+                    this.mapName,
+                    this.useWorldCompend
+                );
+                const markerLookup = this.markers.map((marker) => {
+                    return {
+                        id: marker.i,
+                        name: marker.name,
+                        icon: marker.icon,
+                        type: marker.type,
+                        journal: this.retrieveJournalByID({ type: "marker", id: marker.i }),
+                    };
+                });
+            }
 
             // We have a circular dependency on everything so provinces kinda get shafted in the initial journals
             // so here we update them to hold all sorts of information
@@ -872,35 +878,35 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
 
         let markerData = [];
         useColor = formData["options.use_colors_marker"];
-        // if (this.markers) {
-        //     markerData = this.markers.map((marker) => {
-        //         let journalEntry = this.retrieveJournalByID({
-        //             type: "marker",
-        //             id: marker.i,
-        //         });
+        if (this.markers) {
+            markerData = this.markers.map((marker) => {
+                let journalEntry = this.retrieveJournalByID({
+                    type: "marker",
+                    id: marker.i,
+                });
 
-        //         // Assemble data required for notes
-        //         return {
-        //             entryId: azgaarJournal.id,
-        //             x: marker.x * widthMultiplier || 0,
-        //             y: marker.y * heightMultiplier || 0,
-        //             "texture.src": markerSVG,
-        //             iconSize: 32,
-        //             "texture.tint": useColor ? marker.color : "#FFCC99",
-        //             text: marker.name,
-        //             fontSize: 24,
-        //             textAnchor: CONST.TEXT_ANCHOR_POINTS.CENTER,
-        //             textColor: "#00FFFF",
-        //             "flags.pinfix.minZoomLevel": formData.markerMinZoom,
-        //             "flags.pinfix.maxZoomLevel": formData.markerMaxZoom,
-        //             "flags.azgaar-foundry.journal": {
-        //                 compendium: "world." + desiredPrefix + "Markers",
-        //                 journal: journalEntry?.id,
-        //             },
-        //             "flags.azgaar-foundry.permission": { default: markerPerm },
-        //         };
-        //     });
-        // }
+                // Assemble data required for notes
+                return {
+                    entryId: azgaarJournal.id,
+                    x: marker.x * widthMultiplier || 0,
+                    y: marker.y * heightMultiplier || 0,
+                    "texture.src": markerSVG,
+                    iconSize: 32,
+                    "texture.tint": useColor ? marker.color : "#FFCC99",
+                    text: marker.name,
+                    fontSize: 24,
+                    textAnchor: CONST.TEXT_ANCHOR_POINTS.CENTER,
+                    textColor: "#00FFFF",
+                    "flags.pinfix.minZoomLevel": formData.markerMinZoom,
+                    "flags.pinfix.maxZoomLevel": formData.markerMaxZoom,
+                    "flags.azgaar-foundry.journal": {
+                        compendium: "world." + desiredPrefix + "Markers",
+                        journal: journalEntry?.id,
+                    },
+                    "flags.azgaar-foundry.permission": { default: markerPerm },
+                };
+            });
+        }
 
         // Remove all falsy values.
         countryData = countryData.filter(Boolean);
