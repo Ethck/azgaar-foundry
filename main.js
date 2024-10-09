@@ -456,7 +456,8 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
                     burg.country = countryLookup[burg.state];
                     burg.province = provinceLookup.find((province) => province.burgs?.includes(burg.i));
                     burg.burgURL = this.createMfcgLink(burg);
-                    burg.compendium = this.getCompendiumLink(this.mapName, "Burgs");
+                    burg.culture_compendium = this.getCompendiumLink(this.mapName, "Cultures");
+                    burg.country_compendium = this.getCompendiumLink(this.mapName, "Countries");
                 }
                 return burg;
             });
