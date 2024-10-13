@@ -5,7 +5,7 @@
     <h4><b>Color: </b>
         <span style="background-color: {{iter.color}};"> {{iter.color}}</span>
     </h4>
-    <h4><b>Culture:</b> @Compendium[world.Cultures.{{iter.culture.journal.id}}]</h4>
+    <h4><b>Culture:</b>{{iter.culture_compendium}}{{iter.culture.journal.id}}]</h4>
     <h4><b>Urban: </b>{{iter.urban}}</h4>
     <h4><b>Rural: </b>{{iter.rural}}</h4>
     <h4><b>Number of Burgs: </b>{{iter.burgs}}</h4>
@@ -16,7 +16,7 @@
         <summary>Provinces</summary>
         <ul>
             {{#each iter.selProvinces}}
-                <li><span>@Compendium[world.Provinces.{{this.journal.id}}]</span></li>
+                <li><span>{{iter.province_compendium}}{{this.journal.id}}]</span></li>
             {{/each}}
         </ul>
     </details>

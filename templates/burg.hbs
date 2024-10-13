@@ -1,7 +1,7 @@
 <div>
     <h3>{{iter.name}}</h3>
-    <h4>State: @Compendium[world.Countries.{{iter.country.journal.id}}]</h4>
-    <h4>Culture: @Compendium[world.Cultures.{{iter.culture.journal.id}}]</h4>
+    <h4>State: {{iter.country_compendium}}{{iter.country.journal.id}}]</h4>
+    <h4>Culture: {{iter.culture_compendium}}{{iter.culture.journal.id}}]</h4>
     <h4>Population: {{iter.population}}</h4>
     <h4>Citadel: {{iter.citadel}}</h4>
     <h4>Capital: {{iter.capital}}</h4>
