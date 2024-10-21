@@ -250,8 +250,8 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
     namesData: Real world basis (culture) for countries/cultures.
     Rivers: Rivers
     */
-
-        this.mapName = json.info.mapName;
+        // mapName must be alphanumeric with dashes and underscores only
+        this.mapName = json.info.mapName.replace(/[\W]+/g, "_");
         this.provinces = json.pack.provinces;
         this.burgs = json.pack.burgs;
         this.countries = json.pack.states;
@@ -273,6 +273,11 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
         this.cells.road = this.cells.map((cell) => cell.road);
 
         this.countries.map((country) => {
+            if (country.removed) return; // Skip removed countries
+            if (country.name === "Neutrals") {
+                // Neutrals has different diplomacy structure
+                return country;
+            }
             country.relationships = [];
             country.diplomacy.forEach((state, i) => {
                 if (state === "x") return;
@@ -287,9 +292,11 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
 
         this.markers.map((marker) => {
             const mapNotes = json.notes.filter((note) => note.id === "marker" + marker.i)[0];
-            marker.name = mapNotes.name;
-            marker.legend = this.sanitizeLegend(mapNotes.legend);
-
+            // Some markers do not have additional information in the legend
+            if (mapNotes) {
+                marker.name = mapNotes.name;
+                marker.legend = this.sanitizeLegend(mapNotes.legend);
+            }
             return marker;
         });
 
