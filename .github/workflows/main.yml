@@ -22,7 +22,7 @@ jobs:
                   download: https://github.com/${{github.repository}}/releases/download/${{github.event.release.tag_name}}/azgaar-foundry.zip
 
             # create a zip file with all files required by the module to add to the release
-            - run: zip -r ./azgaar-foundry.zip module.json css/ templates/ images/ main.js README.md LICENSE
+            - run: zip -r ./azgaar-foundry.zip module.json css/ templates/ images/ main.js README.md LICENSE pin-fixer.js
 
             # Create a release for this specific version
             - name: Update Release with Files
