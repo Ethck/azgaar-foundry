@@ -180,21 +180,6 @@ class PinFixer {
     }
 
     /**
-     * Handles the hoverNote Hook
-     *
-     * Triggers showing the names of notes that are set to always
-     * show thier names.
-     *
-     * @static
-     * @param {array} args
-     * @memberof PinFixer
-     */
-    static hoverNote(...args) {
-        if (!this.enabled) return;
-        this.showNoteNames(true);
-    }
-
-    /**
      * Handles the updateNote Hook
      *
      * Updates names that should be shown and notes that need hidden.
@@ -258,11 +243,6 @@ class PinFixer {
             }
         );
     }
-
-    static pullAboveFog() {
-        if (this.aboveFog && this.enabled) canvas.notes.zIndex = 300;
-        else canvas.notes.zIndex = 60;
-    }
 }
 
 /**
@@ -273,11 +253,9 @@ class PinFixer {
 Hooks.once("init", (...args) => PinFixer.init(...args));
 
 Hooks.once("ready", () => {
-    PinFixer.pullAboveFog();
     Hooks.on("renderSceneControls", (...args) => PinFixer.renderSceneControls(...args));
 });
 
 Hooks.on("canvasPan", (...args) => PinFixer.canvasPan(...args));
-Hooks.on("hoverNote", (...args) => PinFixer.hoverNote(...args));
 
 Hooks.on("updateNote", (...args) => PinFixer.updateNote(...args));
