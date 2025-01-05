@@ -17,42 +17,9 @@ class PinFixer {
     static get zoomCeil() {
         return Number(this.flags.pinfix?.zoomCeil ?? this.maxCanvScale);
     }
-    static get aboveFog() {
-        return Boolean(this.flags.pinfix?.aboveFog);
-    }
 
     static get onNotesLayer() {
         return canvas.activeLayer?.constructor?.name == "NotesLayer";
-    }
-
-    /**
-     * Calculates the reciprocal of a number
-     *
-     * @static
-     * @param {number} number - The number to calculate the reciprocal of
-     * @return {number} The reciprocal
-     * @memberof PinFixer
-     */
-    static reciprocal(number) {
-        return 1 / number;
-    }
-
-    /**
-     * Map one range of numbers to another range,
-     * then take an input number to the first range
-     * and output the mapped number from the second range.
-     *
-     * https://rosettacode.org/wiki/Map_range#JavaScript
-     *
-     * @static
-     * @param {[number, number]} from - The first range in which the input falls
-     * @param {[number, number]} to - The range to map to, from which to draw the output
-     * @param {number} s - The number in the first range to map to the second range
-     * @return {number} The mapped number
-     * @memberof PinFixer
-     */
-    static map(from, to, s) {
-        return to[0] + ((s - from[0]) * (to[1] - to[0])) / (from[1] - from[0]);
     }
 
     /**
@@ -97,72 +64,6 @@ class PinFixer {
     }
 
     /**
-     * Show the names of all notes that should have them shown
-     *
-     * @static
-     * @memberof PinFixer
-     */
-    static showNoteNames() {
-        canvas.notes.objects?.children.forEach((note) => this.showNoteName(note));
-    }
-
-    /**
-     * Show the name of a note if it should be shown
-     *
-     * @static
-     * @param {Note} note - The note to show the name of
-     * @memberof PinFixer
-     */
-    static showNoteName(note) {
-        note.tooltip.visible = this.shouldShowName(note);
-    }
-
-    /**
-     * Check whether or not the name of a note should be shown
-     *
-     * By default, the name is shown when `note._hover` is true
-     * when it is, the name should be shown regardless of this module.
-     * The name should only be shown when it is false if the setting
-     * flag on the note is true *and* this module is enabled on the scene.
-     *
-     * @static
-     * @param {Note} note - The note to check the status on
-     * @return {boolean} Whether or not to show the name
-     * @memberof PinFixer
-     */
-    static shouldShowName(note) {
-        const flags = note.document.flags?.pinfix;
-        return (this.enabled && flags?.showName) || note._hover;
-    }
-
-    /**
-     * Reset all pins to normal size,
-     * and reset all HUDs, and unhide hidden notes
-     *
-     * @static
-     * @memberof PinFixer
-     */
-    static reset() {
-        this.scaleNotes(1);
-        this.hideNotes(1, true);
-        this.showNoteNames();
-        this.resetHUDs();
-    }
-
-    /**
-     * Handles the main init Hook
-     *
-     * Loads the template files
-     *
-     * @static
-     * @param {array} args - Not really doing anything with the args, if there even are any
-     * @memberof PinFixer
-     */
-    static init(...args) {
-        loadTemplates(["modules/pin-fixer/sceneSettings.html"]);
-    }
-
-    /**
      * Handle the canvasPan Hook
      *
      * @static
@@ -189,7 +90,6 @@ class PinFixer {
      * @memberof PinFixer
      */
     static updateNote(...args) {
-        this.showNoteNames(true);
         this.hideNotes(this.mapScale);
     }
 
@@ -207,8 +107,6 @@ class PinFixer {
      * @memberof PinFixer
      */
     static updateScene(scene, data, options) {
-        if (!this.enabled) return this.reset();
-        this.pullAboveFog();
         this.canvasPan(canvas, { scale: this.mapScale });
     }
 
@@ -249,8 +147,6 @@ class PinFixer {
  * This is the Hooks section, hooks are registered here to call methods
  * of PinFixer with all arguments.
  */
-
-Hooks.once("init", (...args) => PinFixer.init(...args));
 
 Hooks.once("ready", () => {
     Hooks.on("renderSceneControls", (...args) => PinFixer.renderSceneControls(...args));
