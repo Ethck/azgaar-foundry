@@ -9,13 +9,13 @@ class PinFixer {
         return canvas.scene.flags;
     }
     static get enabled() {
-        return Boolean(this.flags.pinfix?.enable);
+        return Boolean(this.flags["azgaar-foundry"]?.enable);
     }
     static get zoomFloor() {
-        return Number(this.flags.pinfix?.zoomFloor ?? this.minCanvScale);
+        return Number(this.flags["azgaar-foundry"]?.zoomFloor ?? this.minCanvScale);
     }
     static get zoomCeil() {
-        return Number(this.flags.pinfix?.zoomCeil ?? this.maxCanvScale);
+        return Number(this.flags["azgaar-foundry"]?.zoomCeil ?? this.maxCanvScale);
     }
 
     static get onNotesLayer() {
@@ -34,7 +34,7 @@ class PinFixer {
      */
     static shouldHide(note, scale) {
         if (!note._canView()) return true;
-        const flags = note.document.flags?.pinfix;
+        const flags = note.document.flags["azgaar-foundry"];
         if (!flags || this.onNotesLayer) return false;
         return flags.minZoomLevel > scale || flags.maxZoomLevel < scale;
     }
@@ -123,23 +123,6 @@ class PinFixer {
      */
     static renderSceneControls(...args) {
         this.hideNotes(this.mapScale);
-    }
-
-    /**
-     * Retrieves the current data for the note being configured.
-     *
-     * @static
-     * @param {object} data - The data being passed to the note config template
-     * @return {NoteSettings}
-     * @memberof PinFixer
-     */
-    static getNoteTemplateData(data) {
-        return (
-            data.data?.flags?.pinfix || {
-                minZoomLevel: this.minCanvScale,
-                maxZoomLevel: this.maxCanvScale,
-            }
-        );
     }
 }
 

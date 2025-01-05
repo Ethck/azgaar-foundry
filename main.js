@@ -601,12 +601,10 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
                 "background.src": picture,
                 tokenVision: false,
                 // Flags for making pinfix work immediately.
-                "flags.pinfix.enable": true,
-                "flags.pinfix.minScale": 1,
-                "flags.pinfix.maxScale": 1,
-                "flags.pinfix.zoomFloor": 0.1,
-                "flags.pinfix.zoomCeil": 3,
-                "flags.pinfix.hudScale": 1,
+                "flags.azgaar-foundry.enable": true,
+                "flags.azgaar-foundry.zoomFloor": 0.1,
+                "flags.azgaar-foundry.zoomCeil": 3,
+                "flags.azgaar-foundry.hudScale": 1,
             });
 
             await sceneData.activate();
@@ -807,8 +805,8 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
                 fontSize: 24,
                 textAnchor: CONST.TEXT_ANCHOR_POINTS.CENTER,
                 textColor: "#00FFFF",
-                "flags.pinfix.minZoomLevel": formData.countryMinZoom,
-                "flags.pinfix.maxZoomLevel": formData.countryMaxZoom,
+                "flags.azgaar-foundry.minZoomLevel": formData.countryMinZoom,
+                "flags.azgaar-foundry.maxZoomLevel": formData.countryMaxZoom,
                 "flags.azgaar-foundry.journal": {
                     compendium: "world." + desiredPrefix + "Countries",
                     journal: journalEntry?.id,
@@ -843,8 +841,8 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
                     fontSize: 24,
                     textAnchor: CONST.TEXT_ANCHOR_POINTS.CENTER,
                     textColor: "#00FFFF",
-                    "flags.pinfix.minZoomLevel": formData.provinceMinZoom,
-                    "flags.pinfix.maxZoomLevel": formData.provinceMaxZoom,
+                    "flags.azgaar-foundry.minZoomLevel": formData.provinceMinZoom,
+                    "flags.azgaar-foundry.maxZoomLevel": formData.provinceMaxZoom,
                     "flags.azgaar-foundry.journal": {
                         compendium: "world." + desiredPrefix + "Provinces",
                         journal: journalEntry?.id,
@@ -874,8 +872,8 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
                 fontSize: 24,
                 textAnchor: CONST.TEXT_ANCHOR_POINTS.CENTER,
                 textColor: "#00FFFF",
-                "flags.pinfix.minZoomLevel": formData.burgMinZoom,
-                "flags.pinfix.maxZoomLevel": formData.burgMaxZoom,
+                "flags.azgaar-foundry.minZoomLevel": formData.burgMinZoom,
+                "flags.azgaar-foundry.maxZoomLevel": formData.burgMaxZoom,
                 "flags.azgaar-foundry.journal": {
                     compendium: "world." + desiredPrefix + "Burgs",
                     journal: journalEntry?.id,
@@ -905,8 +903,8 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
                     fontSize: 24,
                     textAnchor: CONST.TEXT_ANCHOR_POINTS.CENTER,
                     textColor: "#00FFFF",
-                    "flags.pinfix.minZoomLevel": formData.markerMinZoom,
-                    "flags.pinfix.maxZoomLevel": formData.markerMaxZoom,
+                    "flags.azgaar-foundry.minZoomLevel": formData.markerMinZoom,
+                    "flags.azgaar-foundry.maxZoomLevel": formData.markerMaxZoom,
                     "flags.azgaar-foundry.journal": {
                         compendium: "world." + desiredPrefix + "Markers",
                         journal: journalEntry?.id,
