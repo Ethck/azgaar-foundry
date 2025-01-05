@@ -13,7 +13,7 @@
         "name": "Ethck",
         "discord": "Ethck#6879"
     },
-    "esmodules": ["/main.js"],
+    "esmodules": ["/main.js", "/pin-fixer.js"],
     "styles": ["/css/map.css"],
     "url": "https://github.com/ethck/azgaar-foundry",
     "manifest": "Replaced in Releases",
@@ -22,9 +22,6 @@
     "changelog": "https://github.com/Ethck/azgaar-foundry/blob/master/README.md",
     "relationships": {
         "requires": [
-            {
-                "id": "pin-fixer"
-            },
             {
                 "id": "lib-wrapper"
             }
