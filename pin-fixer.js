@@ -9,13 +9,13 @@ class PinFixer {
         return canvas.scene.flags;
     }
     static get enabled() {
-        return Boolean(this.flags["azgaar-foundry"]?.enable);
+        return Boolean(this.flags.pinfix?.enable || this.flags["azgaar-foundry"]?.enable);
     }
     static get zoomFloor() {
-        return Number(this.flags["azgaar-foundry"]?.zoomFloor ?? this.minCanvScale);
+        return Number((this.flags.pinfix?.zoomFloor || this.flags["azgaar-foundry"]?.zoomFloor) ?? this.minCanvScale);
     }
     static get zoomCeil() {
-        return Number(this.flags["azgaar-foundry"]?.zoomCeil ?? this.maxCanvScale);
+        return Number((this.flags.pinfix?.zoomCeil || this.flags["azgaar-foundry"]?.zoomCeil) ?? this.maxCanvScale);
     }
 
     static get onNotesLayer() {
@@ -34,7 +34,7 @@ class PinFixer {
      */
     static shouldHide(note, scale) {
         if (!note._canView()) return true;
-        const flags = note.document.flags["azgaar-foundry"];
+        const flags = note.document.flags.pinfix || note.document.flags["azgaar-foundry"];
         if (!flags || this.onNotesLayer) return false;
         return flags.minZoomLevel > scale || flags.maxZoomLevel < scale;
     }
