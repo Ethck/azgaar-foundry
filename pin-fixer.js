@@ -133,6 +133,12 @@ class PinFixer {
 
 Hooks.once("ready", () => {
     Hooks.on("renderSceneControls", (...args) => PinFixer.renderSceneControls(...args));
+
+    if (game.modules.get("pin-fixer")?.active) {
+        ui.notifications.info(
+            "Pin Fixer is no longer required for the Azgaar FMG module, please disable Pin Fixer as it has not been updated in over two years."
+        );
+    }
 });
 
 Hooks.on("canvasPan", (...args) => PinFixer.canvasPan(...args));
