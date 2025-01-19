@@ -327,7 +327,7 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
                     religion.compendium = this.getCompendiumLink(this.mapName, "Religions");
                     return religion;
                 });
-                this.religionComp = await compendiumUpdater(
+                this.religionComp = await UnofficialAzgaarFMG.compendiumUpdater(
                     "Religions",
                     "religion.hbs",
                     religionData,
@@ -360,7 +360,7 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
                 return culture;
             });
 
-            this.cultureComp = await compendiumUpdater(
+            this.cultureComp = await UnofficialAzgaarFMG.compendiumUpdater(
                 "Cultures",
                 "culture.hbs",
                 cultureData,
@@ -384,7 +384,7 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
             let provinceLookup = [];
             if (this.provinces) {
                 ui.notifications.notify("UAFMGI: Creating Journals for Provinces.");
-                this.provinceComp = await compendiumUpdater(
+                this.provinceComp = await UnofficialAzgaarFMG.compendiumUpdater(
                     "Provinces",
                     "province.hbs",
                     this.provinces,
@@ -433,7 +433,7 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
             const renderCountryData = countryData.filter((c) => !c.removed);
             // We provide countryData a 2nd time in the "extraData" field because the "baseData"
             // field gets trimmed to a single entity when rendering.
-            this.countryComp = await compendiumUpdater(
+            this.countryComp = await UnofficialAzgaarFMG.compendiumUpdater(
                 "Countries",
                 "country.hbs",
                 renderCountryData,
@@ -469,7 +469,7 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
                 return burg;
             });
 
-            this.burgComp = await compendiumUpdater(
+            this.burgComp = await UnofficialAzgaarFMG.compendiumUpdater(
                 "Burgs",
                 "burg.hbs",
                 burgData,
@@ -501,7 +501,7 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
                     }
                     return marker;
                 });
-                this.markerComp = await compendiumUpdater(
+                this.markerComp = await UnofficialAzgaarFMG.compendiumUpdater(
                     "Markers",
                     "marker.hbs",
                     markerData,
@@ -533,7 +533,7 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
                     }
                     return province;
                 });
-                this.provinceComp = await compendiumUpdater(
+                this.provinceComp = await UnofficialAzgaarFMG.compendiumUpdater(
                     "Provinces",
                     "province.hbs",
                     provinceData,
@@ -654,8 +654,10 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
 
         const sizeRaw =
             2.13 * Math.pow((burgPopulation * this.settings.populationRate) / this.settings.urbanDensity, 0.385);
-        const size = minmax(Math.ceil(sizeRaw), 6, 100);
-        const population = rn(burgPopulation * this.settings.populationRate * this.settings.urbanization);
+        const size = UnofficialAzgaarFMG.minmax(Math.ceil(sizeRaw), 6, 100);
+        const population = UnofficialAzgaarFMG.rn(
+            burgPopulation * this.settings.populationRate * this.settings.urbanization
+        );
 
         const river = cells.r[cell] ? 1 : 0;
         const coast = Number(burg.port > 0);
@@ -667,14 +669,14 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
             const p2 = cells.p[cells.haven[cell]];
             let deg = (Math.atan2(p2[1] - p1[1], p2[0] - p1[0]) * 180) / Math.PI - 90;
             if (deg < 0) deg += 360;
-            return rn(normalize(deg, 0, 360) * 2, 2);
+            return UnofficialAzgaarFMG.rn(UnofficialAzgaarFMG.normalize(deg, 0, 360) * 2, 2);
         })();
 
         const arableBiomes = river ? [1, 2, 3, 4, 5, 6, 7, 8] : [5, 6, 7, 8];
         const farms = +arableBiomes.includes(cells.biome[cell]);
 
         const citadel = +burg.citadel;
-        const urban_castle = +(citadel && each(2)(i));
+        const urban_castle = +(citadel && UnofficialAzgaarFMG.each(2)(i));
 
         const hub = +cells.road[cell] > 50;
 
@@ -941,115 +943,186 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
     }
 }
 
-function minmax(value, min, max) {
-    return Math.min(Math.max(value, min), max);
-}
+/**
+ * A static class of helper functions for the module.
+ *
+ * @class UnofficialAzgaarFMG
+ */
 
-function rn(v, d = 0) {
-    const m = Math.pow(10, d);
-    return Math.round(v * m) / m;
-}
-
-function normalize(val, min, max) {
-    return minmax((val - min) / (max - min), 0, 1);
-}
-
-function each(n) {
-    return (i) => i % n === 0;
-}
-
-async function compendiumUpdater(compType, contentSchema, baseData, extraData, azgaarFolder, mapName, useCompend) {
-    // Assumptions for updating
-    // 1. Same number of entities (be it is, countries, burgs, whatever)
-    // 2. all entities already exist (no new ones!)
-    if (!baseData) return;
-
-    let comp;
-    let oldIds = [];
-    let oldSortedJournals = [];
-    let desiredName = compType;
-    if (true) {
-        // TODO: Change this to a setting
-        desiredName = mapName + "_" + compType;
-    }
-    if (game.packs.get("world." + desiredName)) {
-        // empty the content
-        const oldCComp = game.packs.get("world." + desiredName);
-        const oldCCompContent = await oldCComp.getDocuments();
-        oldSortedJournals = oldCCompContent.sort(
-            (a, b) => a["flags"]["azgaar-foundry"]["i"] - b["flags"]["azgaar-foundry"]["i"]
-        );
-        comp = oldCComp;
-    } else {
-        comp = await CompendiumCollection.createCompendium({
-            name: desiredName,
-            label: desiredName,
-            type: "JournalEntry",
-        });
-        await comp.setFolder(azgaarFolder.id);
+class UnofficialAzgaarFMG {
+    /**
+     * Returns the middle value between value, min, and max.
+     * Used for evaluating map links in the compendium.
+     * Copied from FMG
+     *
+     * @param {number} value - Quantity to evaluate
+     * @param {number} min - Specified minimum
+     * @param {number} max - Specified maximum
+     * @returns {number}
+     * @memberof UnofficialAzgaarFMG
+     */
+    static minmax(value, min, max) {
+        return Math.min(Math.max(value, min), max);
     }
 
-    // Using data from the map file, create JournalEntry json data for createDocuments
-    let compData = await Promise.all(
-        baseData.map(async (i) => {
-            if (!jQuery.isEmptyObject(i)) {
-                if (!(i === 0 && "removed" in i && i.removed === true)) {
-                    let content = await renderTemplate("modules/azgaar-foundry/templates/" + contentSchema, {
-                        iter: i,
-                        extras: extraData,
-                    });
-                    if (i.name) {
-                        let journal = {
-                            name: i.name,
-                            pages: [
-                                {
-                                    type: "text",
-                                    name: "Overview",
-                                    text: { content: content },
-                                    "flags.azgaar-foundry.perm": true,
-                                },
-                            ],
-                            "flags.azgaar-foundry.i": i.i,
-                        };
-                        if (oldIds.length === 0) {
-                            journal.permission = { default: CONST.DOCUMENT_OWNERSHIP_LEVELS.OBSERVER };
+    /**
+     * Returns values useful for evaluating map links in the compendium.
+     * Copied from FMG
+     *
+     * @param {number} v
+     * @param {number} d
+     * @returns {number}
+     * @memberof UnofficialAzgaarFMG
+     */
+    static rn(v, d = 0) {
+        const m = Math.pow(10, d);
+        return Math.round(v * m) / m;
+    }
+
+    /**
+     * Returns a normalized value for use in constructing map links.
+     * Copied from FMG
+     *
+     * @param {number} val
+     * @param {number} min
+     * @param {number} max
+     * @returns {number}
+     * @memberof UnofficialAzgaarFMG
+     */
+    static normalize(val, min, max) {
+        return UnofficialAzgaarFMG.minmax((val - min) / (max - min), 0, 1);
+    }
+
+    /**
+     * Used to 'randomly' aid in map url construction
+     * Copied from FMG, not really sure how it works.
+     *
+     * @param {number} n
+     * @returns
+     * @memberof UnofficialAzgaarFMG
+     */
+    static each(n) {
+        return (i) => i % n === 0;
+    }
+
+    /**
+     * Handles the creation of lifecycle of the compendium. Ensures that updates are applied to the correct Journal and Page(s)
+     * while preserving any customized user content on other pages. Much of the customized and obtuse logic in this function
+     * concerns mapping data from the Azgaar blob to Foundry journals while maintaining the data even through changes in the
+     * tool. To aid in this, the value of truth is the `i` (index) value from the Azgaar blob, and we ensure everything is sorted
+     * by this value before iterating over lists.
+     *
+     * @param {String} compType - The model type to update, e.g. 'Provinces', 'Burgs', 'Countries'
+     * @param {String} contentSchema - Template to use for rendering the journal page
+     * @param {*} baseData  - Data to be mapped to the model explicitly
+     * @param {*} extraData - Extra data to be mapped to the model. #TODO: Probably should be removed and data added to baseData.
+     * @param {Folder} azgaarFolder - Folder to store data in.
+     * @param {String} mapName - Name of the map, to be used in compendium names.
+     * @param {Boolean} useCompend - Whether to use world-scoped compendiums
+     * @returns {CompendiumCollection}
+     * @memberof UnofficialAzgaarFMG
+     */
+    static async compendiumUpdater(compType, contentSchema, baseData, extraData, azgaarFolder, mapName, useCompend) {
+        // Assumptions for updating
+        // 1. Same number of entities (be it is, countries, burgs, whatever)
+        // 2. all entities already exist (no new ones!)
+        if (!baseData) return;
+
+        let comp; // The compendium to use. Might be an old one, might be new.
+        let oldIds = []; // Not sure why this exists anymore. TODO: Perhaps remove this?
+        let oldSortedJournals = []; // Journal List sorted by the Azgaar index property
+        let desiredName = compType; // Default name for compendiums
+
+        if (true) {
+            // TODO: Change this to a setting
+            desiredName = mapName + "_" + compType;
+        }
+
+        // If the compendium already exists, use it! Else create.
+        // If we have an existing compendium, grab all of the documents from the database
+        // and sort them by the Azgaar index.
+        if (game.packs.get("world." + desiredName)) {
+            const oldCComp = game.packs.get("world." + desiredName);
+            const oldCCompContent = await oldCComp.getDocuments();
+            oldSortedJournals = oldCCompContent.sort(
+                (a, b) => a["flags"]["azgaar-foundry"]["i"] - b["flags"]["azgaar-foundry"]["i"]
+            );
+            comp = oldCComp;
+        } else {
+            comp = await CompendiumCollection.createCompendium({
+                name: desiredName,
+                label: desiredName,
+                type: "JournalEntry",
+            });
+            await comp.setFolder(azgaarFolder.id);
+        }
+
+        // Using data from the map file, create JournalEntry json data for createDocuments
+        let compData = await Promise.all(
+            baseData.map(async (i) => {
+                if (!jQuery.isEmptyObject(i)) {
+                    if (!(i === 0 && "removed" in i && i.removed === true)) {
+                        let content = await renderTemplate("modules/azgaar-foundry/templates/" + contentSchema, {
+                            iter: i,
+                            extras: extraData,
+                        });
+                        if (i.name) {
+                            let journal = {
+                                name: i.name,
+                                pages: [
+                                    {
+                                        type: "text",
+                                        name: "Overview",
+                                        text: { content: content },
+                                        "flags.azgaar-foundry.perm": true, // Flag to state this page is managed by this module
+                                    },
+                                ],
+                                "flags.azgaar-foundry.i": i.i,
+                            };
+                            if (oldIds.length === 0) {
+                                journal.permission = { default: CONST.DOCUMENT_OWNERSHIP_LEVELS.OBSERVER };
+                            }
+                            return journal;
                         }
-                        return journal;
                     }
                 }
-            }
-        })
-    );
+            })
+        );
 
-    compData = compData.filter(Boolean); // apparently some items can still be undefined at this point
+        compData = compData.filter(Boolean); // apparently some items can still be undefined at this point
 
-    // If we have old journals, then we overwrite the module-created pages with the new content dervied from the map file.
-    if (oldSortedJournals.length) {
-        let journalUpdatePromises = oldSortedJournals.map(async (oldJournal) => {
-            const newJournal = compData.find(
-                (j) => j["flags.azgaar-foundry.i"] === oldJournal.flags["azgaar-foundry"]["i"]
-            );
+        // If we have old journals, then we overwrite the module-created pages with the new content dervied from the map file.
+        // Otherwise, just create the journals.
+        if (oldSortedJournals.length) {
+            let journalUpdatePromises = oldSortedJournals.map(async (oldJournal) => {
+                // In the new compendium, find the journal that matches the index value from the old version.
+                const newJournal = compData.find(
+                    (j) => j["flags.azgaar-foundry.i"] === oldJournal.flags["azgaar-foundry"]["i"]
+                );
 
-            const pageUpdates = oldJournal.pages
-                .filter((page) => "azgaar-foundry" in page.flags && "perm" in page.flags["azgaar-foundry"])
-                .map((page) => {
-                    return {
-                        _id: page.id,
-                        "text.content": newJournal.pages[0].text.content,
-                    };
+                // For each page that is managed by the module, replace the text content.
+                const pageUpdates = oldJournal.pages
+                    .filter((page) => "azgaar-foundry" in page.flags && "perm" in page.flags["azgaar-foundry"])
+                    .map((page) => {
+                        return {
+                            _id: page.id,
+                            "text.content": newJournal.pages[0].text.content,
+                        };
+                    });
+
+                // Issue the updates
+                return await oldJournal.updateEmbeddedDocuments("JournalEntryPage", pageUpdates, {
+                    pack: "world." + desiredName,
                 });
-
-            return await oldJournal.updateEmbeddedDocuments("JournalEntryPage", pageUpdates, {
-                pack: "world." + desiredName,
             });
-        });
 
-        await Promise.all(journalUpdatePromises);
-    } else {
-        await JournalEntry.createDocuments(compData, { pack: "world." + desiredName });
+            await Promise.all(journalUpdatePromises);
+        } else {
+            await JournalEntry.createDocuments(compData, { pack: "world." + desiredName });
+        }
+
+        return comp;
     }
-
-    return comp;
 }
 
 Hooks.once("init", () => {
