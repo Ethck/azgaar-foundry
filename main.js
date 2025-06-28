@@ -22,8 +22,7 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
         tag: "form",
         window: {
             icon: "fas fa-gear", // You can now add an icon to the header
-            title: "Load Azgaar's Map",
-            contentClasses: ["scrollable"],
+            title: "Load Azgaar's Map"
         },
     };
 
