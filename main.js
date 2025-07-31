@@ -178,9 +178,12 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
         return fp.browse();
     }
 
-    updateMapSize(w, h) {
+    updateMapSize(w, h, sw, sh) {
         this.element.querySelector("#mapsize #mapw").value = w;
         this.element.querySelector("#mapsize #maph").value = h;
+
+        this.element.querySelector("#mapsize #mapsw").value = sw;
+        this.element.querySelector("#mapsize #mapsh").value = sh;
     }
 
     /**
@@ -251,6 +254,8 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
     */
         // mapName must be alphanumeric with dashes and underscores only
         this.mapName = json.info.mapName.replace(/[\W]+/g, "_");
+        this.mapWidth = json.info.width;
+        this.mapHeight = json.info.height;
         this.provinces = json.pack.provinces;
         this.burgs = json.pack.burgs;
         this.countries = json.pack.states;
@@ -301,11 +306,11 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
 
         // Used to scale the picture later, might be wrong if map file is from different
         // computer, or it was fullscreen vs not or OS level zoom, etc.
-        this.mapWidth = window.innerWidth;
-        this.mapHeight = window.innerHeight;
+        this.screenWidth = window.innerWidth;
+        this.screenHeight = window.innerHeight;
 
         // Update our default values to what we know the current screen is as a best guess
-        this.updateMapSize(this.mapWidth, this.mapHeight);
+        this.updateMapSize(this.mapWidth, this.mapHeight, this.screenWidth, this.screenHeight);
     }
 
     /**
@@ -591,6 +596,9 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
             const widthMultiplier = newWidth / ogWidth;
             const heightMultiplier = newHeight / ogHeight;
 
+            console.log(ogWidth, newWidth, widthMultiplier);
+            console.log(ogHeight, newHeight, heightMultiplier);
+
             //Create The Map Scene
             let sceneData = await Scene.create({
                 name: sceneName,
@@ -856,7 +864,6 @@ class LoadAzgaarMap extends HandlebarsApplicationMixin(ApplicationV2) {
             if (jQuery.isEmptyObject(burg)) return; // For some reason there's a {} at the beginning.
             if (burg.removed) return;
             let journalEntry = this.retrieveJournalByID({ id: burg.i });
-            console.log(journalEntry);
 
             // Assemble data required for notes
             return {
